@@ -6,9 +6,6 @@ import com.vulcan.sau.backend.BackendRouter;
 import com.vulcan.sau.backend.processor.datatransfer.AggregateAllocationDataProcessor;
 import com.vulcan.sau.backend.processor.datatransfer.DatatransferProcessor;
 import com.vulcan.sau.backend.processor.datatransfer.SummarizeAllocationDataProcessor;
-//import com.vulcan.sau.backend.processor.datatransfer.CrudProcessor;
-import com.vulcan.sau.backend.processor.util.ComputeHighSeasGeo;
-//import com.vulcan.sau.backend.processor.util.GeoMapper;
 
 /**
  * EXAMPLE
@@ -19,7 +16,6 @@ import com.vulcan.sau.backend.processor.util.ComputeHighSeasGeo;
 public class DatatransferRouteBuilder extends RouteBuilder {
 
 	DatatransferProcessor catProc = new DatatransferProcessor();
-	ComputeHighSeasGeo highSeasProc = new ComputeHighSeasGeo();
 	AggregateAllocationDataProcessor aggregateAllocationDataProc = new AggregateAllocationDataProcessor();
 	SummarizeAllocationDataProcessor summarizeAllocationDataProc = new SummarizeAllocationDataProcessor();
     
@@ -27,7 +23,6 @@ public class DatatransferRouteBuilder extends RouteBuilder {
 	public void configure() throws Exception
 	{
 		BackendRouter.getInjector().injectMembers(catProc);
-		BackendRouter.getInjector().injectMembers(highSeasProc);
 		BackendRouter.getInjector().injectMembers(aggregateAllocationDataProc);
 		BackendRouter.getInjector().injectMembers(summarizeAllocationDataProc);
 		

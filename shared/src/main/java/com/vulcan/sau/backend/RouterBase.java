@@ -2,11 +2,8 @@ package com.vulcan.sau.backend;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import javax.sql.DataSource;
-
-import net.lemnik.eodsql.QueryTool;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.pool.PooledConnectionFactory;
@@ -21,7 +18,6 @@ import org.postgresql.ds.PGPoolingDataSource;
 
 import com.google.inject.Injector;
 import com.google.inject.Module;
-import com.vulcan.sau.util.TypeMappers;
 
 /**
  * Main class for routing/processing. This starts up a Spring
@@ -57,11 +53,6 @@ public abstract class RouterBase {
 
         initDataSources();
 
-        // Initialize EodSQL
-        QueryTool.getTypeMap().put(List.class, new TypeMappers.ListMapper());
-        QueryTool.getTypeMap().put(String[].class, new TypeMappers.StringArrayMapper());
-        QueryTool.getTypeMap().put(int[].class, new TypeMappers.IntArrayMapper());
-        
         _camelContext = new DefaultCamelContext(_registry);
         _producerTemplate = _camelContext.createProducerTemplate();
 

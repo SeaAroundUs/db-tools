@@ -9,7 +9,6 @@ import com.google.inject.Binder;
 import com.google.inject.Guice;
 import com.google.inject.Module;
 import com.google.inject.name.Names;
-import com.mongodb.MongoClient;
 
 /**
  * Main class for Backend routing/processing. This starts up a Spring
@@ -21,7 +20,6 @@ public class BackendRouter extends RouterBase {
 	private static BackendRouter singleton = new BackendRouter();
 //	private static Logger logger = Logger.getLogger(BackendRouter.class);
 
-	private MongoClient _mongoClient = null;
 	private DataSource _sauDataSource;
 
 	public static void main(String args[]) throws Exception 
@@ -42,14 +40,11 @@ public class BackendRouter extends RouterBase {
 
 	@Override
 	protected void initDataSources() throws Exception {
-		_mongoClient  = new MongoClient(RouterConfig.ACTIONSTORE_ROOT.stringValue());
 		_sauDataSource = createDataSource("sau");
 	}
 
 	@Override
 	protected void initializeInjector() {
-		final MongoClient mongoBind = _mongoClient;
-
 		_guiceModules.add(new Module() {
 			@Override
 			public void configure(Binder binder) {
