@@ -1,12 +1,13 @@
 select 'INSERT INTO web.v_fact_data(
-          main_area_id,sub_area_id,marine_layer_id,fishing_entity_id,time_key,year,taxon_key,area_key,
+          main_area_id,sub_area_id,marine_layer_id, data_layer_id, fishing_entity_id,time_key,year,taxon_key,area_key,
           catch_type_id,catch_status,reporting_status,sector_type_id,catch_sum,real_value,primary_production_required,
           catch_trophic_level,catch_max_length
         )
-        WITH catch(main_area_id,year,taxon_key,fishing_entity_id, catch_type_id,catch_status,reporting_status,sector_type_id,total_catch,unit_price) AS (
+        WITH catch(main_area_id,year,taxon_key, data_layer_id, fishing_entity_id, catch_type_id,catch_status,reporting_status,sector_type_id,total_catch,unit_price) AS (
           SELECT ar.lme_id,
                  ad.year,
                  ad.taxon_key, 
+                 ad.data_layer_id,
                  ad.fishing_entity_id,                                                         
                  ad.catch_type_id,
                  (case when ad.catch_type_id in (1, 3) then ''R'' when ad.catch_type_id = 2 then ''D'' else null end)::CHAR(1), 
@@ -21,6 +22,7 @@ select 'INSERT INTO web.v_fact_data(
         SELECT ' || lme.lme_id || ', 
                0,
                3,
+               c.data_layer_id,
                c.fishing_entity_id,                                                         
                tm.time_key,
                c.year,
