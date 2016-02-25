@@ -6,7 +6,7 @@ select 'INSERT INTO web.v_fact_data(
         WITH catch(main_area_id,sub_area_id,data_layer_id,year,taxon_key,fishing_entity_id, catch_type_id,catch_status,reporting_status,sector_type_id,total_catch,unit_price) AS (
           SELECT ar.eez_id, 
                  ar.fao_area_id,
-                 ar.data_layer_id,
+                 ad.data_layer_id,
                  ad.year,
                  ad.taxon_key, 
                  ad.fishing_entity_id,                                                         
@@ -23,7 +23,7 @@ select 'INSERT INTO web.v_fact_data(
         SELECT ' || t.eez_id || ', 
                c.sub_area_id,
                1,
-               data_layer_id,
+               c.data_layer_id,
                c.fishing_entity_id,                                                         
                tm.time_key,
                c.year,
