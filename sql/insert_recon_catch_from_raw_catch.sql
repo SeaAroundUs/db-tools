@@ -1,0 +1,69 @@
+SELECT
+  format(
+'insert into recon.catch(
+fishing_entity_id,
+original_country_fishing_id,
+eez_id,
+eez_sub_area,
+fao_area_id,
+subregional_area,
+province_state,
+ices_area_id,
+nafo_division_id,
+ccamlr_area,
+layer,
+sector_type_id,
+original_sector,
+catch_type_id,
+year,
+taxon_key,
+original_taxon_name_id,
+original_fao_name_id,
+amount,
+adjustment_factor,
+gear_type_id,
+input_type_id,
+forward_carry_rule_id,
+disaggregation_rule_id,
+layer_rule_id,
+reference_id,
+notes,
+raw_catch_id
+)
+select
+rc.fishing_entity_id,
+rc.original_country_fishing_id,
+rc.eez_id,
+rc.eez_sub_area,
+rc.fao_area_id,
+rc.subregional_area,
+rc.province_state,
+rc.ices_area_id,
+rc.nafo_division_id,
+rc.ccamlr_area,
+rc.layer,
+rc.sector_type_id,
+rc.original_sector,
+rc.catch_type_id,
+rc.year,
+COALESCE(tds.use_this_taxon_key_instead, rc.taxon_key),
+rc.original_taxon_name_id,
+rc.original_fao_name_id,
+rc.amount,
+rc.adjustment_factor,
+rc.gear_type_id,
+rc.input_type_id,
+rc.forward_carry_rule_id,
+rc.disaggregation_rule_id,
+rc.layer_rule_id,
+rc.reference_id,
+rc.notes,
+rc.id
+from recon.raw_catch rc
+left join distribution.taxon_distribution_substitute tds on (tds.original_taxon_key = rc.taxon_key)
+where rc.id between %s and %s
+',
+    idx+1,
+    idx+25000
+  )
+  FROM generate_series((select min(id)-1 from recon.raw_catch), (select max(id) from recon.raw_catch), 25000) as g(idx);

@@ -1,0 +1,2 @@
+select 'vacuum analyze admin.' || table_name from schema_v('admin') where table_name not like 'TOTAL%';
+select 'vacuum analyze expedition.' || table_name from schema_v('expedition') where table_name not like 'TOTAL%';
