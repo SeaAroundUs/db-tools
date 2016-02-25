@@ -1,4 +1,0 @@
-ScriptDir=$(echo $0 | sed -e 's/\/datatransfer$//')
-cd $ScriptDir
-export MAVEN_OPTS=-Xmx2048M
-mvn exec:java -Dactive.routes=datatransfer
