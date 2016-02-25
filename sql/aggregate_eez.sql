@@ -42,7 +42,7 @@ select 'INSERT INTO web.v_fact_data(
           JOIN web.cube_dim_taxon t ON (t.taxon_key = c.taxon_key)
           JOIN web.area a ON (a.marine_layer_id = 1 AND a.main_area_id = c.main_area_id AND a.sub_area_id = c.sub_area_id)
 		  JOIN web.time tm ON (tm.time_business_key = c.year)
-         GROUP BY c.sub_area_id, c.fishing_entity_id, tm.time_key, c.year, c.taxon_key, a.area_key, c.sector_type_id, c.catch_type_id, c.catch_status, c.reporting_status'
+         GROUP BY c.sub_area_id, c.data_layer_id, c.fishing_entity_id, tm.time_key, c.year, c.taxon_key, a.area_key, c.sector_type_id, c.catch_type_id, c.catch_status, c.reporting_status'
   from (select distinct ar.eez_id from allocation.allocation_result_eez ar) as t
   order by t.eez_id;
 
