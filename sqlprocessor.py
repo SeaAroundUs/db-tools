@@ -6,7 +6,7 @@ import multiprocessing
 import optparse
 import time
 from sqlalchemy import *
-from sqlalchemy.pool import NullPool
+from db import getDbConnection
 
 parser = optparse.OptionParser()
 parser.add_option("-b", "--dbtype", help="database type [sqlserver | postgres]", default="postgres")
@@ -20,45 +20,6 @@ parser.add_option("-f", "--sqlfile", help="file containing one or more sql queri
 parser.add_option("-c", "--sqlcmd", help="single sql query command to process")
 
 
-class DBPostgres:
-    def __init__(self, opts):
-        self.engine = create_engine(
-                        'postgresql://{0}{1}@{2}:{3}/{4}'.format(opts.username, opts.password, opts.server, opts.port, opts.dbname),
-                        encoding='utf-8',
-                        poolclass=NullPool)
-        self.conn = self.engine.connect()
-        self.conn.connection.set_isolation_level(0)
-
-    def execute(self, sql_cmd):
-        return self.conn.execution_options(autocommit=True).execute(text(sql_cmd))
-
-    def close(self):
-        self.conn.close()
-
-
-class DBSqlServer:
-    def __init__(self, opts):
-        self.engine = create_engine(
-                        'mssql+pymssql://{0}{1}@{2}/{3}?charset=utf8'.format(opts.username, opts.password, opts.server, opts.dbname),
-                        poolclass=NullPool)
-        self.conn = self.engine.connect()
-
-    def execute(self, sql_cmd):
-        return self.conn.execute(text(sql_cmd))
-
-    def close(self):
-        self.conn.close()
-
-
-def get_db_engine(opts):
-    if opts.dbtype == 'postgres':
-        # This database type requires that psycopg2 db driver is already installed
-        return DBPostgres(opts)
-    elif opts.dbtype == 'sqlserver':
-        # This database type requires that pymssql db driver is already installed
-        return DBSqlServer(opts)
-
-
 class Processor(multiprocessing.Process):
     def __init__(self, opts, cmd_queue):
         multiprocessing.Process.__init__(self)
@@ -66,7 +27,7 @@ class Processor(multiprocessing.Process):
         self.cmd_queue = cmd_queue
 
     def run(self):
-        dbconn = get_db_engine(self.options)
+        dbconn = getDbConnection(self.options)
         proc_name = self.name
 
         while True:
@@ -98,11 +59,6 @@ def process(opts):
         parser.print_help()
         exit(1)
 
-    if not opts.password:
-        opts.password = ''
-    else:
-        opts.password = ':' + opts.password
-
     #Start timing
     start = time.clock()
 
@@ -118,8 +74,8 @@ def process(opts):
     for p in processors:
         p.start()
 
-    # Create a DBAPI connection and fetch SQL commands from db server
-    db_connection = get_db_engine(opts)
+    # Create a db connection and fetch SQL commands from db server
+    db_connection = getDbConnection(opts)
 
     # Enqueue SQL commands
     if opts.sqlfile:
@@ -146,7 +102,6 @@ def process(opts):
             cmd_queue.put(cmd[0])
         db_connection.close()
 
-
     # Add a poison pill for each consumer
     for i in range(opts.threads):
         cmd_queue.put(None)
@@ -161,18 +116,19 @@ def process(opts):
     minutes, seconds = divmod(remainder, 60)
     print('Completed in %d:%d:%f' % (hours, minutes, seconds))
 
-def caller():
-    options = {}
-    options['dbtype'] = 'postgres'
-    options['username'] = 'sau'
-    options['sqlfile'] = 'vacuum_analyze_web_schema.sql'
-    options['dbname'] = 'sau'
-    options['server'] = 'pb-p1.corp.vnw.com'
-    options['sqlcmd'] = None
-    options['threads'] = 4
-    options['password'] = None
-    options['port'] = 5432
-    process(optparse.Values(options))
+# Sample code for caller to this module's process method
+# def caller():
+#     options = {}
+#     options['dbtype'] = 'postgres'
+#     options['username'] = 'dbuser'
+#     options['sqlfile'] = 'command.sql'
+#     options['dbname'] = 'dbname'
+#     options['server'] = 'db_server_name_or_ip'
+#     options['sqlcmd'] = None
+#     options['threads'] = 4
+#     options['password'] = None
+#     options['port'] = 5432
+#     process(optparse.Values(options))
 
 
 # ===============================================================================================
