@@ -48,19 +48,19 @@ class Application(tk.Frame):
 
         db_type.set("postgres")
         self.add_data_entry(db_type, "db_type", 10)
-        self.add_data_entry(db_server, "db_server", 100)
+        self.add_data_entry(db_server, "db_server", 80)
         db_port.set(5432)
         self.add_data_entry(db_port, "db_port", 5)
         self.add_data_entry(db_name, "db_name", 30)
         self.add_data_entry(db_username, "db_username", 30)
         self.add_data_entry(db_password, "db_password", 30)
-        self.add_data_entry(db_sqlfile, "db_sqlfile", 100)
-        self.add_data_entry(db_sqlcmd, "db_sqlcmd", 100)
+        self.add_data_entry(db_sqlfile, "db_sqlfile", 80)
+        self.add_data_entry(db_sqlcmd, "db_sqlcmd", 80)
         db_threads.set(4)
         self.add_data_entry(db_threads, "db_threads", 3)
 
         self.entry_row += 1
-        tk.Button(self.mainframe, text="Process", fg="red", command=process).grid(column=2, row=self.entry_row, sticky=W)
+        tk.Button(self.mainframe, text="Process", fg="red", command=process).grid(column=1, row=self.entry_row, sticky=W)
 
         for child in self.mainframe.winfo_children(): child.grid_configure(padx=5, pady=5)
 

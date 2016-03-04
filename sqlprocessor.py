@@ -78,7 +78,7 @@ def process(opts):
     db_connection = getDbConnection(opts)
 
     # Enqueue SQL commands
-    if opts.sqlfile:
+    if 'sqlfile' in vars(opts) and opts.sqlfile:
         with open(opts.sqlfile) as fileObj:
             sql_cmd_buffer = ''
             for line in fileObj:
@@ -94,12 +94,12 @@ def process(opts):
 
     wait_till_cmd_queue_empty()
 
-    if not opts.sqlcmd:
-        db_connection.close()
-    else:
+    if 'sqlcmd' in vars(opts) and opts.sqlcmd:
         sql_cmds = db_connection.execute(opts.sqlcmd)
         for cmd in sql_cmds:
             cmd_queue.put(cmd[0])
+        db_connection.close()
+    else:
         db_connection.close()
 
     # Add a poison pill for each consumer

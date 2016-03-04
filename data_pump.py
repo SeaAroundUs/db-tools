@@ -5,19 +5,12 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import *
 import sqlprocessor as sp
+from db import getDbConnection
+from db import DBConnectionPane
+from aggregate import AggregateCommandPane
 
 root = tk.Tk()
-root.title("SqlProcessor GUI")
-
-db_type = StringVar()
-db_server = StringVar()
-db_port = IntVar()
-db_name = StringVar()
-db_username = StringVar()
-db_password = StringVar()
-db_sqlfile = StringVar()
-db_sqlcmd = StringVar()
-db_threads = IntVar()
+root.title("SAU Data Pump")
 
 
 def process():
@@ -40,50 +33,47 @@ def process():
 class Application(tk.Frame):
     def __init__(self, master=None):
         tk.Frame.__init__(self, master)
-        # self.mainframe = tk.Frame(root)
-        # self.mainframe.grid(column=0, row=0, sticky=(N, W, E, S))
-        # self.mainframe.columnconfigure(0, weight=1)
-        # self.mainframe.rowconfigure(0, weight=1)
 
-        n = ttk.Notebook(width=500, height=300)
-        f1 = tk.Frame(n)   # first page, which would get widgets gridded into it
-        f2 = tk.Frame(n)   # second page
-        f3 = tk.Frame(n)   # second page
-        f4 = tk.Frame(n)   # second page
-        n.add(f1, text='DB Connection')
-        n.add(f2, text='Sync')
-        n.add(f3, text='Summarize')
-        n.add(f4, text='Aggregate')
-        n.pack(expand=1, fill='both')
+        mainNB = ttk.Notebook(root, width=500, height=450)
 
-        # Setting up db connection tab
-        #p = ttk.Panedwindow(f1, orient=VERTICAL)
-        # first pane, which would get widgets gridded into it:
-        mainDBPane = ttk.Labelframe(f1, text='Main DB', width=400, height=200)
-        sourceDBPane = ttk.Labelframe(f1, text='Source DB', width=400, height=200)   # second pane
-        #f1.add(mainDBPane)
-        #f1.add(sourceDBPane)
+        dbPane = ttk.Panedwindow(mainNB, orient=VERTICAL)
+        mainDB = DBConnectionPane(dbPane, 'Main DB')
+        sourceDB = DBConnectionPane(dbPane, 'Source DB')
 
-        self.entry_row = 0
-        db_type.set("postgres")
-        self.add_data_entry(mainDBPane, db_type, "db_type", 10)
-        self.add_data_entry(mainDBPane, db_server, "db_server", 80)
-        db_port.set(5432)
-        self.add_data_entry(mainDBPane, db_port, "db_port", 5)
-        self.add_data_entry(mainDBPane, db_name, "db_name", 30)
-        self.add_data_entry(mainDBPane, db_username, "db_username", 30)
-        self.add_data_entry(mainDBPane, db_password, "db_password", 30)
+        # first tab
+        pullDataPane = ttk.Panedwindow(mainNB, orient=VERTICAL)
 
-        self.entry_row += 1
-        tk.Button(mainDBPane, text="Test connection", fg="red", command=process).grid(column=2, row=self.entry_row, sticky=W)
+        # second tab
+        summarizePane = ttk.Panedwindow(mainNB, orient=VERTICAL)
 
-        for child in mainDBPane.winfo_children(): child.grid_configure(padx=5, pady=5)
+        # third tab
+        aggregatePane = ttk.Panedwindow(mainNB, orient=VERTICAL)
+        AggregateCommandPane(
+            aggregatePane,
+            mainDB,
+            True,
+            ['Aggregrate data for marine layers 1, 2, 3, 4 and 6',
+             'Aggregrate data for marine layer 1',
+             'Aggregrate data for marine layer 2',
+             'Aggregrate data for marine layer 3',
+             'Aggregrate data for marine layer 4',
+             'Aggregrate data for marine layer 6']
+        )
 
-    def add_data_entry(self, panel, entry_var, entry_text, entry_len):
-        self.entry_row += 1
-        tk.Label(panel, text=entry_text).grid(column=1, row=self.entry_row, sticky=W)
-        data_entry = tk.Entry(panel, width=entry_len, textvariable=entry_var)
-        data_entry.grid(column=2, row=self.entry_row, sticky=W)
+        # fourth tab
+        cellCatchPane = ttk.Panedwindow(mainNB, orient=VERTICAL)
+
+        # fifth tab
+        cacheDataPane = ttk.Panedwindow(mainNB, orient=VERTICAL)
+
+        mainNB.add(dbPane, text='DB Connection')
+        mainNB.add(pullDataPane, text='Pull Data')
+        mainNB.add(summarizePane, text='Summarize')
+        mainNB.add(aggregatePane, text='Aggregate')
+        mainNB.add(cellCatchPane, text='Cell Catch')
+        mainNB.add(cacheDataPane, text='Cache Data')
+
+        mainNB.pack(expand=1, fill='both')
 
 
 # ===============================================================================================

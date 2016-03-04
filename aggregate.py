@@ -7,127 +7,119 @@ from tkinter import *
 import sqlprocessor as sp
 from functools import partial
 from db import getDbConnection
+from db import DBConnectionPane
 
-root = tk.Tk()
-root.title("Aggregation")
 
-db_type = StringVar()
-db_server = StringVar()
-db_port = IntVar()
-db_name = StringVar()
-db_username = StringVar()
-db_password = StringVar()
-db_sqlfile = StringVar()
-db_sqlcmd = StringVar()
-db_threads = IntVar()
+class AggregateCommandPane(tk.Frame):
+    BUTTON_LABELS  = ["All Area Types", "EEZ", "Highseas", "LME", "RFMO", "Global"]
 
-options = {}
+    AREA_SQL_FILES = [None,
+                      "sql/aggregate_eez.sql",
+                      "sql/aggregate_high_seas.sql",
+                      "sql/aggregate_lme.sql",
+                      "sql/aggregate_rfmo.sql",
+                      "sql/aggregate_global.sql"]
+    
+    def __init__(self, parent, dbPane, isVerticallyAligned=False, descriptions=None):
+        self.dbPane = dbPane
 
-def loadOptionsFromWidgets():
-    options['dbtype'] = db_type.get()
-    options['server'] = db_server.get()
-    options['port'] = db_port.get()
-    options['dbname'] = db_name.get()
-    options['username'] = db_username.get()
-    options['password'] = db_password.get()
-    options['threads'] = db_threads.get()
+        cmdFrame = ttk.Labelframe(parent, text='Aggregate', width=100, height=100)
+        cmdFrame.grid(column=0, row=0, sticky=(N, W))
+        cmdFrame.columnconfigure(0, weight=1)
+        cmdFrame.rowconfigure(0, weight=1)
 
-def postAggregationOperations():
-    loadOptionsFromWidgets()
-    dbConn = getDbConnection(optparse.Values(options))
+        row = 0
+        column = 0
 
-    print("Merging Unknown fishing entity in catch data...")
-    dbConn.execute("UPDATE web.v_fact_data SET fishing_entity_id = 213 WHERE fishing_entity_id = 223")
+        for i in range(len(AggregateCommandPane.BUTTON_LABELS)):
+            if i == 0:
+                color = "red"
+            else:
+                color = "blue"
 
-    print("Vacuuming v_fact_data afterward...")
-    dbConn.execute("vacuum analyze web.v_fact_data")
+            if isVerticallyAligned:
+                row += 1
+            else:
+                column += 1
 
-    # And now refresh all materialized views as most are dependent on data in the v_fact_data table
-    options['sqlfile'] = None
-    options['sqlcmd'] = "SELECT 'refresh materialized view web.' || table_name FROM matview_v('web') WHERE table_name NOT LIKE 'TOTALS%'"
-    sp.process(optparse.Values(options))
-    options['sqlcmd'] = "SELECT 'vacuum analyze web.' || table_name FROM matview_v('web') WHERE table_name NOT LIKE 'TOTALS%'"
-    sp.process(optparse.Values(options))
+            if descriptions:
+                self.createCommandButton(cmdFrame, AggregateCommandPane.BUTTON_LABELS[i], AggregateCommandPane.AREA_SQL_FILES[i], row, column, color, descriptions[i])
+            else:
+                self.createCommandButton(cmdFrame, AggregateCommandPane.BUTTON_LABELS[i], AggregateCommandPane.AREA_SQL_FILES[i], row, column, color)
 
-def kickoffSqlProcessor(sqlFileName, isPostOpsRequired=True):
-    try:
-        loadOptionsFromWidgets()
-        options['sqlcmd'] = None
-        options['sqlfile'] = sqlFileName
-        sp.process(optparse.Values(options))
+        for child in cmdFrame.winfo_children(): child.grid_configure(padx=5, pady=5)
 
-        if isPostOpsRequired:
-            postAggregationOperations()
-    except ValueError:
-        pass
+        parent.add(cmdFrame)
 
-def aggregateAll():
-    try:
-        kickoffSqlProcessor('sql/aggregate_eez.sql', False)
-        kickoffSqlProcessor('sql/aggregate_high_seas.sql', False)
-        kickoffSqlProcessor('sql/aggregate_lme.sql', False)
-        kickoffSqlProcessor('sql/aggregate_rfmo.sql', False)
-        kickoffSqlProcessor('sql/aggregate_global.sql', False)
-        postAggregationOperations()
-    except ValueError:
-        pass
+    def createCommandButton(self, parent, buttonText, sqlFile, gRow, gColumn, color, commandDescription=None):
+        if sqlFile:
+            tk.Button(parent, text=buttonText, fg=color, command=partial(self.kickoffSqlProcessor, sqlFile)).grid(
+                column=gColumn, row=gRow, sticky=E)
+        else:
+            tk.Button(parent, text=buttonText, fg=color, command=self.aggregateAll).grid(column=gColumn, row=gRow, sticky=E)
+
+        if commandDescription:
+            tk.Label(parent, text=commandDescription).grid(column=gColumn+1, row=gRow, sticky=W)
+
+    def postAggregationOperations(self):
+        opts = self.dbPane.getDbOptions()
+        dbConn = getDbConnection(optparse.Values(opts))
+
+        print("Merging Unknown fishing entity in catch data...")
+        dbConn.execute("UPDATE web.v_fact_data SET fishing_entity_id = 213 WHERE fishing_entity_id = 223")
+
+        print("Vacuuming v_fact_data afterward...")
+        dbConn.execute("vacuum analyze web.v_fact_data")
+
+        # And now refresh all materialized views as most are dependent on data in the v_fact_data table
+        opts[
+            'sqlcmd'] = "SELECT 'refresh materialized view web.' || table_name FROM matview_v('web') WHERE table_name NOT LIKE 'TOTALS%'"
+        sp.process(optparse.Values(opts))
+        opts[
+            'sqlcmd'] = "SELECT 'vacuum analyze web.' || table_name FROM matview_v('web') WHERE table_name NOT LIKE 'TOTALS%'"
+        sp.process(optparse.Values(opts))
+
+        dbConn.close()
+
+    def kickoffSqlProcessor(self, sqlFileName, isPostOpsRequired=True):
+        try:
+            opts = self.dbPane.getDbOptions()
+            opts['sqlfile'] = sqlFileName
+            sp.process(optparse.Values(opts))
+
+            if isPostOpsRequired:
+                self.postAggregationOperations()
+        except ValueError:
+            pass
+
+    def aggregateAll(self):
+        try:
+            for sqlFile in AggregateCommandPane.AREA_SQL_FILES:
+                if sqlFile:
+                    self.kickoffSqlProcessor(sqlFile, False)
+            self.postAggregationOperations()
+        except ValueError:
+            pass
+
 
 class Application(tk.Frame):
     def __init__(self, master=None):
         tk.Frame.__init__(self, master)
-        self.mainPane = ttk.Panedwindow(root, orient=VERTICAL)
 
-        ##### First pane: for db connection stuff
-        self.dbFrame = ttk.Labelframe(self.mainPane, text='DB Connection', width=100, height=100)
-        self.dbFrame.grid(column=0, row=0, sticky=(N, W, E, S))
-        self.dbFrame.columnconfigure(0, weight=1)
-        self.dbFrame.rowconfigure(0, weight=1)
-
-        self.entry_row = 0
-        db_type.set("postgres")
-        self.add_data_entry(db_type, "db_type", 10)
-        self.add_data_entry(db_server, "db_server", 60)
-        db_port.set(5432)
-        self.add_data_entry(db_port, "db_port", 5)
-        self.add_data_entry(db_name, "db_name", 30)
-        self.add_data_entry(db_username, "db_username", 30)
-        self.add_data_entry(db_password, "db_password", 30)
-        db_threads.set(4)
-        self.add_data_entry(db_threads, "db_threads", 3)
-
-        for child in self.dbFrame.winfo_children(): child.grid_configure(padx=5, pady=5)
-
-        ##### Second pane: for command buttons
-        self.cmdFrame = ttk.Labelframe(self.mainPane, text='Aggregate', width=100, height=100)
-        #self.cmdFrame.grid(column=0, row=0, sticky=(N, W, E, S))
-        self.cmdFrame.grid(column=0, row=0, sticky=(W))
-        self.cmdFrame.columnconfigure(0, weight=1)
-        self.cmdFrame.rowconfigure(0, weight=1)
-
-        tk.Button(self.cmdFrame, text="All Area Types", fg="red", command=aggregateAll).grid(column=0, row=1, sticky=W)
-        tk.Button(self.cmdFrame, text="EEZ", fg="blue", command=partial(kickoffSqlProcessor, 'sql/aggregate_eez.sql')).grid(column=1, row=1, sticky=W)
-        tk.Button(self.cmdFrame, text="Highseas", fg="blue", command=partial(kickoffSqlProcessor, 'sql/aggregate_high_seas.sql')).grid(column=2, row=1, sticky=W)
-        tk.Button(self.cmdFrame, text="LME", fg="blue", command=partial(kickoffSqlProcessor, 'sql/aggregate_lme.sql')).grid(column=3, row=1, sticky=W)
-        tk.Button(self.cmdFrame, text="RFMO", fg="blue", command=partial(kickoffSqlProcessor, 'sql/aggregate_rfmo.sql')).grid(column=4, row=1, sticky=W)
-        tk.Button(self.cmdFrame, text="Global", fg="blue", command=partial(kickoffSqlProcessor, 'sql/aggregate_global.sql')).grid(column=5, row=1, sticky=W)
-
-        ##### Add all child frames to main and pack it up
-        self.mainPane.add(self.dbFrame)
-        self.mainPane.add(self.cmdFrame)
+        self.mainPane = ttk.Panedwindow(master, orient=VERTICAL)
+        self.dbPane = DBConnectionPane(self.mainPane, "DB Connection", True)
+        AggregateCommandPane(self.mainPane, self.dbPane, False, None)
         self.mainPane.pack(expand=1, fill='both')
-
-    def add_data_entry(self, entry_var, entry_text, entry_len):
-        self.entry_row += 1
-        tk.Label(self.dbFrame, text=entry_text).grid(column=1, row=self.entry_row, sticky=W)
-        data_entry = tk.Entry(self.dbFrame, width=entry_len, textvariable=entry_var)
-        data_entry.grid(column=2, row=self.entry_row, sticky=W)
 
 
 # ===============================================================================================
 # ----- MAIN
 def main():
+    root = tk.Tk()
+    root.title("Aggregation")
     app = Application(master=root)
     app.mainloop()
+
 
 if __name__ == "__main__":
     try:
@@ -141,3 +133,10 @@ if __name__ == "__main__":
         print('Unexpected Exception on line: {0}'.format(lno))
         print(sys.exc_info())
         sys.exit(1)
+
+        # CommandPane(parent, True, ['Aggregrate data for all marine layers',
+        #                            'Aggregrate data for marine layer 1',
+        #                            'Aggregrate data for marine layer 2',
+        #                            'Aggregrate data for marine layer 3',
+        #                            'Aggregrate data for marine layer 4',
+        #                            'Aggregrate data for marine layer 6'])
