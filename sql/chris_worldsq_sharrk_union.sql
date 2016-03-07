@@ -1,5 +1,5 @@
 Select
-'Insert into sw_by_shark_grid
+'Insert into sw_by_shark_gid
 Select s.shark_gid, st_union(sw_intersection)::geometry(MultiPolygon,4326) 
 from shark_worldsq_int s
 where s.shark_gid between ' || g.id+1 || ' and ' || g.id+5 ||
