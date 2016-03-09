@@ -1,6 +1,8 @@
 import optparse
 from sqlalchemy import *
 from sqlalchemy.pool import NullPool
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
@@ -14,15 +16,22 @@ from tkinter import *
 #   username => database user name
 #   password => database user password
 
+Base = declarative_base()
 
 class DBPostgres:
     def __init__(self, opts):
         self.engine = create_engine(
                         'postgresql://{0}{1}@{2}:{3}/{4}'.format(opts.username, opts.password, opts.server, opts.port, opts.dbname),
                         encoding='utf-8',
-                        poolclass=NullPool)
+                        poolclass=NullPool,
+                        isolation_level="AUTOCOMMIT"
+        )
         self.conn = self.engine.connect()
         self.conn.connection.set_isolation_level(0)
+        self.Session = sessionmaker(bind=self.engine, autocommit=True)
+
+    def getSession(self):
+        return self.Session()
 
     def execute(self, sql_cmd):
         return self.conn.execution_options(autocommit=True).execute(text(sql_cmd))
@@ -35,8 +44,14 @@ class DBSqlServer:
     def __init__(self, opts):
         self.engine = create_engine(
                         'mssql+pymssql://{0}{1}@{2}/{3}?charset=utf8'.format(opts.username, opts.password, opts.server, opts.dbname),
-                        poolclass=NullPool)
+                        poolclass=NullPool
+        )
         self.conn = self.engine.connect()
+        self.conn.autocommit = True
+        self.Session = sessionmaker(bind=self.engine)
+
+    def getSession(self):
+        return self.Session()
 
     def execute(self, sql_cmd):
         return self.conn.execute(text(sql_cmd))
@@ -76,13 +91,26 @@ class DBConnectionPane(tk.Frame):
         self.db_threads = IntVar()
 
         self.entry_row = 0
-        self.db_type.set("postgres")
+        # self.db_type.set("postgres")
+        # self.add_data_entry(self.pane, self.db_type, "db_type", 10)
+        # self.add_data_entry(self.pane, self.db_server, "db_server", 55)
+        # self.db_port.set(5432)
+        # self.add_data_entry(self.pane, self.db_port, "db_port", 5)
+        # self.add_data_entry(self.pane, self.db_name, "db_name", 30)
+        # self.add_data_entry(self.pane, self.db_username, "db_username", 30)
+        # self.add_data_entry(self.pane, self.db_password, "db_password", 30)
+
+        self.db_type.set("sqlserver")
         self.add_data_entry(self.pane, self.db_type, "db_type", 10)
+        self.db_server.set("merlin.seaaroundus.org")
         self.add_data_entry(self.pane, self.db_server, "db_server", 55)
-        self.db_port.set(5432)
+        self.db_port.set(1433)
         self.add_data_entry(self.pane, self.db_port, "db_port", 5)
+        self.db_name.set("Merlin")
         self.add_data_entry(self.pane, self.db_name, "db_name", 30)
+        self.db_username.set("sau_merlin")
         self.add_data_entry(self.pane, self.db_username, "db_username", 30)
+        self.db_password.set("P4tF7KuQz4")
         self.add_data_entry(self.pane, self.db_password, "db_password", 30)
 
         if include_threads:
@@ -97,6 +125,11 @@ class DBConnectionPane(tk.Frame):
         for child in self.pane.winfo_children(): child.grid_configure(padx=5, pady=5)
 
         parent.add(self.pane)
+
+        # Below are to detect if a connection has been tested successfully
+        self.connectionTested = False
+        for entry in (self.db_type, self.db_server, self.db_port, self.db_name, self.db_username, self.db_password):
+            entry.trace_variable('w', self.resetConnectionTested)
 
     def add_data_entry(self, panel, entry_var, entry_text, entry_len):
         self.entry_row += 1
@@ -115,8 +148,22 @@ class DBConnectionPane(tk.Frame):
         options['threads'] = self.db_threads.get()
         return options
 
+    def isConnectionTestedSuccessfully(self):
+        return self.connectionTested
+
+    def resetConnectionTested(self, *args):
+        # If db_type is set to sqlserver we should change the default value for the port parameter accordingly
+        if self.db_type.get() == "sqlserver":
+            self.db_port.set(1433)
+        else:
+            self.db_port.set(5432)
+
+        self.connectionTested = False
+
     def testConnection(self):
         conn = getDbConnection(optparse.Values(self.getDbOptions()))
         conn.close()
+
+        self.connectionTested = True
 
         messagebox.showinfo("Test connection", "Connection successfully made!")

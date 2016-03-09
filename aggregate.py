@@ -21,6 +21,7 @@ class AggregateCommandPane(tk.Frame):
                       "sql/aggregate_global.sql"]
     
     def __init__(self, parent, dbPane, isVerticallyAligned=False, descriptions=None):
+        tk.Frame.__init__(self, parent)
         self.dbPane = dbPane
 
         cmdFrame = ttk.Labelframe(parent, text='Aggregate', width=100, height=100)
@@ -72,11 +73,9 @@ class AggregateCommandPane(tk.Frame):
         dbConn.execute("vacuum analyze web.v_fact_data")
 
         # And now refresh all materialized views as most are dependent on data in the v_fact_data table
-        opts[
-            'sqlcmd'] = "SELECT 'refresh materialized view web.' || table_name FROM matview_v('web') WHERE table_name NOT LIKE 'TOTALS%'"
+        opts['sqlcmd'] = "SELECT 'refresh materialized view web.' || table_name FROM matview_v('web') WHERE table_name NOT LIKE 'TOTALS%'"
         sp.process(optparse.Values(opts))
-        opts[
-            'sqlcmd'] = "SELECT 'vacuum analyze web.' || table_name FROM matview_v('web') WHERE table_name NOT LIKE 'TOTALS%'"
+        opts['sqlcmd'] = "SELECT 'vacuum analyze web.' || table_name FROM matview_v('web') WHERE table_name NOT LIKE 'TOTALS%'"
         sp.process(optparse.Values(opts))
 
         dbConn.close()
@@ -106,10 +105,10 @@ class Application(tk.Frame):
     def __init__(self, master=None):
         tk.Frame.__init__(self, master)
 
-        self.mainPane = ttk.Panedwindow(master, orient=VERTICAL)
-        self.dbPane = DBConnectionPane(self.mainPane, "DB Connection", True)
-        AggregateCommandPane(self.mainPane, self.dbPane, False, None)
-        self.mainPane.pack(expand=1, fill='both')
+        mainPane = ttk.Panedwindow(master, orient=VERTICAL)
+        dbPane = DBConnectionPane(mainPane, "DB Connection", True)
+        AggregateCommandPane(mainPane, dbPane, False, None)
+        mainPane.pack(expand=1, fill='both')
 
 
 # ===============================================================================================

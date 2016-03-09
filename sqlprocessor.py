@@ -121,13 +121,13 @@ def process(opts):
 #     options = {}
 #     options['dbtype'] = 'postgres'
 #     options['username'] = 'dbuser'
-#     options['sqlfile'] = 'command.sql'
 #     options['dbname'] = 'dbname'
 #     options['server'] = 'db_server_name_or_ip'
-#     options['sqlcmd'] = None
 #     options['threads'] = 4
 #     options['password'] = None
 #     options['port'] = 5432
+#     options['sqlcmd'] = None
+#     options['sqlfile'] = 'command.sql'
 #     process(optparse.Values(options))
 
 

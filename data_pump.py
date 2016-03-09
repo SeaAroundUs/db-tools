@@ -8,6 +8,7 @@ import sqlprocessor as sp
 from db import getDbConnection
 from db import DBConnectionPane
 from aggregate import AggregateCommandPane
+from pull_data import PullAllocationDataCommandPane
 
 root = tk.Tk()
 root.title("SAU Data Pump")
@@ -42,6 +43,9 @@ class Application(tk.Frame):
 
         # first tab
         pullDataPane = ttk.Panedwindow(mainNB, orient=VERTICAL)
+        PullAllocationDataCommandPane(pullDataPane, mainDB, sourceDB)
+        # Also added a filler pane to purely improve look and feel only
+        pullDataPane.add(ttk.Panedwindow(pullDataPane, orient=VERTICAL))
 
         # second tab
         summarizePane = ttk.Panedwindow(mainNB, orient=VERTICAL)
@@ -59,6 +63,8 @@ class Application(tk.Frame):
              'Aggregrate data for marine layer 4',
              'Aggregrate data for marine layer 6']
         )
+        # Also added a filler pane to purely improve look and feel only
+        aggregatePane.add(ttk.Panedwindow(aggregatePane, orient=VERTICAL))
 
         # fourth tab
         cellCatchPane = ttk.Panedwindow(mainNB, orient=VERTICAL)
