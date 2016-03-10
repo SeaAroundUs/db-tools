@@ -29,7 +29,7 @@ class PullIntegrationDataCommandPane(tk.Frame):
         self.sourceDbSession = None
         self.dataTransfer = None
 
-        scb = tk.Button(parent, text="Get list of tables to pull data down", fg="red", command=self.setupCommandPane)
+        scb = tk.Button(parent, text="Get list of integration db tables to pull data down", fg="red", command=self.setupCommandPane)
         parent.add(scb)
 
         self.cmdFrame = ttk.Labelframe(parent, text='Pull Integration Data', width=100, height=300)
