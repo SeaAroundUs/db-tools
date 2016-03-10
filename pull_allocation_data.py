@@ -12,39 +12,9 @@ import subprocess
 import sqlprocessor as sp
 from db import getDbConnection
 from db import DBConnectionPane
-from db import Base
-from db import DBSqlServer
-from sqlalchemy import Column, Integer, String
-from sqlalchemy.dialects import postgresql
-from sqlalchemy import text
+from models import DataTransfer, AllocationResultPartitionMap
 
 NUMBER_OF_ALLOCATION_RESULT_PARTITIONS = 150
-
-
-class DataTransfer(Base):
-    __tablename__ = 'datatransfer_tables'
-    schema = 'admin'
-    source_select_clause = "*"
-
-    id = Column(Integer, primary_key=True)
-    source_database_name = Column(String)
-    source_table_name = Column(String)
-    source_key_column = Column(String)
-    source_where_clause = Column(String)
-    target_schema_name = Column(String)
-    target_table_name = Column(String)
-    target_excluded_columns = Column(postgresql.ARRAY(String), default=[])
-    number_of_threads = Column(Integer)
-
-
-class AllocationResultPartitionMap(Base):
-    __tablename__ = 'allocation_result_partition_map'
-    schema = 'allocation'
-
-    partition_id = Column(Integer, primary_key=True)
-    begin_universal_data_id = Column(Integer, nullable=False)
-    end_universal_data_id = Column(Integer, nullable=False)
-    record_count = Column(Integer, nullable=False)
 
 
 class PullAllocationDataCommandPane(tk.Frame):
@@ -130,12 +100,17 @@ class PullAllocationDataCommandPane(tk.Frame):
                 arPartition = tabDescriptor
                 arPartition.target_schema_name = "allocation_partition"
                 arPartition.target_table_name = "allocation_result_%s" % partitionMap.partition_id
-                arPartition.source_where_clause = "WHERE UniversalDataID BETWEEN {0} AND {1}".format(partitionMap.begin_universal_data_id,
-                                                                                                     partitionMap.end_universal_data_id)
+                arPartition.source_where_clause = "WHERE UniversalDataID BETWEEN %s AND %s" % (partitionMap.begin_universal_data_id,
+                                                                                               partitionMap.end_universal_data_id)
                 self.downloadAndCopyTable(arPartition, opts)
 
             mainDbOpts = self.mainDbPane.getDbOptions()
             mainDbOpts['sqlfile'] = None
+
+            # Delete any records that have their allocated_catch = 0 to avoid problems further downline
+            mainDbOpts['sqlcmd'] = "SELECT format('DELETE FROM allocation_partition.allocation_result_%s WHERE allocated_catch = 0', partition_id)" + \
+                                   "  FROM allocation.allocation_result_partition_map"
+            sp.process(optparse.Values(mainDbOpts))
 
             # Let's now vacuum and analyze all the partitions we just populated above
             mainDbOpts['sqlcmd'] = "SELECT format('VACUUM ANALYZE allocation_partition.%s', table_name) " + \
@@ -160,7 +135,7 @@ class PullAllocationDataCommandPane(tk.Frame):
                                                               tabDescriptor.source_where_clause)
             dataMode = "queryout"
         else:
-            tabQuery = "dbo.[" + tabDescriptor.source_table_name + "]"
+            tabQuery = "dbo.[%s]" % tabDescriptor.source_table_name
             dataMode = "out"
 
         outputDataFile = "data/" + targetTable

@@ -91,26 +91,13 @@ class DBConnectionPane(tk.Frame):
         self.db_threads = IntVar()
 
         self.entry_row = 0
-        # self.db_type.set("postgres")
-        # self.add_data_entry(self.pane, self.db_type, "db_type", 10)
-        # self.add_data_entry(self.pane, self.db_server, "db_server", 55)
-        # self.db_port.set(5432)
-        # self.add_data_entry(self.pane, self.db_port, "db_port", 5)
-        # self.add_data_entry(self.pane, self.db_name, "db_name", 30)
-        # self.add_data_entry(self.pane, self.db_username, "db_username", 30)
-        # self.add_data_entry(self.pane, self.db_password, "db_password", 30)
-
-        self.db_type.set("sqlserver")
+        self.db_type.set("postgres")
         self.add_data_entry(self.pane, self.db_type, "db_type", 10)
-        self.db_server.set("merlin.seaaroundus.org")
         self.add_data_entry(self.pane, self.db_server, "db_server", 55)
-        self.db_port.set(1433)
+        self.db_port.set(5432)
         self.add_data_entry(self.pane, self.db_port, "db_port", 5)
-        self.db_name.set("Merlin")
         self.add_data_entry(self.pane, self.db_name, "db_name", 30)
-        self.db_username.set("sau_merlin")
         self.add_data_entry(self.pane, self.db_username, "db_username", 30)
-        self.db_password.set("P4tF7KuQz4")
         self.add_data_entry(self.pane, self.db_password, "db_password", 30)
 
         if include_threads:
