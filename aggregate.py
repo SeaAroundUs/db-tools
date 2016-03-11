@@ -65,6 +65,8 @@ class AggregateCommandPane(tk.Frame):
     def postAggregationOperations(self):
         opts = self.dbPane.getDbOptions()
         dbConn = getDbConnection(optparse.Values(opts))
+        if 'threads' not in opts or opts['threads'] == 0:
+            opts['threads'] = 8
 
         print("Merging Unknown fishing entity in catch data...")
         dbConn.execute("UPDATE web.v_fact_data SET fishing_entity_id = 213 WHERE fishing_entity_id = 223")
@@ -84,6 +86,8 @@ class AggregateCommandPane(tk.Frame):
         try:
             opts = self.dbPane.getDbOptions()
             opts['sqlfile'] = sqlFileName
+            if 'threads' not in opts or opts['threads'] == 0:
+                opts['threads'] = 8
             sp.process(optparse.Values(opts))
 
             if isPostOpsRequired:

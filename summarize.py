@@ -70,7 +70,8 @@ class SummarizeCommandPane(tk.Frame):
 
         print("Updating allocation data unit price...")
         opts['sqlfile'] = "sql/update_allocation_data_unit_price.sql"
-        opts['threads'] = 8
+        if 'threads' not in opts or opts['threads'] == 0:
+            opts['threads'] = 8
         sp.process(optparse.Values(opts))
         dbConn.execute("UPDATE allocation.allocation_data SET unit_price = %s WHERE unit_price IS NULL" % SummarizeCommandPane.GLOBAL_AVERAGE_UNIT_PRICE)
         dbConn.execute("VACUUM ANALYZE allocation.allocation_data")
@@ -91,7 +92,8 @@ class SummarizeCommandPane(tk.Frame):
         dbConn = getDbConnection(optparse.Values(opts))
         dbConn.execute("TRUNCATE allocation.%s" % summaryTable)
         opts['sqlfile'] = "sql/summarize_%s.sql" % summaryTable
-        opts['threads'] = 8
+        if 'threads' not in opts or opts['threads'] == 0:
+            opts['threads'] = 8
         sp.process(optparse.Values(opts))
 
         if isPostOpsRequired:
