@@ -27,7 +27,7 @@ class CellCatchCommandPane(tk.Frame):
         self.cmdFrame.columnconfigure(0, weight=1)
         self.cmdFrame.rowconfigure(0, weight=1)
 
-        parent.add(tk.Button(parent, text="Get list of cell catch year partition to aggregate", fg="red", command=self.setupCommandPane))
+        parent.add(tk.Button(parent, text="Get list of cell catch year partitions to aggregate", fg="red", command=self.setupCommandPane))
 
         parent.add(self.cmdFrame)
 

@@ -11,26 +11,24 @@ from pull_integration_data import PullIntegrationDataCommandPane
 from pull_allocation_data import PullAllocationDataCommandPane
 from summarize import SummarizeCommandPane
 from aggregate import AggregateCommandPane
+from cell_catch import CellCatchCommandPane
 
 root = tk.Tk()
 root.title("SAU Data Pump")
 
 
 def process():
-    try:
-        options = {}
-        options['dbtype'] = db_type.get()
-        options['server'] = db_server.get()
-        options['port'] = db_port.get()
-        options['dbname'] = db_name.get()
-        options['username'] = db_username.get()
-        options['password'] = db_password.get()
-        options['sqlfile'] = db_sqlfile.get()
-        options['sqlcmd'] = db_sqlcmd.get()
-        options['threads'] = db_threads.get()
-        sp.process(optparse.Values(options))
-    except ValueError:
-        pass
+    options = {}
+    options['dbtype'] = db_type.get()
+    options['server'] = db_server.get()
+    options['port'] = db_port.get()
+    options['dbname'] = db_name.get()
+    options['username'] = db_username.get()
+    options['password'] = db_password.get()
+    options['sqlfile'] = db_sqlfile.get()
+    options['sqlcmd'] = db_sqlcmd.get()
+    options['threads'] = db_threads.get()
+    sp.process(optparse.Values(options))
 
 
 class Application(tk.Frame):
@@ -81,6 +79,10 @@ class Application(tk.Frame):
 
         # fourth tab
         cellCatchPane = ttk.Panedwindow(mainNB, orient=VERTICAL)
+        CellCatchCommandPane(
+            cellCatchPane,
+            mainDB
+        )
 
         # fifth tab
         cacheDataPane = ttk.Panedwindow(mainNB, orient=VERTICAL)
