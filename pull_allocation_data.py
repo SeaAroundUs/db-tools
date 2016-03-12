@@ -12,6 +12,8 @@ import subprocess
 import sqlprocessor as sp
 from db import getDbConnection
 from db import DBConnectionPane
+from db import DBSqlServer
+
 from models import DataTransfer, AllocationResultPartitionMap
 
 NUMBER_OF_ALLOCATION_RESULT_PARTITIONS = 150
@@ -42,11 +44,15 @@ class PullAllocationDataCommandPane(tk.Frame):
     def setupCommandPane(self):
         if not self.mainDbPane.isConnectionTestedSuccessfully():
             messagebox.showinfo("Connection not yet tested",
-                                "The Main DB Connection has not been tested successfully.\nOnce the Main DB Connection has been tested successfully, you can click this button again.")
+                                "The Main DB Connection has not been tested successfully.\n" + \
+                                "Once the Main DB Connection has been tested successfully, you can click that button again.")
             return
 
-        #if self.sourceDbPane is not DBSqlServer:
-        #    raise Exception("Source database must be a connection to a Sql Server instance!")
+        if self.sourceDbPane is not DBSqlServer:
+            messagebox.showinfo("DB Connection not SQL Server",
+                                "The target for the Source DB Connection should a SQL Server instance.\n" + \
+                                "Once the Source DB Connection has been re-configured, you can click that button again.")
+            return
 
         i = 0
         row = 0
@@ -56,8 +62,8 @@ class PullAllocationDataCommandPane(tk.Frame):
         self.dbSession = dbConn.getSession()
         self.dataTransfer = self.dbSession.query(DataTransfer).filter_by(target_schema_name='allocation').order_by(DataTransfer.id).all()
 
+        color = "blue"
         for tab in self.dataTransfer:
-            color = "blue"
             self.createCommandButton(self.cmdFrame, tab.target_table_name, tab, row, column, color)
             column += 1
 

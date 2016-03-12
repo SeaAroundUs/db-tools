@@ -83,26 +83,21 @@ class AggregateCommandPane(tk.Frame):
         dbConn.close()
 
     def kickoffSqlProcessor(self, sqlFileName, isPostOpsRequired=True):
-        try:
-            opts = self.dbPane.getDbOptions()
-            opts['sqlfile'] = sqlFileName
-            if 'threads' not in opts or opts['threads'] == 0:
-                opts['threads'] = 8
-            sp.process(optparse.Values(opts))
+        opts = self.dbPane.getDbOptions()
+        opts['sqlfile'] = sqlFileName
+        if 'threads' not in opts or opts['threads'] == 0:
+            opts['threads'] = 8
+        sp.process(optparse.Values(opts))
 
-            if isPostOpsRequired:
-                self.postAggregationOperations()
-        except ValueError:
-            pass
+        if isPostOpsRequired:
+            self.postAggregationOperations()
 
     def aggregateAll(self):
-        try:
-            for sqlFile in AggregateCommandPane.AREA_SQL_FILES:
-                if sqlFile:
-                    self.kickoffSqlProcessor(sqlFile, False)
-            self.postAggregationOperations()
-        except ValueError:
-            pass
+        for sqlFile in AggregateCommandPane.AREA_SQL_FILES:
+            if sqlFile:
+                self.kickoffSqlProcessor(sqlFile, False)
+
+        self.postAggregationOperations()
 
 
 class Application(tk.Frame):
@@ -137,9 +132,10 @@ if __name__ == "__main__":
         print(sys.exc_info())
         sys.exit(1)
 
-        # CommandPane(parent, True, ['Aggregrate data for all marine layers',
-        #                            'Aggregrate data for marine layer 1',
-        #                            'Aggregrate data for marine layer 2',
-        #                            'Aggregrate data for marine layer 3',
-        #                            'Aggregrate data for marine layer 4',
-        #                            'Aggregrate data for marine layer 6'])
+# Sample construction with description list
+# CommandPane(parent, True, ['Aggregrate data for all marine layers',
+#                            'Aggregrate data for marine layer 1',
+#                            'Aggregrate data for marine layer 2',
+#                            'Aggregrate data for marine layer 3',
+#                            'Aggregrate data for marine layer 4',
+#                            'Aggregrate data for marine layer 6'])

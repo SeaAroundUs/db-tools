@@ -43,7 +43,7 @@ class PullIntegrationDataCommandPane(tk.Frame):
         if not self.mainDbPane.isConnectionTestedSuccessfully():
             messagebox.showinfo("Connection not yet tested",
                                 "The Main DB Connection has not been tested successfully.\n" +\
-                                "Once the Main DB Connection has been tested successfully, you can click this button again.")
+                                "Once the Main DB Connection has been tested successfully, you can click that button again.")
             return
 
         #if self.sourceDbPane is not DBSqlServer:
@@ -58,8 +58,8 @@ class PullIntegrationDataCommandPane(tk.Frame):
 
         self.dataTransfer = self.mainDbSession.query(DataTransfer).filter_by(target_schema_name='web').order_by(DataTransfer.id).all()
 
+        color = "blue"
         for tab in self.dataTransfer:
-            color = "blue"
             self.createCommandButton(self.cmdFrame, tab.target_table_name, tab, row, column, color)
             column += 1
 
