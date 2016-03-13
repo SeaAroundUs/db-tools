@@ -64,10 +64,11 @@ class CellCatchCommandPane(tk.Frame):
         tk.Button(self.cmdFrame, text="All", fg="red", command=self.aggregateAllPartition).grid(
             column=column, row=row, sticky=E)
 
-        for child in self.cmdFrame.winfo_children(): child.grid_configure(padx=5, pady=5)
+        for child in self.cmdFrame.winfo_children():
+            child.grid_configure(padx=5, pady=5)
 
     def createCommandButton(self, parent, year, gRow, gColumn, color):
-        tk.Button(parent, text=year, fg=color, command=partial(self.processYearPartition, year)).grid(
+        tk.Button(parent, name=str(year), text=str(year), fg=color, command=partial(self.processYearPartition, year)).grid(
             column=gColumn, row=gRow, sticky=E)
 
     def processYearPartition(self, year):
@@ -96,7 +97,7 @@ class CellCatchCommandPane(tk.Frame):
 
     def aggregateAllPartition(self):
         for par in self.yearList:
-            self.processYearPartition(par.year, False)
+            self.processYearPartition(par.year)
 
 
 class Application(tk.Frame):
