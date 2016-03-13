@@ -83,6 +83,7 @@ class Application(tk.Frame):
             cellCatchPane,
             mainDB
         )
+        cellCatchPane.add(ttk.Panedwindow(cellCatchPane, orient=VERTICAL))
 
         # fifth tab
         cacheDataPane = ttk.Panedwindow(mainNB, orient=VERTICAL)
