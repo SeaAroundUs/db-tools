@@ -75,7 +75,7 @@ def getDbConnection(opts):
 
 
 class DBConnectionPane(tk.Frame):
-    def __init__(self, parent, title, include_threads=False):
+    def __init__(self, parent, title, include_threads=False, include_sqlfile=False):
         super(DBConnectionPane, self).__init__()
         self.pane = ttk.Labelframe(parent, text=title, width=400, height=200)
         self.pane.grid(column=0, row=0, sticky=(N, W, E, S))
@@ -88,6 +88,8 @@ class DBConnectionPane(tk.Frame):
         self.db_name = StringVar()
         self.db_username = StringVar()
         self.db_password = StringVar()
+        self.db_sqlfile = StringVar()
+        self.db_sqlcmd = StringVar()
         self.db_threads = IntVar()
 
         self.entry_row = 0
@@ -100,6 +102,10 @@ class DBConnectionPane(tk.Frame):
         self.add_data_entry(self.pane, self.db_username, "db_username", 30)
         self.add_data_entry(self.pane, self.db_password, "db_password", 30)
 
+        if include_sqlfile:
+            self.add_data_entry(self.pane, self.db_sqlfile, "db_sqlfile", 80)
+            self.add_data_entry(self.pane, self.db_sqlcmd, "db_sqlcmd", 80)
+
         if include_threads:
             self.db_threads.set(4)
             self.add_data_entry(self.pane, self.db_threads, "db_threads", 3)
@@ -107,7 +113,7 @@ class DBConnectionPane(tk.Frame):
             self.db_threads.set(0)
 
         self.entry_row += 1
-        tk.Button(self.pane, text="Test connection", fg="red", command=self.testConnection).grid(column=0, row=self.entry_row, sticky=W)
+        tk.Button(self.pane, text=" Test connection ", fg="red", command=self.testConnection).grid(column=0, row=self.entry_row, sticky=W)
 
         for child in self.pane.winfo_children(): child.grid_configure(padx=5, pady=5)
 
