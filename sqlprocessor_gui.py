@@ -1,9 +1,16 @@
 import optparse
 import traceback
 import multiprocessing
-import tkinter as tk
-from tkinter import *
+from functools import partial
+
 import sqlprocessor as sp
+from db import DBConnectionPane
+
+import tkinter as tk
+from tkinter import ttk
+from tkinter import *
+from tkinter import messagebox
+import tkinter.filedialog as fdlg
 
 root = tk.Tk()
 root.title("SqlProcessor GUI")
@@ -19,8 +26,14 @@ db_sqlcmd = StringVar()
 db_threads = IntVar()
 
 
-def process():
+def process(dbPane):
     try:
+        if not dbPane.isConnectionTestedSuccessfully():
+            messagebox.showinfo("Connection not yet tested",
+                                "The DB Connection has not been tested successfully.\n" +\
+                                "Once the DB Connection has been tested successfully, you can click the Process button again.")
+            return
+
         options = {}
         options['dbtype'] = db_type.get()
         options['server'] = db_server.get()
@@ -39,37 +52,21 @@ def process():
 class Application(tk.Frame):
     def __init__(self, master=None):
         tk.Frame.__init__(self, master)
-        self.mainframe = tk.Frame(root)
+        self.mainframe = ttk.Panedwindow(root, orient=VERTICAL)
         self.mainframe.grid(column=0, row=0, sticky=(N, W, E, S))
         self.mainframe.columnconfigure(0, weight=1)
         self.mainframe.rowconfigure(0, weight=1)
 
-        self.entry_row = 0
+        self.dbPane = DBConnectionPane(self.mainframe, "DB Connection", True, True)
 
-        db_type.set("postgres")
-        self.add_data_entry(db_type, "db_type", 10)
-        self.add_data_entry(db_server, "db_server", 80)
-        db_port.set(5432)
-        self.add_data_entry(db_port, "db_port", 5)
-        self.add_data_entry(db_name, "db_name", 30)
-        self.add_data_entry(db_username, "db_username", 30)
-        self.add_data_entry(db_password, "db_password", 30)
-        self.add_data_entry(db_sqlfile, "db_sqlfile", 80)
-        self.add_data_entry(db_sqlcmd, "db_sqlcmd", 80)
-        db_threads.set(4)
-        self.add_data_entry(db_threads, "db_threads", 3)
+        self.processFrame = ttk.Labelframe(self.mainframe, text="Process", width=400, height=50)
+        self.processFrame.grid(column=0, row=0, sticky=(N, W, E, S))
+        self.processFrame.columnconfigure(0, weight=1)
+        self.processFrame.rowconfigure(0, weight=1)
+        pb = tk.Button(self.processFrame, text="  Process  ", fg="red", command=partial(process, self.dbPane))
+        pb.place(relx=0.5, rely=0.5, anchor=CENTER)
 
-        self.entry_row += 1
-        tk.Button(self.mainframe, text="Process", fg="red", command=process).grid(column=1, row=self.entry_row, sticky=W)
-
-        for child in self.mainframe.winfo_children(): child.grid_configure(padx=5, pady=5)
-
-    def add_data_entry(self, entry_var, entry_text, entry_len):
-        self.entry_row += 1
-        tk.Label(self.mainframe, text=entry_text).grid(column=1, row=self.entry_row, sticky=W)
-        data_entry = tk.Entry(self.mainframe, width=entry_len, textvariable=entry_var)
-        data_entry.grid(column=2, row=self.entry_row, sticky=W)
-
+        self.mainframe.add(self.processFrame)
 
 # ===============================================================================================
 # ----- MAIN
