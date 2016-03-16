@@ -48,9 +48,9 @@ class PullAllocationDataCommandPane(tk.Frame):
                                 "Once the Main DB Connection has been tested successfully, you can click that button again.")
             return
 
-        if self.sourceDbPane is not DBSqlServer:
+        if self.sourceDbPane.db_type.get() != 'sqlserver':
             messagebox.showinfo("DB Connection not SQL Server",
-                                "The target for the Source DB Connection should a SQL Server instance.\n" + \
+                                "The target for the Source DB Connection should be a SQL Server instance.\n" + \
                                 "Once the Source DB Connection has been re-configured, you can click that button again.")
             return
 

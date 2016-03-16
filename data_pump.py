@@ -5,7 +5,6 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import *
 import sqlprocessor as sp
-from db import getDbConnection
 from db import DBConnectionPane
 from pull_integration_data import PullIntegrationDataCommandPane
 from pull_allocation_data import PullAllocationDataCommandPane

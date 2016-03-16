@@ -13,7 +13,7 @@ select 'INSERT INTO web.v_fact_data(
                  (case when ad.catch_type_id in (1, 3) then ''R'' when ad.catch_type_id = 2 then ''D'' else null end)::CHAR(1), 
                  (case when ad.catch_type_id = 1 then ''R'' when ad.catch_type_id in (2, 3) then ''U'' else null end)::CHAR(1), 
                  ad.sector_type_id,
-                 ar.total_catch, 
+                 ar.total_catch,
                  ad.unit_price
 		    FROM allocation.allocation_result_lme ar
 		    JOIN allocation.allocation_data ad ON (ad.universal_data_id = ar.universal_data_id)
