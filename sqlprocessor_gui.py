@@ -12,47 +12,21 @@ from tkinter import *
 from tkinter import messagebox
 import tkinter.filedialog as fdlg
 
-root = tk.Tk()
-root.title("SqlProcessor GUI")
-
-db_type = StringVar()
-db_server = StringVar()
-db_port = IntVar()
-db_name = StringVar()
-db_username = StringVar()
-db_password = StringVar()
-db_sqlfile = StringVar()
-db_sqlcmd = StringVar()
-db_threads = IntVar()
-
 
 def process(dbPane):
-    try:
-        if not dbPane.isConnectionTestedSuccessfully():
-            messagebox.showinfo("Connection not yet tested",
-                                "The DB Connection has not been tested successfully.\n" +\
-                                "Once the DB Connection has been tested successfully, you can click the Process button again.")
-            return
+    if not dbPane.isConnectionTestedSuccessfully():
+        messagebox.showinfo("Connection not yet tested",
+                            "The DB Connection has not been tested successfully.\n" +\
+                            "Once the DB Connection has been tested successfully, you can click the Process button again.")
+        return
 
-        options = {}
-        options['dbtype'] = db_type.get()
-        options['server'] = db_server.get()
-        options['port'] = db_port.get()
-        options['dbname'] = db_name.get()
-        options['username'] = db_username.get()
-        options['password'] = db_password.get()
-        options['sqlfile'] = db_sqlfile.get()
-        options['sqlcmd'] = db_sqlcmd.get()
-        options['threads'] = db_threads.get()
-        sp.process(optparse.Values(options))
-    except ValueError:
-        pass
+    sp.process(optparse.Values(dbPane.getDbOptions()))
 
 
 class Application(tk.Frame):
     def __init__(self, master=None):
         tk.Frame.__init__(self, master)
-        self.mainframe = ttk.Panedwindow(root, orient=VERTICAL)
+        self.mainframe = ttk.Panedwindow(master, orient=VERTICAL)
         self.mainframe.grid(column=0, row=0, sticky=(N, W, E, S))
         self.mainframe.columnconfigure(0, weight=1)
         self.mainframe.rowconfigure(0, weight=1)
@@ -71,6 +45,8 @@ class Application(tk.Frame):
 # ===============================================================================================
 # ----- MAIN
 def main():
+    root = tk.Tk()
+    root.title("SqlProcessor GUI")
     app = Application(master=root)
     app.mainloop()
 

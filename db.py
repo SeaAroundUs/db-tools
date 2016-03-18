@@ -77,6 +77,7 @@ def getDbConnection(opts):
 class DBConnectionPane(tk.Frame):
     def __init__(self, parent, title, include_threads=False, include_sqlfile=False):
         super(DBConnectionPane, self).__init__()
+
         self.pane = ttk.Labelframe(parent, text=title, width=400, height=200)
         self.pane.grid(column=0, row=0, sticky=(N, W, E, S))
         self.pane.columnconfigure(0, weight=1)
@@ -102,11 +103,11 @@ class DBConnectionPane(tk.Frame):
         self.add_data_entry(self.pane, self.db_username, "db_username", 30)
         self.add_data_entry(self.pane, self.db_password, "db_password", 30)
 
-        if include_sqlfile:
+        if include_sqlfile == True:
             self.add_data_entry(self.pane, self.db_sqlfile, "db_sqlfile", 80)
             self.add_data_entry(self.pane, self.db_sqlcmd, "db_sqlcmd", 80)
 
-        if include_threads:
+        if include_threads == True:
             self.db_threads.set(4)
             self.add_data_entry(self.pane, self.db_threads, "db_threads", 3)
         else:
@@ -139,6 +140,8 @@ class DBConnectionPane(tk.Frame):
         options['username'] = self.db_username.get()
         options['password'] = self.db_password.get()
         options['threads'] = self.db_threads.get()
+        options['sqlfile'] = self.db_sqlfile.get()
+        options['sqlcmd'] = self.db_sqlcmd.get()
         return options
 
     def isConnectionTestedSuccessfully(self):
