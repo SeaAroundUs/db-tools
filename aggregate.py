@@ -11,7 +11,7 @@ from db import DBConnectionPane
 
 
 class AggregateCommandPane(tk.Frame):
-    BUTTON_LABELS  = ["All Area Types", "EEZ", "Highseas", "LME", "RFMO", "Global"]
+    BUTTON_LABELS = ["All Area Types", "EEZ", "Highseas", "LME", "RFMO", "Global"]
 
     AREA_SQL_FILES = [None,
                       "sql/aggregate_eez.sql",
