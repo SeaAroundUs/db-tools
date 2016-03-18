@@ -188,3 +188,4 @@ web.uncertainty_eez
 web.uncertainty_score
 web.uncertainty_time_period
 /pull_int_data.py
+/data/allocation.cell
