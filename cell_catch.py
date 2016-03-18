@@ -38,6 +38,8 @@ class CellCatchCommandPane(tk.Frame):
                                 "Once the Main DB Connection has been tested successfully, you can click that button again.")
             return
 
+        for child in self.cmdFrame.winfo_children(): child.destroy()
+
         i = 0
         row = 0
         column = 0

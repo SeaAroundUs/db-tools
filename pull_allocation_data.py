@@ -34,7 +34,7 @@ class PullAllocationDataCommandPane(tk.Frame):
         scb = tk.Button(parent, text="Get list of allocation tables to pull data down", fg="red", command=self.setupCommandPane)
         parent.add(scb)
 
-        self.cmdFrame = ttk.Labelframe(parent, text='Pull Allocation Data', width=100, height=100)
+        self.cmdFrame = ttk.Labelframe(parent, text='Allocation Tables To Pull', width=100, height=100)
         self.cmdFrame.grid(column=0, row=0, sticky=(N, W))
         self.cmdFrame.columnconfigure(0, weight=1)
         self.cmdFrame.rowconfigure(0, weight=1)
@@ -53,6 +53,8 @@ class PullAllocationDataCommandPane(tk.Frame):
                                 "The target for the Source DB Connection should be a SQL Server instance.\n" + \
                                 "Once the Source DB Connection has been re-configured, you can click that button again.")
             return
+
+        for child in self.cmdFrame.winfo_children(): child.destroy()
 
         i = 0
         row = 0
@@ -204,7 +206,7 @@ class Application(tk.Frame):
 # ----- MAIN
 def main():
     root = tk.Tk()
-    root.title("Pull Data")
+    root.title("Pull Allocation Data")
     app = Application(master=root)
     app.mainloop()
 
