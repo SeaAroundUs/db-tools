@@ -32,7 +32,7 @@ class PullIntegrationDataCommandPane(tk.Frame):
         scb = tk.Button(parent, text="Get list of integration db tables to pull data down", fg="red", command=self.setupCommandPane)
         parent.add(scb)
 
-        self.cmdFrame = ttk.Labelframe(parent, text='Pull Integration Data', width=100, height=300)
+        self.cmdFrame = ttk.Labelframe(parent, text='Integration DB Tables To Pull', width=100, height=300)
         self.cmdFrame.grid(column=0, row=0, sticky=(N, W, E, S))
         self.cmdFrame.columnconfigure(0, weight=1)
         self.cmdFrame.rowconfigure(0, weight=1)
@@ -48,6 +48,8 @@ class PullIntegrationDataCommandPane(tk.Frame):
 
         #if self.sourceDbPane is not DBSqlServer:
         #    raise Exception("Source database must be a connection to a Sql Server instance!")
+
+        for child in self.cmdFrame.winfo_children(): child.destroy()
 
         i = 0
         row = 0
@@ -99,8 +101,10 @@ class PullIntegrationDataCommandPane(tk.Frame):
     def downloadSourceTable(self, dbOpts, tabQuery, outputDataFile):
         rawConn = self.sourceDbSession.connection().connection
         cursor = rawConn.cursor()
-        cursor.copy_expert(sql="copy {0} to STDOUT".format(tabQuery),
-                           file=open(outputDataFile, 'wb'))
+        cursor.execute("SET CLIENT_ENCODING TO 'UTF-8'")
+        cursor.copy_expert(sql="copy {0} to STDOUT with(encoding 'UTF-8')".format(tabQuery),
+                           file=open(outputDataFile, 'w')
+                          )
         rawConn.commit()
         cursor.close()
 
@@ -125,8 +129,10 @@ class PullIntegrationDataCommandPane(tk.Frame):
 
         rawConn = self.mainDbSession.connection().connection
         cursor = rawConn.cursor()
-        cursor.copy_expert(sql="copy {0}{1} from STDIN".format(targetTable, columnList),
-                           file=open(inputDataFile, 'rb'))
+        cursor.execute("SET CLIENT_ENCODING TO 'UTF-8'")
+        cursor.copy_expert(sql="copy {0}{1} from STDIN with(encoding 'UTF-8')".format(targetTable, columnList),
+                           file=open(inputDataFile, 'r')
+                          )
         rawConn.commit()
         cursor.close()
 
@@ -152,7 +158,7 @@ class Application(tk.Frame):
 # ----- MAIN
 def main():
     root = tk.Tk()
-    root.title("Pull Data")
+    root.title("Pull Integration DB Data")
     app = Application(master=root)
     app.mainloop()
 
