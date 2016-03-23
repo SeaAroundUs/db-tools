@@ -114,7 +114,9 @@ class DBConnectionPane(tk.Frame):
             self.db_threads.set(0)
 
         self.entry_row += 1
-        tk.Button(self.pane, text=" Test connection ", fg="red", command=self.testConnection).grid(column=0, row=self.entry_row, sticky=W)
+        self.tcbt = tk.Button(self.pane, text=" Test connection ", fg="red", command=self.testConnection)
+        self.tcbt.grid(column=0, row=self.entry_row, sticky=W)
+        self.tcbt.bind("<Return>", (lambda event: self.testConnection()))
 
         for child in self.pane.winfo_children(): child.grid_configure(padx=5, pady=5)
 

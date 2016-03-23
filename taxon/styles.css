@@ -1,0 +1,36 @@
+.node circle.default {
+  fill: #fff;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
+
+.node circle.with_extent {
+  fill: #fff;
+  stroke: darkorange;
+  stroke-width: 2px;
+}
+
+.node circle.with_dist {
+  fill: #fff;
+  stroke: darkgreen;
+  stroke-width: 2.5px;
+}
+
+.node text {
+  font: 10px sans-serif;
+}
+
+.link {
+  fill: none;
+  stroke: #ccc;
+  stroke-width: 1.5px;
+}
+
+.ui-tooltip {
+    padding: 10px 20px;
+    border-radius: 20px;
+    font: bold 18px"Helvetica Neue", Sans-Serif;
+    text-align: center;
+    box-shadow: 0 0 7px black;
+    color: #800000;
+}

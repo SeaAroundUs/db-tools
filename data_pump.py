@@ -11,6 +11,7 @@ from pull_allocation_data import PullAllocationDataCommandPane
 from summarize import SummarizeCommandPane
 from aggregate import AggregateCommandPane
 from cell_catch import CellCatchCommandPane
+from taxon_extent import TaxonExtentCommandPane
 
 root = tk.Tk()
 root.title("SAU Data Pump")
@@ -87,12 +88,21 @@ class Application(tk.Frame):
         # fifth tab
         cacheDataPane = ttk.Panedwindow(mainNB, orient=VERTICAL)
 
+        # sixth tab
+        taxonExtentPane = ttk.Panedwindow(mainNB, orient=VERTICAL)
+        TaxonExtentCommandPane(
+            taxonExtentPane,
+            mainDB
+        )
+        taxonExtentPane.add(ttk.Panedwindow(taxonExtentPane, orient=VERTICAL))
+
         mainNB.add(dbPane, text='DB Connection')
         mainNB.add(pullDataPane, text='Pull Data')
         mainNB.add(summarizePane, text='Summarize')
         mainNB.add(aggregatePane, text='Aggregate')
         mainNB.add(cellCatchPane, text='Cell Catch')
         mainNB.add(cacheDataPane, text='Cache Data')
+        mainNB.add(taxonExtentPane, text='Taxon Extent')
 
         mainNB.pack(expand=1, fill='both')
 

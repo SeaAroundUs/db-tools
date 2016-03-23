@@ -1,0 +1,1 @@
+select format('select distribution.load_taxon_extent(''%s'')', table_name) from schema_v('taxon_dis') where table_name not like 'TOTALS%';

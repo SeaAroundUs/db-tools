@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<head>
+<link rel="stylesheet" type="text/css" href="styles.css" />
+<script src="//code.jquery.com/jquery-1.10.2.js"></script>
+<script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+</head>
+<body>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script>
+$(function() {
+  $( document ).tooltip();
+});
+
+function taxonToolTip(d) { 
+  return ("taxon: " + d.key + 
+          "; name: " + d.name + 
+          ((d.hasOwnProperty('level')) ? ("; level: " + d.level) : "") + 
+          ((d.hasOwnProperty('lineage')) ? ("; lineage: " + d.lineage) : "") +
+          ((d.hasOwnProperty('is_dist')) ? ("; distribution: " + d.is_dist) : "") +
+          ((d.hasOwnProperty('is_extent')) ? ("; extent: " + d.is_extent) : "")
+         );
+}
+
+var diameter = 2048;
+
+var tree = d3.layout.tree()
+    .size([360, diameter / 2 - 120])
+    .separation(function(a, b) { return (a.parent == b.parent ? 1 : 2) / a.depth; });
+
+var diagonal = d3.svg.diagonal.radial()
+    .projection(function(d) { return [d.y, d.x / 180 * Math.PI]; });
+
+var svg = d3.select("body").append("svg")
+    .attr("width", diameter)
+    .attr("height", diameter - 50)
+    .append("g")
+    .attr("transform", "translate(" + diameter / 2 + "," + diameter / 2 + ")");
+
+d3.json("pisces.json", function(error, root) {
+  if (error) throw error;
+
+  var nodes = tree.nodes(root),
+      links = tree.links(nodes);
+
+  var link = svg.selectAll(".link")
+      .data(links)
+    .enter().append("path")
+      .attr("class", "link")
+      .attr("d", diagonal);
+
+  var node = svg.selectAll(".node")
+      .data(nodes)
+    .enter().append("g")
+      .attr("class", "node")
+      .attr("transform", function(d) { return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")"; })
+
+  node.append("circle")
+      .attr("r", 4.5)
+      .attr("class", function(d) {return ((d.is_dist) ? "with_dist" : ((d.is_extent) ? "with_extent" : "default"));});
+
+  node.append("text")
+      .attr("dy", ".31em")
+      .attr("text-anchor", function(d) { return d.x < 180 ? "start" : "end"; })
+      .attr("transform", function(d) { return d.x < 180 ? "translate(8)" : "rotate(180)translate(-8)"; })
+      .attr("title", function(d) { return taxonToolTip(d); })
+      .text(function(d) { return d.name; });
+});
+
+d3.select(self.frameElement).style("height", diameter - 100 + "px");
+
+</script>

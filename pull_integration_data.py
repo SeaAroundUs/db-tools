@@ -42,7 +42,7 @@ class PullIntegrationDataCommandPane(tk.Frame):
     def setupCommandPane(self):
         if not self.mainDbPane.isConnectionTestedSuccessfully():
             messagebox.showinfo("Connection not yet tested",
-                                "The Main DB Connection has not been tested successfully.\n" +\
+                                "The Main DB Connection has not been tested successfully.\n" +
                                 "Once the Main DB Connection has been tested successfully, you can click that button again.")
             return
 
@@ -58,7 +58,8 @@ class PullIntegrationDataCommandPane(tk.Frame):
         self.mainDbSession = getDbConnection(optparse.Values(self.mainDbPane.getDbOptions())).getSession()
         self.sourceDbSession = getDbConnection(optparse.Values(self.sourceDbPane.getDbOptions())).getSession()
 
-        self.dataTransfer = self.mainDbSession.query(DataTransfer).filter_by(target_schema_name='web').order_by(DataTransfer.id).all()
+        self.dataTransfer = self.mainDbSession.query(DataTransfer).filter_by(target_schema_name='web') \
+            .order_by(DataTransfer.id).all()
 
         color = "blue"
         for tab in self.dataTransfer:
@@ -69,7 +70,8 @@ class PullIntegrationDataCommandPane(tk.Frame):
                 column = 0
                 row += 1
 
-        tk.Button(self.cmdFrame, text="Pull all allocation tables", fg="red", command=self.pullAllAllocationData).grid(column=int(column/2), row=row+1, sticky=(E, W, N, S))
+        tk.Button(self.cmdFrame, text="Pull all allocation tables", fg="red", command=self.pullAllAllocationData) \
+            .grid(column=int(column/2), row=row+1, sticky=(E, W, N, S))
 
         for child in self.cmdFrame.winfo_children(): child.grid_configure(padx=5, pady=5)
 
@@ -161,7 +163,6 @@ def main():
     root.title("Pull Integration DB Data")
     app = Application(master=root)
     app.mainloop()
-
 
 if __name__ == "__main__":
     try:
