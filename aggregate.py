@@ -80,6 +80,8 @@ class AggregateCommandPane(tk.Frame):
         opts['sqlcmd'] = "SELECT 'vacuum analyze web.' || table_name FROM matview_v('web') WHERE table_name NOT LIKE 'TOTALS%'"
         sp.process(optparse.Values(opts))
 
+        print("Aggregation process completed...")
+
         dbConn.close()
 
     def kickoffSqlProcessor(self, sqlFileName, isPostOpsRequired=True):
