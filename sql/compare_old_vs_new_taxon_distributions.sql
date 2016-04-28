@@ -5,7 +5,8 @@ with side_by_side as (
 					  , v40.RelativeAbundance as V40_RelativeAbundance
 					  , v42.RelativeAbundance as V42_RelativeAbundance
 						FROM [dbo].[TaxonDistribution_V40] v40 left join [TaxonDistribution] v42 on v40.TaxonKey = v42.TaxonKey and v40.CellID = v42.CellID
-				  	),
+				  	where v40.CellID in (select CellID from Cell where WaterArea>0)
+					),
  zeroed_cells as (
 	  select s.TaxonKey,  count(*) as Count_of_cells_PreviouslyNonZeroRelativeAbundance_but_NowZero
 	  from side_by_side s 
@@ -15,13 +16,13 @@ with side_by_side as (
  original_coverage as (
            select taxonkey, count(*) as v40_non_zero_cells
 		   from TaxonDistribution_V40
-		   where RelativeAbundance > 0	   
+		   where RelativeAbundance > 0	 and CellID in (select CellID from Cell where WaterArea>0)  
 		   group by TaxonKey
 		),
 new_coverage as (
 select taxonkey, count(*) as v42_non_zero_cells
 		   from TaxonDistribution
-		   where RelativeAbundance > 0   
+		   where RelativeAbundance > 0 and CellID in (select CellID from Cell where WaterArea>0)   
 		   group by TaxonKey
 		),
 
