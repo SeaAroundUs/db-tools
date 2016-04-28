@@ -85,6 +85,8 @@ class SummarizeCommandPane(tk.Frame):
                 if tab:
                     dbConn.execute("VACUUM ANALYZE allocation.%s" % tab)
 
+        print("Summarization process completed...")
+
         dbConn.close()
 
     def kickoffSqlProcessor(self, summaryTable, isPostOpsRequired=True):
