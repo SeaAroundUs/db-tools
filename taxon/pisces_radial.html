@@ -1,27 +1,15 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 <head>
-<link rel="stylesheet" type="text/css" href="styles.css" />
-<script src="//code.jquery.com/jquery-1.10.2.js"></script>
-<script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+  <link rel="stylesheet" type="text/css" href="styles.css" />
+  <link rel="stylesheet" type="text/css" href="tooltipster.css">
+  <script src="js/jquery-2.2.2.min.js"></script>
+  <script src="js/jquery-ui.min.js"></script>
+  <script src="js/d3.min.js"></script>
+  <script src="js/jquery.tooltipster.min.js"></script>
 </head>
 <body>
-<script src="http://d3js.org/d3.v3.min.js"></script>
 <script>
-$(function() {
-  $( document ).tooltip();
-});
-
-function taxonToolTip(d) { 
-  return ("taxon: " + d.key + 
-          "; name: " + d.name + 
-          ((d.hasOwnProperty('level')) ? ("; level: " + d.level) : "") + 
-          ((d.hasOwnProperty('lineage')) ? ("; lineage: " + d.lineage) : "") +
-          ((d.hasOwnProperty('is_dist')) ? ("; distribution: " + d.is_dist) : "") +
-          ((d.hasOwnProperty('is_extent')) ? ("; extent: " + d.is_extent) : "")
-         );
-}
-
 var diameter = 2048;
 
 var tree = d3.layout.tree()
@@ -64,7 +52,27 @@ d3.json("pisces.json", function(error, root) {
       .attr("text-anchor", function(d) { return d.x < 180 ? "start" : "end"; })
       .attr("transform", function(d) { return d.x < 180 ? "translate(8)" : "rotate(180)translate(-8)"; })
       .attr("title", function(d) { return taxonToolTip(d); })
-      .text(function(d) { return d.name; });
+      .text(function(d) { return d.name; })
+      .on("click", function(d) { window.open("http://qa1.seaaroundus.org/data/#/taxon/" + d.key); });
+      
+  function taxonToolTip(d) { 
+    return ("<h2>" + d.name + "</h2><table><tr><td>Key</td><td>" + d.key + "</td></tr>" +
+            ((d.hasOwnProperty('level')) ? ("<tr><td>Level</td><td>" + d.level + "</td></tr>") : "") + 
+            ((d.hasOwnProperty('lineage')) ? ("<tr><td>Lineage</td><td>" + d.lineage + "</td></tr>") : "") +
+            ((d.hasOwnProperty('is_dist')) ? ("<tr><td>Distribution </td><td>" + d.is_dist + "</td></tr>") : "") +
+            ((d.hasOwnProperty('is_extent')) ? ("<tr><td>Extent</td><td>" + d.is_extent + "</td></tr>") : "") +
+            ((d.hasOwnProperty('total_catch')) ? ("<tr><td>Catch</td><td>" + d.total_catch + "</td></tr>") : "") +
+            ((d.hasOwnProperty('total_value')) ? ("<tr><td>Value</td><td>" + d.total_value + "</td></tr>") : "") +
+            "</table>"
+           );
+  }
+
+  $(document).ready(function() {
+    $("text").tooltipster({
+      followMouse: true,
+      contentAsHTML: true
+    });
+  });
 });
 
 d3.select(self.frameElement).style("height", diameter - 100 + "px");

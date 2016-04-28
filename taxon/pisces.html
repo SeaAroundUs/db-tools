@@ -1,32 +1,15 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 <head>
-<link rel="stylesheet" type="text/css" href="styles.css" />
-<style>
-.node {
-  cursor: pointer;
-}
-</style>
-<script src="//code.jquery.com/jquery-1.10.2.js"></script>
-<script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+  <link rel="stylesheet" type="text/css" href="styles.css" />
+  <link rel="stylesheet" type="text/css" href="tooltipster.css">
+  <script src="js/jquery-2.2.2.min.js"></script>
+  <script src="js/jquery-ui.min.js"></script>
+  <script src="js/d3.min.js"></script>
+  <script src="js/jquery.tooltipster.min.js"></script>
 </head>
-<body>
-<script src="http://d3js.org/d3.v3.min.js"></script>
+<body class="border">
 <script>
-$(function() {
-  $( document ).tooltip();
-});
-
-function taxonToolTip(d) { 
-  return ("taxon: " + d.key + 
-          "; name: " + d.name + 
-          ((d.hasOwnProperty('level')) ? ("; level: " + d.level) : "") + 
-          ((d.hasOwnProperty('lineage')) ? ("; lineage: " + d.lineage) : "") +
-          ((d.hasOwnProperty('is_dist')) ? ("; distribution: " + d.is_dist) : "") +
-          ((d.hasOwnProperty('is_extent')) ? ("; extent: " + d.is_extent) : "")
-         );
-}
-
 var margin = {top: 20, right: 20, bottom: 20, left: 50},
     width = 1280 - margin.right - margin.left,
     height = 1024 - margin.top - margin.bottom;
@@ -96,9 +79,11 @@ function update(source) {
       .attr("x", function(d) { return d.children || d._children ? -10 : 10; })
       .attr("dy", ".35em")
       .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
-      .attr("title", function(d) { return taxonToolTip(d); })
+      //.attr("title", function(d) { return taxonToolTip(d); })
+      .attr("taxon", function(d) { return d; }) 
       .text(function(d) { return d.name; })
-      .style("fill-opacity", 1e-6);
+      .style("fill-opacity", 1e-6)
+      .on("click", function(d) { window.open("http://qa1.seaaroundus.org/data/#/taxon/" + d.key); });
 
   // Transition nodes to their new position.
   var nodeUpdate = node.transition()
@@ -155,6 +140,30 @@ function update(source) {
     d.x0 = d.x;
     d.y0 = d.y;
   });
+  
+  function taxonToolTip(d) { 
+    return ("<h2>" + d.name + "</h2><table><tr><td>Key</td><td>" + d.key + "</td></tr>" +
+            ((d.hasOwnProperty('level')) ? ("<tr><td>Level</td><td>" + d.level + "</td></tr>") : "") + 
+            ((d.hasOwnProperty('lineage')) ? ("<tr><td>Lineage</td><td>" + d.lineage + "</td></tr>") : "") +
+            ((d.hasOwnProperty('is_dist')) ? ("<tr><td>Distribution </td><td>" + d.is_dist + "</td></tr>") : "") +
+            ((d.hasOwnProperty('is_extent')) ? ("<tr><td>Extent</td><td>" + d.is_extent + "</td></tr>") : "") +
+            ((d.hasOwnProperty('total_catch')) ? ("<tr><td>Catch</td><td>" + d.total_catch + "</td></tr>") : "") +
+            ((d.hasOwnProperty('total_value')) ? ("<tr><td>Value</td><td>" + d.total_value + "</td></tr>") : "") +
+            "</table>"
+           );
+  }
+
+  $(document).ready(function() {
+    $("text").tooltipster({
+      followMouse: true,
+      contentAsHTML: true,
+      content: function(d) { return taxonToolTip($(this).data("taxon")); }
+    });
+  });
+
+  //$(function() {
+  //  $( document ).tooltip();
+  //});
 }
 
 // Toggle children on click.
