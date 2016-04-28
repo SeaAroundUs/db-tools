@@ -2,6 +2,7 @@ import os
 import optparse
 import traceback
 import multiprocessing
+import copy
 import tkinter as tk
 from tkinter import ttk
 from tkinter import *
@@ -12,11 +13,10 @@ import subprocess
 import sqlprocessor as sp
 from db import getDbConnection
 from db import DBConnectionPane
-from db import DBSqlServer
 
 from models import DataTransfer, AllocationResultPartitionMap
 
-NUMBER_OF_ALLOCATION_RESULT_PARTITIONS = 150
+NUM_OF_ALLOCATION_RESULT_PARTITIONS = 150
 
 
 class PullAllocationDataCommandPane(tk.Frame):
@@ -81,39 +81,46 @@ class PullAllocationDataCommandPane(tk.Frame):
     def processTable(self, tabDescriptor):
         opts = self.sourceDbPane.getDbOptions()
 
-        if tabDescriptor.target_table_name == "allocation_result":
+        if tabDescriptor.target_table_name != "allocation_result":
+            self.downloadAndCopyTable(tabDescriptor, opts)
+        else:
             #
             # Special processing for allocation_result due to its excessive size.
             #
 
             # Clone the table descriptor for the input table to create one for the allocation_result_distribution table
-            allocationResultDistribution = tabDescriptor
-            allocationResultDistribution.target_table_name = "allocation_result_distribution"
-            allocationResultDistribution.source_select_clause = "UniversalDataID, count(*)"
-            allocationResultDistribution.source_where_clause = "GROUP BY UniversalDataID"
-            self.dbSession.execute("TRUNCATE TABLE allocation.allocation_result_distribution")
-            self.downloadAndCopyTable(allocationResultDistribution, opts)
-            self.dbSession.execute("VACUUM ANALYZE allocation.allocation_result_distribution")
+            tableDesc = copy.deepcopy(tabDescriptor)
+            tableDesc.target_table_name = "allocation_result_distribution"
+            tableDesc.source_select_clause = "UniversalDataID, count(*)"
+            tableDesc.source_where_clause = "GROUP BY UniversalDataID"
+            self.dbSession.execute("TRUNCATE TABLE allocation.%s" % tableDesc.target_table_name)
+            self.downloadAndCopyTable(tableDesc, opts)
+            self.dbSession.execute("VACUUM ANALYZE allocation.%s" % tableDesc.target_table_name)
 
             # Now managed the allocation result partition map table to receive download data
-            self.dbSession.execute("TRUNCATE TABLE allocation.allocation_result_partition_map")
-            self.dbSession.execute("select allocation.maintain_allocation_result_partition()")
-            self.dbSession.execute("select allocation.calculate_allocation_result_partition_map(%s)" % NUMBER_OF_ALLOCATION_RESULT_PARTITIONS)
-            self.dbSession.execute("VACUUM ANALYZE allocation.allocation_result_partition_map")
-            self.dbSession.execute("select allocation.maintain_allocation_result_partition()")
+            partitionMapCmds = [
+                "TRUNCATE TABLE allocation.allocation_result_partition_map",
+                "select allocation.maintain_allocation_result_partition()",
+                "select allocation.calculate_allocation_result_partition_map(%s)" % NUM_OF_ALLOCATION_RESULT_PARTITIONS,
+                "VACUUM ANALYZE allocation.allocation_result_partition_map",
+                "select allocation.maintain_allocation_result_partition()"
+            ]
+            for cmd in partitionMapCmds:
+                self.dbSession.execute(cmd)
 
             # Loop over each partition to load data from source
             arPartitionMaps = self.dbSession.query(AllocationResultPartitionMap).order_by(AllocationResultPartitionMap.partition_id).all()
+            tableDesc.target_schema_name = "allocation_partition"
+            tableDesc.source_select_clause = "*"
             for partitionMap in arPartitionMaps:
-                arPartition = tabDescriptor
-                arPartition.target_schema_name = "allocation_partition"
-                arPartition.target_table_name = "allocation_result_%s" % partitionMap.partition_id
-                arPartition.source_where_clause = "WHERE UniversalDataID BETWEEN %s AND %s" % (partitionMap.begin_universal_data_id,
-                                                                                               partitionMap.end_universal_data_id)
-                self.downloadAndCopyTable(arPartition, opts)
+                tableDesc.target_table_name = "allocation_result_%s" % partitionMap.partition_id
+                tableDesc.source_where_clause = "WHERE UniversalDataID BETWEEN %s AND %s" % (partitionMap.begin_universal_data_id,
+                                                                                                 partitionMap.end_universal_data_id)
+                self.downloadAndCopyTable(tableDesc, opts)
 
             mainDbOpts = self.mainDbPane.getDbOptions()
             mainDbOpts['sqlfile'] = None
+            mainDbOpts['threads'] = 8
 
             # Delete any records that have their allocated_catch = 0 to avoid problems further downline
             mainDbOpts['sqlcmd'] = "SELECT format('DELETE FROM allocation_partition.allocation_result_%s WHERE allocated_catch = 0', partition_id)" + \
@@ -131,8 +138,6 @@ class PullAllocationDataCommandPane(tk.Frame):
                                    "  FROM schema_v('allocation_partition')" + \
                                    " WHERE table_name NOT LIKE 'TOTALS%'"
             sp.process(optparse.Values(mainDbOpts))
-        else:
-            self.downloadAndCopyTable(tabDescriptor, opts)
 
     def downloadAndCopyTable(self, tabDescriptor, sourceDbOpts):
         targetTable = "{0}.{1}".format(tabDescriptor.target_schema_name, tabDescriptor.target_table_name)
