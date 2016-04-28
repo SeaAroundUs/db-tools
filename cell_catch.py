@@ -45,7 +45,27 @@ class CellCatchCommandPane(tk.Frame):
         column = 0
 
         try:
-            dbSession = getDbConnection(optparse.Values(self.dbPane.getDbOptions())).getSession()
+            opts = self.dbPane.getDbOptions()
+            dbSession = getDbConnection(optparse.Values(opts)).getSession()
+
+            # Rebuild the allocation_data partitions to make sure we are using the freshest allocation data
+            partitions = dbSession.execute(
+                "SELECT ('allocation_data_partition.' || table_name) AS partition_name" +
+                "  FROM schema_v('allocation_data_partition') " +
+                " WHERE table_name NOT LIKE 'TOTALS%'" +
+                " ORDER BY 1").fetchall()
+
+            for partition in partitions:
+                dbSession.execute("DROP TABLE %s" % partition.partition_name)
+
+            dbSession.execute("SELECT allocation.maintain_allocation_data_partition()")
+
+            opts['sqlfile'] = "sql/insert_allocation_data_eez_hs.sql"
+            if 'threads' not in opts or opts['threads'] == 0:
+                opts['threads'] = 8
+            sp.process(optparse.Values(opts))
+
+            # Add buttons to command pane
             self.yearList = dbSession.execute(
                 "SELECT replace(table_name, 'allocation_data_', '')::INT AS year " +
                 "  FROM schema_v('allocation_data_partition') " +
@@ -100,6 +120,8 @@ class CellCatchCommandPane(tk.Frame):
     def aggregateAllPartition(self):
         for par in self.yearList:
             self.processYearPartition(par.year)
+
+        print("Batch processing of all available years completed!")
 
 
 class Application(tk.Frame):
