@@ -70,7 +70,7 @@ class PullIntegrationDataCommandPane(tk.Frame):
                 column = 0
                 row += 1
 
-        tk.Button(self.cmdFrame, text="Pull all allocation tables", fg="red", command=self.pullAllAllocationData) \
+        tk.Button(self.cmdFrame, text="Pull all integration db tables", fg="red", command=self.pullAllIntegrationDbData) \
             .grid(column=int(column/2), row=row+1, sticky=(E, W, N, S))
 
         for child in self.cmdFrame.winfo_children(): child.grid_configure(padx=5, pady=5)
@@ -140,7 +140,7 @@ class PullIntegrationDataCommandPane(tk.Frame):
 
         self.mainDbSession.execute("VACUUM ANALYZE %s" % targetTable)
 
-    def pullAllAllocationData(self):
+    def pullAllIntegrationDbData(self):
         for tab in self.dataTransfer:
             self.processTable(tab)
 
