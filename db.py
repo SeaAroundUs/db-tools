@@ -101,7 +101,7 @@ class DBConnectionPane(tk.Frame):
         self.add_data_entry(self.pane, self.db_port, "db_port", 5)
         self.add_data_entry(self.pane, self.db_name, "db_name", 30)
         self.add_data_entry(self.pane, self.db_username, "db_username", 30)
-        self.add_data_entry(self.pane, self.db_password, "db_password", 30)
+        self.add_data_entry(self.pane, self.db_password, "db_password", 30, true)
 
         if include_sqlfile == True:
             self.add_data_entry(self.pane, self.db_sqlfile, "db_sqlfile", 80)
@@ -127,10 +127,13 @@ class DBConnectionPane(tk.Frame):
         for entry in (self.db_type, self.db_server, self.db_port, self.db_name, self.db_username, self.db_password):
             entry.trace_variable('w', self.resetConnectionTested)
 
-    def add_data_entry(self, panel, entry_var, entry_text, entry_len):
+    def add_data_entry(self, panel, entry_var, entry_text, entry_len, hidden=false):
         self.entry_row += 1
         tk.Label(panel, text=entry_text).grid(column=0, row=self.entry_row, sticky=W)
-        data_entry = tk.Entry(panel, width=entry_len, textvariable=entry_var)
+        if hidden == true:
+            data_entry = tk.Entry(panel, width=entry_len, textvariable=entry_var, show="*")
+        else:
+            data_entry = tk.Entry(panel, width=entry_len, textvariable=entry_var)
         data_entry.grid(column=1, row=self.entry_row, sticky=W)
 
     def getDbOptions(self):
