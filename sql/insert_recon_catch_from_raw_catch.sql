@@ -15,6 +15,7 @@ layer,
 sector_type_id,
 original_sector,
 catch_type_id,
+reporting_status_id,
 year,
 taxon_key,
 original_taxon_name_id,
@@ -45,6 +46,7 @@ rc.layer,
 rc.sector_type_id,
 rc.original_sector,
 rc.catch_type_id,
+rc.reporting_status_id,
 rc.year,
 COALESCE(tds.use_this_taxon_key_instead, rc.taxon_key),
 rc.original_taxon_name_id,
@@ -64,6 +66,6 @@ left join distribution.taxon_distribution_substitute tds on (tds.original_taxon_
 where rc.id between %s and %s
 ',
     idx+1,
-    idx+25000
+    idx+50000
   )
-  FROM generate_series((select min(id)-1 from recon.raw_catch), (select max(id) from recon.raw_catch), 25000) as g(idx);
+  FROM generate_series((select min(id)-1 from recon.raw_catch), (select max(id) from recon.raw_catch), 50000) as g(idx);
