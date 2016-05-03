@@ -29,7 +29,7 @@ select 'INSERT INTO web.v_fact_data(
                a.area_key,
                c.catch_type_id,
                MAX(ct.abbreviation),
-               c.reporting_status,
+               c.reporting_status_id,
                MAX(rs.abbreviation),
                c.sector_type_id,
                sum(c.total_catch), 
