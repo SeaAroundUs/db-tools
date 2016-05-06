@@ -25,6 +25,7 @@ class TaxonExtentCommandPane(tk.Frame):
         self.shapeFilePattern = re.compile('(\d+)\-?(\d+)?.shp')
         self.extentDir = StringVar()
         self.taxonLevelToRollupFor = IntVar()
+        self.taxonKeyToSimplify = IntVar()
 
         self.extentDir.set("D:/SeaAroundUs/integration-database.old/geo/Taxon_Extent_Edited")
 
@@ -34,6 +35,9 @@ class TaxonExtentCommandPane(tk.Frame):
         self.command_row += 1
         ttk.Separator(cmdFrame).grid(row=self.command_row, columnspan=2, sticky="ew")
         self.add_command(cmdFrame, "Target Taxon Level", self.taxonLevelToRollupFor, "Rollup Lower Level Extents", self.rollupExtent)
+        self.command_row += 1
+        ttk.Separator(cmdFrame).grid(row=self.command_row, columnspan=2, sticky="ew")
+        self.add_command(cmdFrame, "Taxon Key", self.taxonKeyToSimplify, "Simplify Taxon Extent", self.simplifyExtent)
 
         for child in cmdFrame.winfo_children(): child.grid_configure(padx=5, pady=5)
 
@@ -178,54 +182,27 @@ class TaxonExtentCommandPane(tk.Frame):
 
         print("All taxon extent rollup operations for input taxon level completed.")
 
-    def reProcessRollupedExtent(self, taxonKey):
-        print("Processing taxon: %s" % taxonKey)
+
+    def simplifyExtent(self):
+        taxonKey = int(self.taxonKeyToSimplify)
+
+        print("Simplifying taxonKey: %s(%s)" % taxonKey)
 
         dbConn = getDbConnection(optparse.Values(self.dbPane.getDbOptions()))
 
-        try:
-            # First off refresh the materialized views that we rely on to indicate which taxon has/has not an extent already
-            self.refreshMaterializedViews(dbConn)
+        dbConn.execute(
+            "WITH ext(taxon_key, geom) AS (" +
+            "  SELECT e.taxon_key, (st_dump(geom)).geom" +
+            "    FROM distribution.taxon_extent e" +
+            "   WHERE e.taxon_key = %(tk)s" +
+            ")" +
+            "UPDATE distribution.taxon_extent e" +
+            "   SET geom = (SELECT ST_Union(ST_Buffer(ST_SimplifyPreserveTopology(geom, 0.01), 0.25))" +
+            "                 FROM ext" +
+            "                GROUP BY ext.taxon_key)" +
+            " WHERE e.taxon_key = %(tk)s" % {"tk": taxonKey}
+        )
 
-            # Get the list of target taxon keys to rollup for the input taxon level
-            rollups = dbConn.execute("SELECT * FROM distribution.get_taxon_child_extents(%s::int) ORDER BY children_distributions_found" \
-                                     % int(self.taxonLevelToRollupFor.get()))
-
-            curTaxonKey = None
-            for rollup in rollups:
-                curTaxonKey = rollup.taxon_key
-                childrenTaxa = rollup.children_taxon_keys
-                print("Rollup for taxon %s using these lower-level taxons %s" % (curTaxonKey, childrenTaxa))
-
-                try:
-                    if len(childrenTaxa) == 1:
-                        dbConn.execute(
-                            ("INSERT INTO distribution.taxon_extent(taxon_key, is_extended, is_rolled_up, geom) " +
-                            "SELECT %s, is_extended, TRUE, geom FROM distribution.taxon_extent WHERE taxon_key = %s") %
-                            (curTaxonKey, childrenTaxa[0]))
-                    else:
-                        dbConn.execute(
-                            ("INSERT INTO distribution.taxon_extent(taxon_key, is_extended, is_rolled_up, geom) " +
-                            "SELECT %s, (array_agg(DISTINCT is_extended ORDER BY is_extended DESC))[1], TRUE, st_multi(st_collectionextract(st_memunion(st_buffer(geom, 0.0001)), 3)) " +
-                            "  FROM distribution.taxon_extent WHERE taxon_key = any(ARRAY%s::int[]) " +
-                            " GROUP BY TRUE") %
-                            (curTaxonKey, childrenTaxa))
-
-                    dbConn.execute(
-                        ("INSERT INTO distribution.taxon_extent_rollup(taxon_key, children_distributions_found, children_taxon_keys) " +
-                        "VALUES (%s, %s, ARRAY%s::int[])") %
-                        (curTaxonKey, rollup.children_distributions_found, childrenTaxa))
-                except Exception:
-                    print("Exception encountered during the processing of taxon: %s" % curTaxonKey)
-                    print(sys.exc_info())
-                    if curTaxonKey:
-                        dbConn.execute("DELETE FROM distribution.taxon_extent WHERE taxon_key = %s" % curTaxonKey)
-
-            self.refreshMaterializedViews(dbConn)
-        finally:
-            dbConn.close()
-
-        print("All taxon extent rollup operations for input taxon level completed.")
 
 class Application(tk.Frame):
     def __init__(self, master=None):
