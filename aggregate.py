@@ -4,6 +4,7 @@ import multiprocessing
 import tkinter as tk
 from tkinter import ttk
 from tkinter import *
+from tkinter import messagebox
 import sqlprocessor as sp
 from functools import partial
 from db import getDbConnection
@@ -23,12 +24,32 @@ class AggregateCommandPane(tk.Frame):
     def __init__(self, parent, dbPane, isVerticallyAligned=False, descriptions=None):
         tk.Frame.__init__(self, parent)
         self.dbPane = dbPane
+        self.isVerticallyAligned = isVerticallyAligned
+        self.descriptions = descriptions
+        self.index_create_cmds = []
 
-        cmdFrame = ttk.Labelframe(parent, text='Aggregate', width=100, height=100)
-        cmdFrame.grid(column=0, row=0, sticky=(N, W))
-        cmdFrame.columnconfigure(0, weight=1)
-        cmdFrame.rowconfigure(0, weight=1)
+        self.createUiFrame(parent, "V_Fact_Data", self.addVFactDataUiComponents)
+        self.createUiFrame(parent, "Aggregate", self.addAggregateUiComponents)
 
+    def createUiFrame(self, parent, name, addComponents):
+        uiFrame = ttk.Labelframe(parent, text=name, width=100, height=100)
+        uiFrame.grid(column=0, row=0, sticky=(N, W))
+        uiFrame.columnconfigure(0, weight=1)
+        uiFrame.rowconfigure(0, weight=1)
+
+        addComponents(uiFrame)
+
+        for child in uiFrame.winfo_children(): child.grid_configure(padx=5, pady=5)
+
+        parent.add(uiFrame)
+
+    def addVFactDataUiComponents(self, parent):
+        tk.Button(parent, text="Drop indexes before aggregation", fg="blue", command=self.dropIndexes) \
+            .grid(column=0, row=1, sticky=E)
+        tk.Button(parent, text="Recreate indexes post aggregation", fg="blue", command=self.recreateIndexes) \
+            .grid(column=1, row=1, sticky=E)
+
+    def addAggregateUiComponents(self, parent):
         row = 0
         column = 0
 
@@ -38,26 +59,25 @@ class AggregateCommandPane(tk.Frame):
             else:
                 color = "blue"
 
-            if isVerticallyAligned:
+            if self.isVerticallyAligned:
                 row += 1
             else:
                 column += 1
 
-            if descriptions:
-                self.createCommandButton(cmdFrame, AggregateCommandPane.BUTTON_LABELS[i], AggregateCommandPane.AREA_SQL_FILES[i], row, column, color, descriptions[i])
+            if self.descriptions:
+                self.createCommandButton(parent, AggregateCommandPane.BUTTON_LABELS[i],
+                                         AggregateCommandPane.AREA_SQL_FILES[i], row, column, color, self.descriptions[i])
             else:
-                self.createCommandButton(cmdFrame, AggregateCommandPane.BUTTON_LABELS[i], AggregateCommandPane.AREA_SQL_FILES[i], row, column, color)
-
-        for child in cmdFrame.winfo_children(): child.grid_configure(padx=5, pady=5)
-
-        parent.add(cmdFrame)
+                self.createCommandButton(parent, AggregateCommandPane.BUTTON_LABELS[i],
+                                         AggregateCommandPane.AREA_SQL_FILES[i], row, column, color)
 
     def createCommandButton(self, parent, buttonText, sqlFile, gRow, gColumn, color, commandDescription=None):
         if sqlFile:
-            tk.Button(parent, text=buttonText, fg=color, command=partial(self.kickoffSqlProcessor, sqlFile)).grid(
-                column=gColumn, row=gRow, sticky=E)
+            tk.Button(parent, text=buttonText, fg=color, command=partial(self.kickoffSqlProcessor, sqlFile)) \
+                .grid(column=gColumn, row=gRow, sticky=E)
         else:
-            tk.Button(parent, text=buttonText, fg=color, command=self.aggregateAll).grid(column=gColumn, row=gRow, sticky=E)
+            tk.Button(parent, text=buttonText, fg=color, command=self.aggregateAll) \
+                .grid(column=gColumn, row=gRow, sticky=E)
 
         if commandDescription:
             tk.Label(parent, text=commandDescription).grid(column=gColumn+1, row=gRow, sticky=W)
@@ -100,6 +120,37 @@ class AggregateCommandPane(tk.Frame):
                 self.kickoffSqlProcessor(sqlFile, False)
 
         self.postAggregationOperations()
+
+    def dropIndexes(self):
+        if len(self.index_create_cmds) > 0:
+            messagebox.showinfo("Index drop previously executed",
+                                "A prior execution of index drop has been detected. This invocation is aborted.")
+            return
+
+        opts = self.dbPane.getDbOptions()
+        dbConn = getDbConnection(optparse.Values(opts))
+        indexes = dbConn.execute("SELECT (schemaname || '.' || indexname) index_name, indexdef index_create_cmd \
+                                    FROM pg_indexes \
+                                   WHERE tablename = 'v_fact_data' AND indexname NOT LIKE 'v_fact_data_pkey'")
+        for index in indexes:
+            self.index_create_cmds.append(index.index_create_cmd)
+            dbConn.execute("DROP INDEX %s" % index.index_name)
+
+        dbConn.close()
+
+    def recreateIndexes(self):
+        if len(self.index_create_cmds) == 0:
+            messagebox.showinfo("Prior index drop",
+                                "A prior execution of index drop has not been detected. This invocation is aborted.")
+            return
+
+        opts = self.dbPane.getDbOptions()
+        dbConn = getDbConnection(optparse.Values(opts))
+
+        for index_create_cmd in self.index_create_cmds:
+            dbConn.execute(index_create_cmd)
+
+        dbConn.close()
 
 
 class Application(tk.Frame):
