@@ -5,6 +5,7 @@ import traceback
 import multiprocessing
 from db import getDbConnection
 from db import DBConnectionPane
+from psycopg2 import IntegrityError
 import tkinter as tk
 from tkinter import ttk
 from tkinter import *
@@ -94,9 +95,13 @@ class TaxonExtentCommandPane(tk.Frame):
         for feature in layer:
             geom = feature.GetGeometryRef()
             if geom:
-                dbCursor.execute("INSERT INTO distribution.taxon_extent(taxon_key, is_extended, geom)" +
-                                 "VALUES (%(tkey)s, %(extended)s, ST_MULTI(ST_SetSRID(%(geom)s::geometry, 4326)))",
-                                 {"tkey": taxonKey, "extended": isExtendedTaxon, "geom": geom.ExportToWkt()})
+                try:
+                    dbCursor.execute("INSERT INTO distribution.taxon_extent(taxon_key, is_extended, geom)" +
+                                     "VALUES (%(tkey)s, %(extended)s, ST_MULTI(ST_SetSRID(%(geom)s::geometry, 4326)))",
+                                     {"tkey": taxonKey, "extended": isExtendedTaxon, "geom": geom.ExportToWkt()})
+                except IntegrityError:
+                    print("Taxon key %s not found in master.taxon" % taxonKey)
+                    print("Skipping this taxon for now")
             else:
                 print("Unable to get geom for feature %s. Was skipped." % feature)
 
@@ -143,8 +148,6 @@ class TaxonExtentCommandPane(tk.Frame):
             # Get the list of target taxon keys to rollup for the input taxon level
             rollups = dbConn.execute("SELECT * FROM distribution.get_rollup_taxon_list(%s::int) ORDER BY children_distributions_found" \
                                      % int(self.taxonLevelToRollupFor.get()))
-
-            #rollups = dbConn.execute("SELECT * FROM log.v42_extent_rollup ORDER BY children_distributions_found")
 
             curTaxonKey = None
             for rollup in rollups:
