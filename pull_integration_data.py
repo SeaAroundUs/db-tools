@@ -144,6 +144,8 @@ class PullIntegrationDataCommandPane(tk.Frame):
         for tab in self.dataTransfer:
             self.processTable(tab)
 
+        print('All integration db tables successfully pulled down.')
+
 
 class Application(tk.Frame):
     def __init__(self, master=None):

@@ -114,18 +114,13 @@ class PullAllocationDataCommandPane(tk.Frame):
             tableDesc.source_select_clause = "*"
             for partitionMap in arPartitionMaps:
                 tableDesc.target_table_name = "allocation_result_%s" % partitionMap.partition_id
-                tableDesc.source_where_clause = "WHERE UniversalDataID BETWEEN %s AND %s" % (partitionMap.begin_universal_data_id,
-                                                                                                 partitionMap.end_universal_data_id)
+                tableDesc.source_where_clause = "WHERE AllocatedCatch > 0 AND UniversalDataID BETWEEN %s AND %s" \
+                                                % (partitionMap.begin_universal_data_id, partitionMap.end_universal_data_id)
                 self.downloadAndCopyTable(tableDesc, opts)
 
             mainDbOpts = self.mainDbPane.getDbOptions()
             mainDbOpts['sqlfile'] = None
             mainDbOpts['threads'] = 8
-
-            # Delete any records that have their allocated_catch = 0 to avoid problems further downline
-            mainDbOpts['sqlcmd'] = "SELECT format('DELETE FROM allocation_partition.allocation_result_%s WHERE allocated_catch = 0', partition_id)" + \
-                                   "  FROM allocation.allocation_result_partition_map"
-            sp.process(optparse.Values(mainDbOpts))
 
             # Let's now vacuum and analyze all the partitions we just populated above
             mainDbOpts['sqlcmd'] = "SELECT format('VACUUM ANALYZE allocation_partition.%s', table_name) " + \
@@ -194,6 +189,8 @@ class PullAllocationDataCommandPane(tk.Frame):
     def pullAllAllocationData(self):
         for tab in self.dataTransfer:
             self.processTable(tab)
+
+        print('All allocation tables successfully pulled down.')
 
 
 class Application(tk.Frame):
