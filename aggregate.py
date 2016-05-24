@@ -115,11 +115,16 @@ class AggregateCommandPane(tk.Frame):
             self.postAggregationOperations()
 
     def aggregateAll(self):
-        for sqlFile in AggregateCommandPane.AREA_SQL_FILES:
-            if sqlFile:
-                self.kickoffSqlProcessor(sqlFile, False)
+        self.dropIndexes()
+        try:
+            for sqlFile in AggregateCommandPane.AREA_SQL_FILES:
+                if sqlFile:
+                    self.kickoffSqlProcessor(sqlFile, False)
 
-        self.postAggregationOperations()
+            self.postAggregationOperations()
+        finally:
+            self.dropIndexes()
+
 
     def dropIndexes(self):
         if len(self.index_create_cmds) > 0:
