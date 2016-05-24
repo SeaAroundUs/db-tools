@@ -104,8 +104,7 @@ class CellCatchCommandPane(tk.Frame):
 
             opts['sqlfile'] = None
             opts['sqlcmd'] = "SELECT allocation.generate_insert_cell_catch_partition_statements(%s)" % year
-            if 'threads' not in opts or opts['threads'] == 0:
-                opts['threads'] = 8
+            opts['threads'] = 16
             sp.process(optparse.Values(opts))
 
             # Post insertions operation to finalize the target cell catch partition for immediate use
