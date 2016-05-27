@@ -95,6 +95,9 @@ class DBConnectionPane(tk.Frame):
 
         self.entry_row = 0
         self.db_type.set("postgres")
+        self.db_server.set("sau-db-1.ck24jacu2hmg.us-west-2.rds.amazonaws.com")
+        self.db_name.set("sau_int")
+        self.db_username.set("sau_int")
         self.add_data_entry(self.pane, self.db_type, "db_type", 10)
         self.add_data_entry(self.pane, self.db_server, "db_server", 55)
         self.db_port.set(5432)
