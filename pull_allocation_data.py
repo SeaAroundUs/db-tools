@@ -40,6 +40,17 @@ class PullAllocationDataCommandPane(tk.Frame):
         self.cmdFrame.rowconfigure(0, weight=1)
 
         self.parent.add(self.cmdFrame)
+        self.set_defaults()
+
+    def set_defaults(self):
+        self.mainDbPane.db_type.set("postgres")
+        self.mainDbPane.db_server.set("sau-db-1.ck24jacu2hmg.us-west-2.rds.amazonaws.com")
+        self.mainDbPane.db_name.set("sau_int")
+        self.mainDbPane.db_username.set("sau_int")
+        self.sourceDbPane.db_type.set("sqlserver")
+        self.sourceDbPane.db_server.set("merlin.seaaroundus.org")
+        self.sourceDbPane.db_name.set("merlin")
+        self.sourceDbPane.db_username.set("sau_merlin")
 
     def setupCommandPane(self):
         if not self.mainDbPane.isConnectionTestedSuccessfully():
