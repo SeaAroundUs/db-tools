@@ -34,6 +34,10 @@ class PullAllocationDataCommandPane(tk.Frame):
         scb = tk.Button(parent, text="Get list of allocation tables to pull data down", fg="red", command=self.setupCommandPane)
         parent.add(scb)
 
+        rmv = tk.Button(parent, text="Refresh all main db materialized views", fg="red",
+                        command=self.refreshAllMaterializedViews)
+        parent.add(rmv)
+
         self.cmdFrame = ttk.Labelframe(parent, text='Allocation Tables To Pull', width=100, height=100)
         self.cmdFrame.grid(column=0, row=0, sticky=(N, W))
         self.cmdFrame.columnconfigure(0, weight=1)
@@ -70,7 +74,7 @@ class PullAllocationDataCommandPane(tk.Frame):
             column += 1
 
         tk.Button(self.cmdFrame, text="Pull all allocation tables", fg="red", command=self.pullAllAllocationData).grid(
-                column=0, row=row+1, sticky=E)
+            column=0, row=row+1, sticky=E)
 
         for child in self.cmdFrame.winfo_children(): child.grid_configure(padx=5, pady=5)
 
@@ -190,7 +194,16 @@ class PullAllocationDataCommandPane(tk.Frame):
         for tab in self.dataTransfer:
             self.processTable(tab)
 
+        self.refreshAllMaterializedViews()
         print('All allocation tables successfully pulled down.')
+
+    def refreshAllMaterializedViews(self):
+        mainDbOpts = self.mainDbPane.getDbOptions()
+        mainDbOpts['sqlfile'] = "sql/refresh_matviews.sql"
+        mainDbOpts['threads'] = 4
+        sp.process(optparse.Values(mainDbOpts))
+
+        print('All materialized views in main db refreshed.')
 
 
 class Application(tk.Frame):
