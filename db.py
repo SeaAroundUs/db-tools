@@ -94,6 +94,7 @@ class DBConnectionPane(tk.Frame):
         self.db_threads = IntVar()
 
         self.entry_row = 0
+        self.db_type.set("postgres")
         self.add_data_entry(self.pane, self.db_type, "db_type", 10)
         self.add_data_entry(self.pane, self.db_server, "db_server", 55)
         self.db_port.set(5432)
