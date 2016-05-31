@@ -3,6 +3,7 @@ import os.path as path
 import optparse
 import traceback
 import multiprocessing
+from datetime import datetime
 from db import getDbConnection
 from db import DBConnectionPane
 from psycopg2 import IntegrityError
@@ -10,6 +11,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import *
 import osgeo.ogr as ogr
+import osgeo.gdal as gdal
 
 
 class TaxonExtentCommandPane(tk.Frame):
@@ -92,18 +94,23 @@ class TaxonExtentCommandPane(tk.Frame):
 
         shapefile = ogr.Open(shpFilePath)
         layer = shapefile.GetLayer(0)
-        for feature in layer:
-            geom = feature.GetGeometryRef()
-            if geom:
-                try:
-                    dbCursor.execute("INSERT INTO distribution.taxon_extent(taxon_key, is_extended, geom)" +
-                                     "VALUES (%(tkey)s, %(extended)s, ST_MULTI(ST_SetSRID(%(geom)s::geometry, 4326)))",
-                                     {"tkey": taxonKey, "extended": isExtendedTaxon, "geom": geom.ExportToWkt()})
-                except IntegrityError:
-                    print("Taxon key %s not found in master.taxon" % taxonKey)
-                    print("Skipping this taxon for now")
-            else:
-                print("Unable to get geom for feature %s. Was skipped." % feature)
+        feature_count = layer.GetFeatureCount()
+        if feature_count > 1:
+            print("Input extent for %s has %s features. Only one feature is expected." % (taxonKey, feature_count))
+        else:
+            for feature in layer:
+                geom = feature.GetGeometryRef()
+                if geom:
+                    if geom.GetArea() > 0:
+                        try:
+                            dbCursor.execute("INSERT INTO distribution.taxon_extent(taxon_key, is_extended, geom)" +
+                                            "VALUES (%(tkey)s, %(extended)s, ST_MULTI(ST_SetSRID(%(geom)s::geometry, 4326)))",
+                                            {"tkey": taxonKey, "extended": isExtendedTaxon, "geom": geom.ExportToWkt()})
+                        except IntegrityError:
+                            print("Taxon key %s not found in master.taxon" % taxonKey)
+                            print("Skipping this taxon for now")
+                else:
+                    print("Unable to get geom for feature %s. Was skipped." % feature)
 
     def checkExtentDir(self):
         taxonExtentDir = self.extentDir.get()
@@ -123,7 +130,8 @@ class TaxonExtentCommandPane(tk.Frame):
                                 for taxon in taxons:
                                     foundInDirTaxonName = path.basename(subdir)
                                     if taxon.taxon_name != foundInDirTaxonName.replace("_", " "):
-                                        print("Taxon %s's name %s does not match with subdir %s" % (taxonKey, taxon.taxon_name, foundInDirTaxonName))
+                                        print("Taxon %s's name %s does not match with subdir %s"
+                                              % (taxonKey, taxon.taxon_name, foundInDirTaxonName))
             finally:
                 if dbConn:
                     dbConn.close()
@@ -139,6 +147,7 @@ class TaxonExtentCommandPane(tk.Frame):
 
         print("Processing input taxon level: %s" % (self.taxonLevelToRollupFor.get()))
 
+        dbOpts = self.dbPane.getDbOptions()
         dbConn = getDbConnection(optparse.Values(self.dbPane.getDbOptions()))
 
         try:
@@ -153,26 +162,35 @@ class TaxonExtentCommandPane(tk.Frame):
             for rollup in rollups:
                 curTaxonKey = rollup.taxon_key
                 childrenTaxa = rollup.children_taxon_keys
-                print("Rollup for taxon %s using these lower-level taxons %s" % (curTaxonKey, childrenTaxa))
+                print("Rollup for taxon %s using these lower-level taxons %s [%s]" % (curTaxonKey, childrenTaxa, datetime.now().strftime('%Y/%m/%d %H:%M:%S')))
 
                 try:
                     if len(childrenTaxa) == 1:
                         dbConn.execute(
                             ("INSERT INTO distribution.taxon_extent(taxon_key, is_extended, is_rolled_up, geom) " +
-                            "SELECT %s, is_extended, TRUE, geom FROM distribution.taxon_extent WHERE taxon_key = %s") %
-                            (curTaxonKey, childrenTaxa[0]))
+                            "SELECT %s, is_extended, TRUE, geom FROM distribution.taxon_extent WHERE taxon_key = %s")
+                            % (curTaxonKey, childrenTaxa[0]))
                     else:
+                        last_seq = dbConn.execute("SELECT f.seq FROM distribution.extent_rollup_dumpout_polygons(%s, ARRAY%s::int[]) AS f(seq)"
+                                                  % (curTaxonKey, childrenTaxa)).fetchone()[0]
+                        while last_seq and last_seq > 1:
+                            last_seq = dbConn.execute(
+                                "SELECT f.seq FROM distribution.extent_rollup_purge_contained_polygons(%s, %s) AS f(seq)"
+                                % (curTaxonKey, last_seq)).fetchone()[0]
+
                         dbConn.execute(
-                            ("INSERT INTO distribution.taxon_extent(taxon_key, is_extended, is_rolled_up, geom) " +
-                            "SELECT %s, (array_agg(DISTINCT is_extended ORDER BY is_extended DESC))[1], TRUE, st_multi(st_collectionextract(st_memunion(st_buffer(geom, 0.0001)), 3)) " +
-                            "  FROM distribution.taxon_extent WHERE taxon_key = any(ARRAY%s::int[]) " +
-                            " GROUP BY TRUE") %
-                            (curTaxonKey, childrenTaxa))
+                            ("INSERT INTO distribution.taxon_extent(taxon_key, is_rolled_up, geom) " +
+                            "SELECT taxon_key, TRUE, st_multi(st_collectionextract(st_union(st_buffer(st_simplifypreservetopology(geom, 0.01), 0.25)), 3)) " +
+                            "  FROM distribution.taxon_extent_rollup_polygon WHERE taxon_key = %s " +
+                            " GROUP BY taxon_key")
+                            % curTaxonKey)
+
+                        dbConn.execute("DELETE FROM distribution.taxon_extent_rollup_polygon WHERE taxon_key = %s" % curTaxonKey)
 
                     dbConn.execute(
                         ("INSERT INTO distribution.taxon_extent_rollup(taxon_key, children_distributions_found, children_taxon_keys) " +
-                        "VALUES (%s, %s, ARRAY%s::int[])") %
-                        (curTaxonKey, rollup.children_distributions_found, childrenTaxa))
+                        "VALUES (%s, %s, ARRAY%s::int[])")
+                        % (curTaxonKey, rollup.children_distributions_found, childrenTaxa))
                 except Exception:
                     print("Exception encountered during the processing of taxon: %s" % curTaxonKey)
                     print(sys.exc_info())
@@ -203,7 +221,8 @@ class TaxonExtentCommandPane(tk.Frame):
             "   SET geom = (SELECT ST_Union(ST_Buffer(ST_SimplifyPreserveTopology(geom, 0.01), 0.25))" +
             "                 FROM ext" +
             "                GROUP BY ext.taxon_key)" +
-            " WHERE e.taxon_key = %(tk)s" % {"tk": taxonKey}
+            " WHERE e.taxon_key = %(tk)s"
+            % {"tk": taxonKey}
         )
 
 
