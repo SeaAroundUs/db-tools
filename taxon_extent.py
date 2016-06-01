@@ -30,7 +30,7 @@ class TaxonExtentCommandPane(tk.Frame):
         self.taxonLevelToRollupFor = IntVar()
         self.taxonKeyToSimplify = IntVar()
 
-        self.extentDir.set("D:/SeaAroundUs/integration-database.old/geo/Taxon_Extent_Edited")
+        self.extentDir.set("taxon_extent")
 
         self.command_row = 0
         self.add_command(cmdFrame, "Taxon Extent Shape Directory", self.extentDir, "Check Taxon Name Against Key", self.checkExtentDir)
