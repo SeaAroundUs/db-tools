@@ -189,3 +189,4 @@ web.uncertainty_score
 web.uncertainty_time_period
 /pull_int_data.py
 /data/allocation.cell
+/__pycache__
