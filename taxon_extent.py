@@ -196,8 +196,8 @@ class TaxonExtentCommandPane(tk.Frame):
                     print(sys.exc_info())
                     if curTaxonKey:
                         dbConn.execute("DELETE FROM distribution.taxon_extent WHERE taxon_key = %s" % curTaxonKey)
-
-            self.refreshMaterializedViews(dbConn)
+                finally:
+                    self.refreshMaterializedViews(dbConn)
         finally:
             dbConn.close()
 
