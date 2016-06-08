@@ -162,7 +162,7 @@ class TaxonExtentCommandPane(tk.Frame):
             for rollup in rollups:
                 curTaxonKey = rollup.taxon_key
                 childrenTaxa = rollup.children_taxon_keys
-                print("Rollup for taxon %s using these lower-level taxons %s [%s]" % (curTaxonKey, childrenTaxa, datetime.now().strftime('%Y/%m/%d %H:%M:%S')))
+                print("Rollup for %s using lower-level taxons %s [%s]" % (curTaxonKey, childrenTaxa, datetime.now().strftime('%Y/%m/%d %H:%M:%S')))
 
                 try:
                     if len(childrenTaxa) == 1:
