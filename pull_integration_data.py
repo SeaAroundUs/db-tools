@@ -127,16 +127,28 @@ class PullIntegrationDataCommandPane(tk.Frame):
         else:
             columnList = ""
 
-        self.mainDbSession.execute("TRUNCATE TABLE %s" % targetTable)
+        add_fk_cmd = None
+        tt = targetTable.split(".")
+        fk_cmds = self.mainDbSession.execute("SELECT drop_fk_cmd, add_fk_cmd FROM get_table_foreign_key('{0}', '{1}')".format(tt[0], tt[1]))
+        for fk_cmd in fk_cmds:
+            add_fk_cmd = fk_cmd.add_fk_cmd
+            if fk_cmd.drop_fk_cmd:
+                self.mainDbSession.execute(fk_cmd.drop_fk_cmd)
 
-        rawConn = self.mainDbSession.connection().connection
-        cursor = rawConn.cursor()
-        cursor.execute("SET CLIENT_ENCODING TO 'UTF-8'")
-        cursor.copy_expert(sql="copy {0}{1} from STDIN with(encoding 'UTF-8')".format(targetTable, columnList),
-                           file=open(inputDataFile, 'r')
-                          )
-        rawConn.commit()
-        cursor.close()
+        try:
+            self.mainDbSession.execute("TRUNCATE TABLE %s" % targetTable)
+
+            rawConn = self.mainDbSession.connection().connection
+            cursor = rawConn.cursor()
+            cursor.execute("SET CLIENT_ENCODING TO 'UTF-8'")
+            cursor.copy_expert(sql="copy {0}{1} from STDIN with(encoding 'UTF-8')".format(targetTable, columnList),
+                               file=open(inputDataFile, 'r')
+                              )
+            rawConn.commit()
+            cursor.close()
+        finally:
+            if add_fk_cmd:
+                self.mainDbSession.execute(add_fk_cmd)
 
         self.mainDbSession.execute("VACUUM ANALYZE %s" % targetTable)
 
