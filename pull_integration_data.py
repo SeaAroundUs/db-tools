@@ -33,15 +33,16 @@ class PullIntegrationDataCommandPane(tk.Frame):
 
         scb = tk.Button(parent, text="Get list of integration db tables to pull data down", fg="red", command=self.setupCommandPane)
         parent.add(scb)
-        rmv = tk.Button(parent, text="Refresh a materialized views (not necessary if pull all tables is selected)", fg="red", command=self.refreshAllMaterializedViews)
-        parent.add(rmv)
 
         self.cmdFrame = ttk.Labelframe(parent, text='Integration DB Tables To Pull', width=100, height=300)
         self.cmdFrame.grid(column=0, row=0, sticky=(N, W, E, S))
         self.cmdFrame.columnconfigure(0, weight=1)
         self.cmdFrame.rowconfigure(0, weight=1)
-
         self.parent.add(self.cmdFrame)
+
+        rmv = tk.Button(parent, text="Refresh all materialized views (not necessary if pull all tables was selected)",
+                        fg="red", command=self.refreshAllMaterializedViews)
+        parent.add(rmv)
 
     def setupCommandPane(self):
         if not self.mainDbPane.isConnectionTestedSuccessfully():
@@ -75,7 +76,7 @@ class PullIntegrationDataCommandPane(tk.Frame):
                 row += 1
 
         tk.Button(self.cmdFrame, text="Pull all integration db tables", fg="red", command=self.pullAllIntegrationDbData) \
-            .grid(column=int(column/2), row=row+1, sticky=(E, W, N, S))
+            .grid(column=0, row=row+1, sticky=(E, W, N, S))
 
         for child in self.cmdFrame.winfo_children(): child.grid_configure(padx=5, pady=5)
 
