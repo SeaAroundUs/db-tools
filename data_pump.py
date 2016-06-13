@@ -17,25 +17,11 @@ root = tk.Tk()
 root.title("SAU Data Pump")
 
 
-def process():
-    options = {}
-    options['dbtype'] = db_type.get()
-    options['server'] = db_server.get()
-    options['port'] = db_port.get()
-    options['dbname'] = db_name.get()
-    options['username'] = db_username.get()
-    options['password'] = db_password.get()
-    options['sqlfile'] = db_sqlfile.get()
-    options['sqlcmd'] = db_sqlcmd.get()
-    options['threads'] = db_threads.get()
-    sp.process(optparse.Values(options))
-
-
 class Application(tk.Frame):
     def __init__(self, master=None):
         tk.Frame.__init__(self, master)
 
-        mainNB = ttk.Notebook(root, width=500, height=450)
+        mainNB = ttk.Notebook(root, width=500, height=500)
 
         dbPane = ttk.Panedwindow(mainNB, orient=VERTICAL)
         mainDB = DBConnectionPane(dbPane, 'Main DB')
