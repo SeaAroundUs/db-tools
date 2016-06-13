@@ -3,6 +3,8 @@ import optparse
 import traceback
 import multiprocessing
 import tkinter as tk
+import sqlprocessor as sp
+
 from tkinter import ttk
 from tkinter import *
 from tkinter import messagebox
@@ -31,6 +33,8 @@ class PullIntegrationDataCommandPane(tk.Frame):
 
         scb = tk.Button(parent, text="Get list of integration db tables to pull data down", fg="red", command=self.setupCommandPane)
         parent.add(scb)
+        rmv = tk.Button(parent, text="Refresh a materialized views (not necessary if pull all tables is selected)", fg="red", command=self.refreshAllMaterializedViews)
+        parent.add(rmv)
 
         self.cmdFrame = ttk.Labelframe(parent, text='Integration DB Tables To Pull', width=100, height=300)
         self.cmdFrame.grid(column=0, row=0, sticky=(N, W, E, S))
@@ -156,7 +160,17 @@ class PullIntegrationDataCommandPane(tk.Frame):
         for tab in self.dataTransfer:
             self.processTable(tab)
 
+        self.refreshAllMaterializedViews()
+
         print('All integration db tables successfully pulled down.')
+
+    def refreshAllMaterializedViews(self):
+        mainDbOpts = self.mainDbPane.getDbOptions()
+        mainDbOpts['sqlfile'] = "sql/refresh_matviews.sql"
+        mainDbOpts['threads'] = 4
+        sp.process(optparse.Values(mainDbOpts))
+
+        print('All materialized views in main db refreshed.')
 
 
 class Application(tk.Frame):
