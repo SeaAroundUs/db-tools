@@ -9,7 +9,7 @@ from tkinter import ttk
 from tkinter import *
 from tkinter import messagebox
 from functools import partial
-
+from sqlalchemy import func
 from db import getDbConnection
 from db import DBConnectionPane
 from models import DataTransfer
@@ -34,7 +34,7 @@ class PullIntegrationDataCommandPane(tk.Frame):
         scb = tk.Button(parent, text="Get list of integration db tables to pull data down", fg="red", command=self.setupCommandPane)
         parent.add(scb)
 
-        self.cmdFrame = ttk.Labelframe(parent, text='Integration DB Tables To Pull', width=100, height=300)
+        self.cmdFrame = ttk.Labelframe(parent, text='Integration DB Tables To Pull', width=100, height=320)
         self.cmdFrame.grid(column=0, row=0, sticky=(N, W, E, S))
         self.cmdFrame.columnconfigure(0, weight=1)
         self.cmdFrame.rowconfigure(0, weight=1)
@@ -51,19 +51,17 @@ class PullIntegrationDataCommandPane(tk.Frame):
                                 "Once the Main DB Connection has been tested successfully, you can click that button again.")
             return
 
-        #if self.sourceDbPane is not DBSqlServer:
-        #    raise Exception("Source database must be a connection to a Sql Server instance!")
-
         for child in self.cmdFrame.winfo_children(): child.destroy()
 
         i = 0
         row = 0
         column = 0
 
+        sourceDbOpts = optparse.Values(self.sourceDbPane.getDbOptions())
+        self.sourceDbSession = getDbConnection(sourceDbOpts).getSession()
         self.mainDbSession = getDbConnection(optparse.Values(self.mainDbPane.getDbOptions())).getSession()
-        self.sourceDbSession = getDbConnection(optparse.Values(self.sourceDbPane.getDbOptions())).getSession()
 
-        self.dataTransfer = self.mainDbSession.query(DataTransfer).filter_by(target_schema_name='web') \
+        self.dataTransfer = self.mainDbSession.query(DataTransfer).filter(func.lower(DataTransfer.source_database_name)==func.lower(sourceDbOpts.dbname)) \
             .order_by(DataTransfer.id).all()
 
         color = "blue"
@@ -75,8 +73,15 @@ class PullIntegrationDataCommandPane(tk.Frame):
                 column = 0
                 row += 1
 
+        row += 1
         tk.Button(self.cmdFrame, text="Pull all integration db tables", fg="red", command=self.pullAllIntegrationDbData) \
-            .grid(column=0, row=row+1, sticky=(E, W, N, S))
+            .grid(column=0, row=row, sticky=(E, W, N, S))
+
+        tk.Button(self.cmdFrame, text="Drop foreign keys", fg="red", command=self.dropForeignKey) \
+            .grid(column=1, row=row, sticky=(E, W, N, S))
+
+        tk.Button(self.cmdFrame, text="Restore foreign keys", fg="red", command=self.restoreForeignKey) \
+            .grid(column=2, row=row, sticky=(E, W, N, S))
 
         for child in self.cmdFrame.winfo_children(): child.grid_configure(padx=5, pady=5)
 
@@ -91,10 +96,7 @@ class PullIntegrationDataCommandPane(tk.Frame):
     def downloadAndCopyTable(self, tabDescriptor, sourceDbOpts):
         targetTable = "{0}.{1}".format(tabDescriptor.target_schema_name, tabDescriptor.target_table_name)
 
-        if tabDescriptor.target_table_name == "uncertainty_time_period":
-            tabDescriptor.source_select_clause = "period_id, numrange(begin_year, end_year, '[]')"
-        elif tabDescriptor.target_table_name == "uncertainty_eez":
-            tabDescriptor.source_select_clause = "u.eez_id,s.sector_type_id,u.period_id,u.score"
+        print("Pulling data for target table %s" % targetTable)
 
         tabQuery = "(select {0} from {1} {2})".format(tabDescriptor.source_select_clause,
                                                       tabDescriptor.source_table_name,
@@ -132,28 +134,16 @@ class PullIntegrationDataCommandPane(tk.Frame):
         else:
             columnList = ""
 
-        add_fk_cmd = None
-        tt = targetTable.split(".")
-        fk_cmds = self.mainDbSession.execute("SELECT drop_fk_cmd, add_fk_cmd FROM get_table_foreign_key('{0}', '{1}')".format(tt[0], tt[1]))
-        for fk_cmd in fk_cmds:
-            add_fk_cmd = fk_cmd.add_fk_cmd
-            if fk_cmd.drop_fk_cmd:
-                self.mainDbSession.execute(fk_cmd.drop_fk_cmd)
+        self.mainDbSession.execute("TRUNCATE TABLE %s" % targetTable)
 
-        try:
-            self.mainDbSession.execute("TRUNCATE TABLE %s" % targetTable)
-
-            rawConn = self.mainDbSession.connection().connection
-            cursor = rawConn.cursor()
-            cursor.execute("SET CLIENT_ENCODING TO 'UTF-8'")
-            cursor.copy_expert(sql="copy {0}{1} from STDIN with(encoding 'UTF-8')".format(targetTable, columnList),
+        rawConn = self.mainDbSession.connection().connection
+        cursor = rawConn.cursor()
+        cursor.execute("SET CLIENT_ENCODING TO 'UTF-8'")
+        cursor.copy_expert(sql="copy {0}{1} from STDIN with(encoding 'UTF-8')".format(targetTable, columnList),
                                file=open(inputDataFile, 'r')
-                              )
-            rawConn.commit()
-            cursor.close()
-        finally:
-            if add_fk_cmd:
-                self.mainDbSession.execute(add_fk_cmd)
+                           )
+        rawConn.commit()
+        cursor.close()
 
         self.mainDbSession.execute("VACUUM ANALYZE %s" % targetTable)
 
@@ -172,6 +162,20 @@ class PullIntegrationDataCommandPane(tk.Frame):
         sp.process(optparse.Values(mainDbOpts))
 
         print('All materialized views in main db refreshed.')
+
+    def dropForeignKey(self):
+        mainDbOpts = self.mainDbPane.getDbOptions()
+        self.mainDbSession.execute("TRUNCATE TABLE admin.database_foreign_key")
+        self.mainDbSession.execute("INSERT INTO admin.database_foreign_key(drop_fk_cmd, add_fk_cmd) " +
+                                   "SELECT * FROM get_foreign_key_cmd_by_db_owner(LOWER('%s')) " +
+                                   " WHERE drop_fk_cmd IS NOT NULL AND drop_fk_cmd <> ''"
+                                   % mainDbOpts['dbname'])
+        self.mainDbSession.execute("SELECT exec(drop_fk_cmd) FROM admin.database_foreign_key")
+        return
+
+    def restoreForeignKey(self):
+        self.mainDbSession.execute("SELECT exec(add_fk_cmd) FROM admin.database_foreign_key")
+        return
 
 
 class Application(tk.Frame):
