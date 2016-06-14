@@ -21,7 +21,7 @@ class Application(tk.Frame):
     def __init__(self, master=None):
         tk.Frame.__init__(self, master)
 
-        mainNB = ttk.Notebook(root, width=500, height=500)
+        mainNB = ttk.Notebook(root, width=670, height=520)
 
         dbPane = ttk.Panedwindow(mainNB, orient=VERTICAL)
         mainDB = DBConnectionPane(dbPane, 'Main DB')
