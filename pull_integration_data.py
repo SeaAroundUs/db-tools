@@ -171,10 +171,12 @@ class PullIntegrationDataCommandPane(tk.Frame):
                                    " WHERE drop_fk_cmd IS NOT NULL AND drop_fk_cmd <> ''")
                                    % mainDbOpts['dbname'])
         self.mainDbSession.execute("SELECT exec(drop_fk_cmd) FROM admin.database_foreign_key")
+        print("Foreign keys successfully dropped.")
         return
 
     def restoreForeignKey(self):
         self.mainDbSession.execute("SELECT exec(add_fk_cmd) FROM admin.database_foreign_key")
+        print("Foreign keys successfully added.")
         return
 
 
