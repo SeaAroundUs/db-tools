@@ -166,9 +166,9 @@ class PullIntegrationDataCommandPane(tk.Frame):
     def dropForeignKey(self):
         mainDbOpts = self.mainDbPane.getDbOptions()
         self.mainDbSession.execute("TRUNCATE TABLE admin.database_foreign_key")
-        self.mainDbSession.execute("INSERT INTO admin.database_foreign_key(drop_fk_cmd, add_fk_cmd) " +
+        self.mainDbSession.execute(("INSERT INTO admin.database_foreign_key(drop_fk_cmd, add_fk_cmd) " +
                                    "SELECT * FROM get_foreign_key_cmd_by_db_owner(LOWER('%s')) " +
-                                   " WHERE drop_fk_cmd IS NOT NULL AND drop_fk_cmd <> ''"
+                                   " WHERE drop_fk_cmd IS NOT NULL AND drop_fk_cmd <> ''")
                                    % mainDbOpts['dbname'])
         self.mainDbSession.execute("SELECT exec(drop_fk_cmd) FROM admin.database_foreign_key")
         return
