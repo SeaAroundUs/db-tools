@@ -31,7 +31,7 @@ class PullAllocationDataCommandPane(tk.Frame):
         self.dbSession = None
         self.dataTransfer = None
 
-        scb = tk.Button(parent, text="Get list of allocation tables to pull data down", fg="red", command=self.setupCommandPane)
+        scb = tk.Button(parent, text="Get list of allocation tables to pull data down (SQLServer)", fg="red", command=self.setupCommandPane)
         self.parent.add(scb)
 
         self.cmdFrame = ttk.Labelframe(parent, text='Allocation Tables To Pull', width=100, height=80)
@@ -40,7 +40,7 @@ class PullAllocationDataCommandPane(tk.Frame):
         self.cmdFrame.rowconfigure(0, weight=1)
         self.parent.add(self.cmdFrame)
 
-        rmv = tk.Button(parent, text="Refresh all main db materialized views", fg="red",
+        rmv = tk.Button(parent, text="Refresh all Main DB materialized views", fg="red",
                         command=self.refreshAllMaterializedViews)
         self.parent.add(rmv)
 

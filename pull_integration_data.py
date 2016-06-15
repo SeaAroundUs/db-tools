@@ -18,7 +18,7 @@ NUMBER_OF_ALLOCATION_RESULT_PARTITIONS = 150
 
 
 class PullIntegrationDataCommandPane(tk.Frame):
-    def __init__(self, parent, mainDbPane, sourceDbPane, buttonsPerRow = 6):
+    def __init__(self, parent, mainDbPane, sourceDbPane, buttonsPerRow = 6, suppressMaterializedViewRefreshButton = FALSE):
         tk.Frame.__init__(self, parent)
 
         self.parent = parent
@@ -31,7 +31,7 @@ class PullIntegrationDataCommandPane(tk.Frame):
         self.sourceDbSession = None
         self.dataTransfer = None
 
-        scb = tk.Button(parent, text="Get list of integration db tables to pull data down", fg="red", command=self.setupCommandPane)
+        scb = tk.Button(parent, text="Get list of integration db tables to pull data down (Postgres)", fg="red", command=self.setupCommandPane)
         parent.add(scb)
 
         self.cmdFrame = ttk.Labelframe(parent, text='Integration DB Tables To Pull', width=100, height=320)
@@ -40,9 +40,10 @@ class PullIntegrationDataCommandPane(tk.Frame):
         self.cmdFrame.rowconfigure(0, weight=1)
         self.parent.add(self.cmdFrame)
 
-        rmv = tk.Button(parent, text="Refresh all materialized views (not necessary if pull all tables was selected)",
-                        fg="red", command=self.refreshAllMaterializedViews)
-        parent.add(rmv)
+        if not suppressMaterializedViewRefreshButton:
+            rmv = tk.Button(parent, text="Refresh all Main DB materialized views",
+                            fg="red", command=self.refreshAllMaterializedViews)
+            parent.add(rmv)
 
     def setupCommandPane(self):
         if not self.mainDbPane.isConnectionTestedSuccessfully():
