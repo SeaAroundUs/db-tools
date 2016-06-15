@@ -11,7 +11,6 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import *
 import osgeo.ogr as ogr
-import osgeo.gdal as gdal
 
 
 class TaxonExtentCommandPane(tk.Frame):
@@ -147,7 +146,6 @@ class TaxonExtentCommandPane(tk.Frame):
 
         print("Processing input taxon level: %s" % (self.taxonLevelToRollupFor.get()))
 
-        dbOpts = self.dbPane.getDbOptions()
         dbConn = getDbConnection(optparse.Values(self.dbPane.getDbOptions()))
 
         try:

@@ -10,7 +10,6 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import *
 from tkinter import messagebox
-import tkinter.filedialog as fdlg
 
 
 def process(dbPane):
@@ -31,12 +30,13 @@ class Application(tk.Frame):
         self.mainframe.columnconfigure(0, weight=1)
         self.mainframe.rowconfigure(0, weight=1)
 
-        self.dbPane = DBConnectionPane(self.mainframe, "DB Connection", True, True)
+        self.dbPane = DBConnectionPane(self.mainframe, "DB Connection", include_threads=True, include_sqlfile=True)
 
         self.processFrame = ttk.Labelframe(self.mainframe, text="Process", width=400, height=50)
         self.processFrame.grid(column=0, row=0, sticky=(N, W, E, S))
         self.processFrame.columnconfigure(0, weight=1)
         self.processFrame.rowconfigure(0, weight=1)
+
         pb = tk.Button(self.processFrame, text="  Process  ", fg="red", command=partial(process, self.dbPane))
         pb.place(relx=0.5, rely=0.5, anchor=CENTER)
 
