@@ -33,12 +33,15 @@ class TaxonExtentCommandPane(tk.Frame):
 
         self.command_row = 0
         self.add_command(cmdFrame, "Taxon Extent Shape Directory", self.extentDir, "Check Taxon Name Against Key", self.checkExtentDir)
+
+        self.addSeparator(cmdFrame)
         self.add_command(cmdFrame, "Taxon Extent Shape Directory", self.extentDir, "Load Into DB", self.processExtentDir)
-        self.command_row += 1
-        ttk.Separator(cmdFrame).grid(row=self.command_row, columnspan=2, sticky="ew")
-        self.add_command(cmdFrame, "Target Taxon Level", self.taxonLevelToRollupFor, "Rollup Lower Level Extents", self.rollupExtent)
-        self.command_row += 1
-        ttk.Separator(cmdFrame).grid(row=self.command_row, columnspan=2, sticky="ew")
+
+        self.addSeparator(cmdFrame)
+        lsb = Spinbox(cmdFrame, textvariable=self.taxonLevelToRollupFor, width=59, values=(5, 4, 3, 2, 1), state=NORMAL)
+        self.add_command(cmdFrame, "Target Taxon Level", lsb, "Rollup Lower Level Extents", self.rollupExtent)
+
+        self.addSeparator(cmdFrame)
         self.add_command(cmdFrame, "Taxon Key", self.taxonKeyToSimplify, "Simplify Taxon Extent", self.simplifyExtent)
 
         for child in cmdFrame.winfo_children(): child.grid_configure(padx=5, pady=5)
@@ -49,8 +52,18 @@ class TaxonExtentCommandPane(tk.Frame):
         self.command_row += 1
         tk.Label(panel, text=label_text).grid(column=0, row=self.command_row, sticky=W)
         self.command_row += 1
-        tk.Entry(panel, width=60, textvariable=entry_var).grid(column=0, row=self.command_row, sticky=W)
+
+        # if entry_var is a widget already, we just need to grid it. otherwise, we create an input Entry to wrap it.
+        if entry_var.__class__.__base__.__name__ == "Widget":
+            entry_var.grid(column=0, row=self.command_row, sticky=W)
+        else:
+            tk.Entry(panel, width=60, textvariable=entry_var).grid(column=0, row=self.command_row, sticky=W)
+            
         tk.Button(panel, text=cmd_text, command=cmd).grid(column=1, row=self.command_row, sticky=W)
+
+    def addSeparator(self, panel):
+        self.command_row += 1
+        ttk.Separator(panel).grid(row=self.command_row, columnspan=2, sticky="ew")
 
     def processExtentDir(self):
         taxonExtentDir = self.extentDir.get()
