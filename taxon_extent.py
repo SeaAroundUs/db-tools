@@ -58,7 +58,7 @@ class TaxonExtentCommandPane(tk.Frame):
             entry_var.grid(column=0, row=self.command_row, sticky=W)
         else:
             tk.Entry(panel, width=60, textvariable=entry_var).grid(column=0, row=self.command_row, sticky=W)
-            
+
         tk.Button(panel, text=cmd_text, command=cmd).grid(column=1, row=self.command_row, sticky=W)
 
     def addSeparator(self, panel):
@@ -99,7 +99,8 @@ class TaxonExtentCommandPane(tk.Frame):
         else:
             isExtendedTaxon = True
 
-        print("Processing taxonKey: %s(%s)" % (taxonKey, isExtendedTaxon))
+        #print("Processing taxonKey: %s(%s)" % (taxonKey, isExtendedTaxon))
+        print("Processing taxonKey: %s" % taxonKey)
 
         dbCursor.execute("DELETE FROM distribution.taxon_extent" + \
                          " WHERE taxon_key = %s AND is_extended = %s" % (taxonKey, isExtendedTaxon))
