@@ -48,6 +48,7 @@ class CacheDataCommandPane(tk.Frame):
         dbSession.execute("SELECT * FROM web_cache.maintain_catch_csv_partition(%s)" % entity_layer_id)
 
         dbOpts['sqlfile'] = "sql/populate_catch_data_in_csv.sql"
+        dbOpts['sqlcmd'] = "select format('vacuum analyze web_cache.%s', table_name) from schema_v('web_cache') where table_name not like 'TOTAL%'"
         dbOpts['threads'] = 4
         sp.process(optparse.Values(dbOpts))
 
