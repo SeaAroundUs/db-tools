@@ -31,7 +31,7 @@ class PullAllocationDataCommandPane(tk.Frame):
         self.dbSession = None
         self.dataTransfer = None
 
-        scb = tk.Button(parent, text="Get list of allocation tables to pull data down (SQLServer)", fg="red", command=self.setupCommandPane)
+        scb = tk.Button(parent, text="Get list of allocation tables to pull data down (SQLServer)", fg="red", height=1, command=self.setupCommandPane)
         self.parent.add(scb)
 
         self.cmdFrame = ttk.Labelframe(parent, text='Allocation Tables To Pull', width=100, height=80)

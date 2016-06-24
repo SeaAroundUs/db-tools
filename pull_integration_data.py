@@ -31,10 +31,10 @@ class PullIntegrationDataCommandPane(tk.Frame):
         self.sourceDbSession = None
         self.dataTransfer = None
 
-        scb = tk.Button(parent, text="Get list of integration db tables to pull data down (Postgres)", fg="red", command=self.setupCommandPane)
+        scb = tk.Button(parent, text="Get list of integration db tables to pull data down (Postgres)", fg="red", height=1, command=self.setupCommandPane)
         parent.add(scb)
 
-        self.cmdFrame = ttk.Labelframe(parent, text='Integration DB Tables To Pull', width=100, height=320)
+        self.cmdFrame = ttk.Labelframe(parent, text='Integration DB Tables To Pull', width=100, height=350)
         self.cmdFrame.grid(column=0, row=0, sticky=(N, W, E, S))
         self.cmdFrame.columnconfigure(0, weight=1)
         self.cmdFrame.rowconfigure(0, weight=1)
