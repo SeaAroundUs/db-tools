@@ -1,10 +1,8 @@
-import optparse
 import traceback
 import multiprocessing
 import tkinter as tk
 from tkinter import ttk
 from tkinter import *
-import sqlprocessor as sp
 from db import DBConnectionPane
 from pull_integration_data import PullIntegrationDataCommandPane
 from pull_allocation_data import PullAllocationDataCommandPane
@@ -12,30 +10,17 @@ from summarize import SummarizeCommandPane
 from aggregate import AggregateCommandPane
 from cell_catch import CellCatchCommandPane
 from taxon_extent import TaxonExtentCommandPane
+from cache_data import CacheDataCommandPane
 
 root = tk.Tk()
 root.title("SAU Data Pump")
-
-
-def process():
-    options = {}
-    options['dbtype'] = db_type.get()
-    options['server'] = db_server.get()
-    options['port'] = db_port.get()
-    options['dbname'] = db_name.get()
-    options['username'] = db_username.get()
-    options['password'] = db_password.get()
-    options['sqlfile'] = db_sqlfile.get()
-    options['sqlcmd'] = db_sqlcmd.get()
-    options['threads'] = db_threads.get()
-    sp.process(optparse.Values(options))
 
 
 class Application(tk.Frame):
     def __init__(self, master=None):
         tk.Frame.__init__(self, master)
 
-        mainNB = ttk.Notebook(root, width=500, height=450)
+        mainNB = ttk.Notebook(root, width=680, height=520)
 
         dbPane = ttk.Panedwindow(mainNB, orient=VERTICAL)
         mainDB = DBConnectionPane(dbPane, 'Main DB')
@@ -43,7 +28,7 @@ class Application(tk.Frame):
 
         # first tab
         pullDataPane = ttk.Panedwindow(mainNB, orient=VERTICAL)
-        PullIntegrationDataCommandPane(pullDataPane, mainDB, sourceDB, 4)
+        PullIntegrationDataCommandPane(pullDataPane, mainDB, sourceDB, 4, TRUE)
         PullAllocationDataCommandPane(pullDataPane, mainDB, sourceDB)
 
         # second tab
@@ -87,6 +72,11 @@ class Application(tk.Frame):
 
         # fifth tab
         cacheDataPane = ttk.Panedwindow(mainNB, orient=VERTICAL)
+        CacheDataCommandPane(
+            cacheDataPane,
+            mainDB
+        )
+        cacheDataPane.add(ttk.Panedwindow(cacheDataPane, orient=VERTICAL))
 
         # sixth tab
         taxonExtentPane = ttk.Panedwindow(mainNB, orient=VERTICAL)

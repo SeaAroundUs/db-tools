@@ -12,6 +12,7 @@ class DataTransfer(Base):
     source_database_name = Column(String)
     source_table_name = Column(String)
     source_key_column = Column(String)
+    source_select_clause = Column(String)
     source_where_clause = Column(String)
     target_schema_name = Column(String)
     target_table_name = Column(String)
