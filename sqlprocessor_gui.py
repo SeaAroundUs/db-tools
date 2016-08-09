@@ -11,36 +11,39 @@ from tkinter import ttk
 from tkinter import *
 from tkinter import messagebox
 
+class SqlProcessorGuiCommandPane(tk.Frame):
+    def __init__(self, parent, dbPane):
+        tk.Frame.__init__(self, parent)
+        self.dbPane = dbPane
+        self.dbConn = None
 
-def process(dbPane):
-    if not dbPane.isConnectionTestedSuccessfully():
-        messagebox.showinfo("Connection not yet tested",
-                            "The DB Connection has not been tested successfully.\n" +\
-                            "Once the DB Connection has been tested successfully, you can click the Process button again.")
-        return
-
-    sp.process(optparse.Values(dbPane.getDbOptions()))
-
-
-class Application(tk.Frame):
-    def __init__(self, master=None):
-        tk.Frame.__init__(self, master)
-        self.mainframe = ttk.Panedwindow(master, orient=VERTICAL)
-        self.mainframe.grid(column=0, row=0, sticky=(N, W, E, S))
-        self.mainframe.columnconfigure(0, weight=1)
-        self.mainframe.rowconfigure(0, weight=1)
-
-        self.dbPane = DBConnectionPane(self.mainframe, "DB Connection", include_threads=True, include_sqlfile=True)
-
-        self.processFrame = ttk.Labelframe(self.mainframe, text="Process", width=400, height=50)
+        self.processFrame = ttk.Labelframe(parent, text="Process", width=400, height=50)
         self.processFrame.grid(column=0, row=0, sticky=(N, W, E, S))
         self.processFrame.columnconfigure(0, weight=1)
         self.processFrame.rowconfigure(0, weight=1)
 
-        pb = tk.Button(self.processFrame, text="  Process  ", fg="red", command=partial(process, self.dbPane))
+        pb = tk.Button(self.processFrame, text="  Process  ", fg="red", command=partial(self.process, self.dbPane))
         pb.place(relx=0.5, rely=0.5, anchor=CENTER)
 
-        self.mainframe.add(self.processFrame)
+        parent.add(self.processFrame)
+
+    def process(self):
+        if not self.dbPane.isConnectionTestedSuccessfully():
+            messagebox.showinfo("Connection not yet tested",
+                                "The DB Connection has not been tested successfully.\n" +\
+                                "Once the DB Connection has been tested successfully, you can click the Process button again.")
+            return
+               
+        sp.process(optparse.Values(self.dbPane.getDbOptions()))
+
+class Application(tk.Frame):
+    def __init__(self, master=None):
+        tk.Frame.__init__(self, master)
+
+        mainPane = ttk.Panedwindow(master, orient=VERTICAL)
+        dbPane = DBConnectionPane(parent=mainPane, title="DB Connection", include_threads=True, include_sqlfile=True)
+        SqlProcessorGuiCommandPane(mainPane, dbPane)
+        mainPane.pack(expand=1, fill='both')
 
 # ===============================================================================================
 # ----- MAIN

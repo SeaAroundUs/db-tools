@@ -11,6 +11,7 @@ from aggregate import AggregateCommandPane
 from cell_catch import CellCatchCommandPane
 from taxon_extent import TaxonExtentCommandPane
 from cache_data import CacheDataCommandPane
+from sqlprocessor_gui import SqlProcessorGUICommandPane
 
 root = tk.Tk()
 root.title("SAU Data Pump")
@@ -95,6 +96,14 @@ class Application(tk.Frame):
         mainNB.add(taxonExtentPane, text='Taxon Extent')
 
         mainNB.pack(expand=1, fill='both')
+
+        # seventh tab
+        sqlProcessorGUIPane = ttk.Panedwindow(mainNB, orient=VERTICAL)
+        SqlProcessorGUICommandPane(
+            sqlProcessorGUIPane,
+            mainDB
+        )
+        sqlProcessorGUIPane.add(ttk.Panedwindow(sqlProcessorGUIPane, orient=VERTICAL))
 
 
 # ===============================================================================================
