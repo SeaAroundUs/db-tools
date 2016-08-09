@@ -87,16 +87,6 @@ class Application(tk.Frame):
         )
         taxonExtentPane.add(ttk.Panedwindow(taxonExtentPane, orient=VERTICAL))
 
-        mainNB.add(dbPane, text='DB Connection')
-        mainNB.add(pullDataPane, text='Pull Data')
-        mainNB.add(summarizePane, text='Summarize')
-        mainNB.add(aggregatePane, text='Aggregate')
-        mainNB.add(cellCatchPane, text='Cell Catch')
-        mainNB.add(cacheDataPane, text='Cache Data')
-        mainNB.add(taxonExtentPane, text='Taxon Extent')
-
-        mainNB.pack(expand=1, fill='both')
-
         # seventh tab
         sqlProcessorGuiPane = ttk.Panedwindow(mainNB, orient=VERTICAL)
         SqlProcessorGuiCommandPane(
@@ -105,6 +95,16 @@ class Application(tk.Frame):
         )
         sqlProcessorGuiPane.add(ttk.Panedwindow(sqlProcessorGuiPane, orient=VERTICAL))
 
+        mainNB.add(dbPane, text='DB Connection')
+        mainNB.add(pullDataPane, text='Pull Data')
+        mainNB.add(summarizePane, text='Summarize')
+        mainNB.add(aggregatePane, text='Aggregate')
+        mainNB.add(cellCatchPane, text='Cell Catch')
+        mainNB.add(cacheDataPane, text='Cache Data')
+        mainNB.add(taxonExtentPane, text='Taxon Extent')
+        mainNB.add(sqlProcessorGuiPane, text='SQL Processor')
+
+        mainNB.pack(expand=1, fill='both')
 
 # ===============================================================================================
 # ----- MAIN
