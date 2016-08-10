@@ -91,7 +91,8 @@ class Application(tk.Frame):
         sqlProcessorGuiPane = ttk.Panedwindow(mainNB, orient=VERTICAL)
         SqlProcessorGuiCommandPane(
             sqlProcessorGuiPane,
-            mainDB
+            mainDB,
+            True
         )
         sqlProcessorGuiPane.add(ttk.Panedwindow(sqlProcessorGuiPane, orient=VERTICAL))
 
