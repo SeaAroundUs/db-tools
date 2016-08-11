@@ -48,11 +48,12 @@ class Rds():
 def main():
     # Below is for testing only
     db_identifier = 'sau-db-qa-1'
-    db_instance_small = 'db.t2.medium'
+    db_instance_small = 'db.t2.large'
     db_instance_mid = 'db.m4.2xlarge'
     db_instance_large = 'db.m4.4xlarge'
     rds = Rds()
     #rds.modify_instance(db_identifier, db_instance_large)
+    print("My rds current size: " + rds.get_db_instance_class(db_identifier))
 
 if __name__ == '__main__':
     main()

@@ -10,7 +10,7 @@ from psycopg2 import IntegrityError
 import tkinter as tk
 from tkinter import ttk
 from tkinter import *
-import osgeo.ogr as ogr
+from osgeo import ogr
 
 
 class TaxonExtentCommandPane(tk.Frame):
@@ -150,6 +150,7 @@ class TaxonExtentCommandPane(tk.Frame):
                     dbConn.close()
 
     def refreshMaterializedViews(self, dbConn):
+        print("Refreshing materialized views this program depends on.")
         dbConn.execute("REFRESH MATERIALIZED VIEW distribution.v_taxon_with_extent")
         dbConn.execute("REFRESH MATERIALIZED VIEW distribution.v_taxon_with_distribution")
 
