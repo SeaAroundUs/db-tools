@@ -4,6 +4,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import *
 from db import DBConnectionPane
+from rds import RdsCommandPane
 from pull_integration_data import PullIntegrationDataCommandPane
 from pull_allocation_data import PullAllocationDataCommandPane
 from summarize import SummarizeCommandPane
@@ -28,11 +29,19 @@ class Application(tk.Frame):
         sourceDB = DBConnectionPane(dbPane, 'Source DB')
 
         # first tab
+        rdsPane = ttk.Panedwindow(mainNB, orient=VERTICAL)
+        RdsCommandPane(
+            rdsPane,
+            mainDB
+        )
+        rdsPane.add(ttk.Panedwindow(rdsPane, orient=VERTICAL))        
+
+        # second tab
         pullDataPane = ttk.Panedwindow(mainNB, orient=VERTICAL)
         PullIntegrationDataCommandPane(pullDataPane, mainDB, sourceDB, 4, TRUE)
         PullAllocationDataCommandPane(pullDataPane, mainDB, sourceDB)
 
-        # second tab
+        # third tab
         summarizePane = ttk.Panedwindow(mainNB, orient=VERTICAL)
         SummarizeCommandPane(
             summarizePane,
@@ -48,7 +57,7 @@ class Application(tk.Frame):
         # Also added a filler pane to purely improve look and feel only
         summarizePane.add(ttk.Panedwindow(summarizePane, orient=VERTICAL))
 
-        # third tab
+        # fourth tab
         aggregatePane = ttk.Panedwindow(mainNB, orient=VERTICAL)
         AggregateCommandPane(
             aggregatePane,
@@ -63,7 +72,7 @@ class Application(tk.Frame):
         )
         aggregatePane.add(ttk.Panedwindow(aggregatePane, orient=VERTICAL))
 
-        # fourth tab
+        # fifth tab
         cellCatchPane = ttk.Panedwindow(mainNB, orient=VERTICAL)
         CellCatchCommandPane(
             cellCatchPane,
@@ -71,7 +80,7 @@ class Application(tk.Frame):
         )
         cellCatchPane.add(ttk.Panedwindow(cellCatchPane, orient=VERTICAL))
 
-        # fifth tab
+        # sixth tab
         cacheDataPane = ttk.Panedwindow(mainNB, orient=VERTICAL)
         CacheDataCommandPane(
             cacheDataPane,
@@ -79,7 +88,7 @@ class Application(tk.Frame):
         )
         cacheDataPane.add(ttk.Panedwindow(cacheDataPane, orient=VERTICAL))
 
-        # sixth tab
+        # seventh tab
         taxonExtentPane = ttk.Panedwindow(mainNB, orient=VERTICAL)
         TaxonExtentCommandPane(
             taxonExtentPane,
@@ -87,7 +96,7 @@ class Application(tk.Frame):
         )
         taxonExtentPane.add(ttk.Panedwindow(taxonExtentPane, orient=VERTICAL))
 
-        # seventh tab
+        # eighth tab
         sqlProcessorGuiPane = ttk.Panedwindow(mainNB, orient=VERTICAL)
         SqlProcessorGuiCommandPane(
             sqlProcessorGuiPane,
@@ -97,6 +106,7 @@ class Application(tk.Frame):
         sqlProcessorGuiPane.add(ttk.Panedwindow(sqlProcessorGuiPane, orient=VERTICAL))
 
         mainNB.add(dbPane, text='DB Connection')
+        mainNB.add(rdsPane, text='RDS')
         mainNB.add(pullDataPane, text='Pull Data')
         mainNB.add(summarizePane, text='Summarize')
         mainNB.add(aggregatePane, text='Aggregate')
