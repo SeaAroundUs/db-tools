@@ -30,6 +30,12 @@ class RdsCommandPane(tk.Frame):
         self.serverFrame.columnconfigure(0, weight=1)
         self.serverFrame.rowconfigure(0, weight=1)
 
+        print("\nImportant Note: The instance MUST be scaled back to its default setting.\n\n +\
+            db.t2.large - QA default setting\n +\
+            db.m4.large - Prod default setting\n +\
+            db.m4.2xlarge - 8 concurrent threads\n +\
+            db.m4.4xlarge - 16 concurrent threads \n")
+
         self.entry_row = 0
         dbOpts = self.dbPane.getDbOptions()
         server = dbOpts["server"]
@@ -40,7 +46,7 @@ class RdsCommandPane(tk.Frame):
         self.add_data_entry(self.serverFrame, self.instance, "Current Instance Size", 60, "Refresh", self.refreshInstance, readonly=True)
 
         lsb = Spinbox(self.serverFrame, textvariable=self.size, width=59, values=("db.t2.large", "db.m4.large", "db.m4.2xlarge", "db.m4.4xlarge"), state=NORMAL) 
-        self.add_data_entry(self.serverFrame, lsb, "Scale to", 40, "Update", self.modify_instance)
+        self.add_data_entry(self.serverFrame, lsb, "Scale to", 40, "Update", self.modify_instance, readonly=True)
 
         for child in self.serverFrame.winfo_children(): child.grid_configure(padx=5, pady=5)
 
