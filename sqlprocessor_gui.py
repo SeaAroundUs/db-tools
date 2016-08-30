@@ -42,7 +42,7 @@ class SqlProcessorGuiCommandPane(tk.Frame):
         self.processFrame.columnconfigure(0, weight=1)
         self.processFrame.rowconfigure(0, weight=1)
          
-        pb = tk.Button(self.processFrame, text="  Process  ", fg="red", command=partial(self.process, self.dbPane))
+        pb = tk.Button(self.processFrame, text="  Process  ", fg="red", command=self.process)
         pb.place(relx=0.5, rely=0.5, anchor=CENTER)
 
         parent.add(self.processFrame)
