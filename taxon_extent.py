@@ -4,7 +4,7 @@ import optparse
 import traceback
 import multiprocessing
 import subprocess
-import shutil
+import glob
 
 from datetime import datetime
 from db import getDbConnection
@@ -256,19 +256,23 @@ class TaxonExtentCommandPane(tk.Frame):
 
         print("Extracting taxon: %s" % taxonKey)
 
-        outputShapeFile = "%s.shp" % taxonKey
-
         if self.extentExtractDir.get().strip() == "":
-            outputShapeFile = os.path.join(os.getcwd(), outputShapeFile)
+            outputShapeDir = os.getcwd()
         else:
-            outputShapeFile = os.path.join(self.extentExtractDir.get().strip(), outputShapeFile)
+            outputShapeDir = self.extentExtractDir.get().strip()
+
+        outputShapeFile = os.path.join(outputShapeDir, "%s.shp" % taxonKey)
 
         dbOpts = self.dbPane.getDbOptions()
 
         extentSql = ('pgsql2shp -h %s -p %s -u %s -P %s -f %s %s "SELECT * FROM distribution.taxon_extent WHERE taxon_key = %s"'
                      % (dbOpts["server"], dbOpts["port"], dbOpts["username"], dbOpts["password"], outputShapeFile, dbOpts["dbname"], taxonKey))
 
-        subprocess.check_call(extentSql, shell=True)
+        try:
+            subprocess.check_call(extentSql, shell=True)
+        except subprocess.CalledProcessError:
+            for f in glob.glob(os.path.join(outputShapeDir, "%s.*" % taxonKey)):
+                os.remove(f)
 
         if not (os.path.isfile(outputShapeFile) and os.access(outputShapeFile, os.R_OK)):
             messagebox.showinfo("Taxon extent extraction unsuccessful",
