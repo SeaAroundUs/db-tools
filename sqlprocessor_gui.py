@@ -17,16 +17,18 @@ class SqlProcessorGuiCommandPane(tk.Frame):
         self.dbPane = dbPane
         self.dbConn = None
 
-        self.db_sqlfile = StringVar()
-        self.db_sqlcmd = StringVar()
-        self.db_threads = IntVar()
+        self.promptForSqlFile = promptForSqlFile
 
         if promptForSqlFile:
             self.sqlFrame = ttk.Labelframe(parent, text="Sql", width=400, height=50)
             self.sqlFrame.grid(column=0, row=0, sticky=(N, W, E, S))
             self.sqlFrame.columnconfigure(0, weight=1)
             self.sqlFrame.rowconfigure(0, weight=1)
-            
+
+            self.db_sqlfile = StringVar()
+            self.db_sqlcmd = StringVar()
+            self.db_threads = IntVar()
+
             self.entry_row = 0
             self.add_data_entry(self.sqlFrame, self.db_sqlfile, "db_sqlfile", 80)
             self.add_data_entry(self.sqlFrame, self.db_sqlcmd, "db_sqlcmd", 80)
@@ -42,7 +44,7 @@ class SqlProcessorGuiCommandPane(tk.Frame):
         self.processFrame.columnconfigure(0, weight=1)
         self.processFrame.rowconfigure(0, weight=1)
          
-        pb = tk.Button(self.processFrame, text="  Process  ", fg="red", command=partial(self.process, self.dbPane))
+        pb = tk.Button(self.processFrame, text="  Process  ", fg="red", command=self.process)
         pb.place(relx=0.5, rely=0.5, anchor=CENTER)
 
         parent.add(self.processFrame)
@@ -55,9 +57,11 @@ class SqlProcessorGuiCommandPane(tk.Frame):
             return
             
         dbOpts = self.dbPane.getDbOptions()
-        dbOpts['sqlfile'] = self.db_sqlfile.get()
-        dbOpts['threads'] = self.db_threads.get()
-        dbOpts['sqlcmd'] = self.db_sqlcmd.get()
+
+        if self.promptForSqlFile:
+            dbOpts['sqlfile'] = self.db_sqlfile.get()
+            dbOpts['threads'] = self.db_threads.get()
+            dbOpts['sqlcmd'] = self.db_sqlcmd.get()
 
         sp.process(optparse.Values(dbOpts))
 

@@ -3,14 +3,19 @@ import os.path as path
 import optparse
 import traceback
 import multiprocessing
+import subprocess
+import glob
+
 from datetime import datetime
 from db import getDbConnection
 from db import DBConnectionPane
 from psycopg2 import IntegrityError
+from osgeo import ogr
+
 import tkinter as tk
 from tkinter import ttk
+from tkinter import messagebox
 from tkinter import *
-from osgeo import ogr
 
 
 class TaxonExtentCommandPane(tk.Frame):
@@ -28,14 +33,16 @@ class TaxonExtentCommandPane(tk.Frame):
         self.extentDir = StringVar()
         self.taxonLevelToRollupFor = IntVar()
         self.taxonKeyToSimplify = IntVar()
+        self.taxonKeyToExtract = IntVar()
+        self.extentExtractDir = StringVar()
 
         self.extentDir.set("taxon_extent")
 
         self.command_row = 0
-        self.add_command(cmdFrame, "Taxon Extent Shape Directory", self.extentDir, "Check Taxon Name Against Key", self.checkExtentDir)
+        self.add_command(cmdFrame, "Taxon Extent Shape Input Directory", self.extentDir, "Check Taxon Name Against Key", self.checkExtentDir)
 
         self.addSeparator(cmdFrame)
-        self.add_command(cmdFrame, "Taxon Extent Shape Directory", self.extentDir, "Load Into DB", self.processExtentDir)
+        self.add_command(cmdFrame, "Taxon Extent Shape Input Directory", self.extentDir, "Load Into DB", self.processExtentDir)
 
         self.addSeparator(cmdFrame)
         lsb = Spinbox(cmdFrame, textvariable=self.taxonLevelToRollupFor, width=59, values=(5, 4, 3, 2, 1), state=NORMAL)
@@ -44,11 +51,15 @@ class TaxonExtentCommandPane(tk.Frame):
         self.addSeparator(cmdFrame)
         self.add_command(cmdFrame, "Taxon Key", self.taxonKeyToSimplify, "Simplify Taxon Extent", self.simplifyExtent)
 
+        self.addSeparator(cmdFrame)
+        self.add_command(cmdFrame, "Taxon Key", self.taxonKeyToExtract)
+        self.add_command(cmdFrame, "Taxon Extent Shape Output Directory", self.extentExtractDir, "Extract Taxon Extent", self.extractExtent)
+
         for child in cmdFrame.winfo_children(): child.grid_configure(padx=5, pady=5)
 
         parent.add(cmdFrame)
 
-    def add_command(self, panel, label_text, entry_var, cmd_text, cmd):
+    def add_command(self, panel, label_text, entry_var, cmd_text=None, cmd=None):
         self.command_row += 1
         tk.Label(panel, text=label_text).grid(column=0, row=self.command_row, sticky=W)
         self.command_row += 1
@@ -59,7 +70,8 @@ class TaxonExtentCommandPane(tk.Frame):
         else:
             tk.Entry(panel, width=60, textvariable=entry_var).grid(column=0, row=self.command_row, sticky=W)
 
-        tk.Button(panel, text=cmd_text, command=cmd).grid(column=1, row=self.command_row, sticky=W)
+        if cmd:
+            tk.Button(panel, text=cmd_text, command=cmd).grid(column=1, row=self.command_row, sticky=W)
 
     def addSeparator(self, panel):
         self.command_row += 1
@@ -218,9 +230,9 @@ class TaxonExtentCommandPane(tk.Frame):
 
 
     def simplifyExtent(self):
-        taxonKey = int(self.taxonKeyToSimplify)
+        taxonKey = int(self.taxonKeyToSimplify.get())
 
-        print("Simplifying taxonKey: %s(%s)" % taxonKey)
+        print("Simplifying taxon: %s" % taxonKey)
 
         dbConn = getDbConnection(optparse.Values(self.dbPane.getDbOptions()))
 
@@ -239,12 +251,46 @@ class TaxonExtentCommandPane(tk.Frame):
         )
 
 
+    def extractExtent(self):
+        taxonKey = str(self.taxonKeyToExtract.get())
+
+        print("Extracting taxon: %s" % taxonKey)
+
+        if self.extentExtractDir.get().strip() == "":
+            outputShapeDir = os.getcwd()
+        else:
+            outputShapeDir = self.extentExtractDir.get().strip()
+
+        outputShapeFile = os.path.join(outputShapeDir, "%s.shp" % taxonKey)
+
+        dbOpts = self.dbPane.getDbOptions()
+
+        extentSql = ('pgsql2shp -h %s -p %s -u %s -P %s -f %s %s "SELECT * FROM distribution.taxon_extent WHERE taxon_key = %s"'
+                     % (dbOpts["server"], dbOpts["port"], dbOpts["username"], dbOpts["password"], outputShapeFile, dbOpts["dbname"], taxonKey))
+
+        try:
+            subprocess.check_call(extentSql, shell=True)
+        except subprocess.CalledProcessError:
+            for f in glob.glob(os.path.join(outputShapeDir, "%s.*" % taxonKey)):
+                os.remove(f)
+
+        if not (os.path.isfile(outputShapeFile) and os.access(outputShapeFile, os.R_OK)):
+            messagebox.showinfo("Taxon extent extraction unsuccessful",
+                                "Attempt to extract extent for the taxon '{0}' failed.".format(taxonKey) +
+                                "Please check that the taxon key was entered correctly and try again!")
+            return False
+
+        return True
+
+
 class Application(tk.Frame):
     def __init__(self, master=None):
         tk.Frame.__init__(self, master)
 
         mainPane = ttk.Panedwindow(master, orient=VERTICAL)
         dbPane = DBConnectionPane(parent=mainPane, title="DB Connection", include_threads=False, include_sqlfile=False)
+        dbPane.db_name.set('sau_int')
+        dbPane.db_username.set('sau_int')
         TaxonExtentCommandPane(mainPane, dbPane)
         mainPane.pack(expand=1, fill='both')
 
