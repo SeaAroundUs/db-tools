@@ -12,10 +12,7 @@ from db import DBConnectionPane
 from psycopg2 import IntegrityError
 from osgeo import ogr
 
-import tkinter as tk
-from tkinter import ttk
-from tkinter import messagebox
-from tkinter import *
+from tkinter_util import *
 
 
 class TaxonExtentCommandPane(tk.Frame):
@@ -23,11 +20,6 @@ class TaxonExtentCommandPane(tk.Frame):
         tk.Frame.__init__(self, parent)
         self.dbPane = dbPane
         self.dbConn = None
-
-        cmdFrame = ttk.Labelframe(parent, text='Process Taxon Extent', width=100, height=100)
-        cmdFrame.grid(column=0, row=0, sticky=(N, W))
-        cmdFrame.columnconfigure(0, weight=1)
-        cmdFrame.rowconfigure(0, weight=1)
 
         self.shapeFilePattern = re.compile('(\d+)\-?(\d+)?.shp')
         self.extentDir = StringVar()
@@ -38,44 +30,28 @@ class TaxonExtentCommandPane(tk.Frame):
 
         self.extentDir.set("taxon_extent")
 
-        self.command_row = 0
-        self.add_command(cmdFrame, "Taxon Extent Shape Input Directory", self.extentDir, "Check Taxon Name Against Key", self.checkExtentDir)
+        # Setting up UI widgets
+        cmdFrame = add_label_frame(parent, 'Process Taxon Extent', 100, 100)
 
-        self.addSeparator(cmdFrame)
-        self.add_command(cmdFrame, "Taxon Extent Shape Input Directory", self.extentDir, "Load Into DB", self.processExtentDir)
+        cmd_row = add_command(cmdFrame, 0, "Taxon Extent Shape Input Directory", self.extentDir, "Check Taxon Name Against Key", self.checkExtentDir)
 
-        self.addSeparator(cmdFrame)
+        cmd_row = add_separator(cmdFrame, cmd_row)
+        cmd_row = add_command(cmdFrame, cmd_row, "Taxon Extent Shape Input Directory", self.extentDir, "Load Into DB", self.processExtentDir)
+
+        cmd_row = add_separator(cmdFrame, cmd_row)
         lsb = Spinbox(cmdFrame, textvariable=self.taxonLevelToRollupFor, width=59, values=(5, 4, 3, 2, 1), state=NORMAL)
-        self.add_command(cmdFrame, "Target Taxon Level", lsb, "Rollup Lower Level Extents", self.rollupExtent)
+        cmd_row = add_command(cmdFrame, cmd_row, "Target Taxon Level", lsb, "Rollup Lower Level Extents", self.rollupExtent)
 
-        self.addSeparator(cmdFrame)
-        self.add_command(cmdFrame, "Taxon Key", self.taxonKeyToSimplify, "Simplify Taxon Extent", self.simplifyExtent)
+        cmd_row = add_separator(cmdFrame, cmd_row)
+        cmd_row = add_command(cmdFrame, cmd_row, "Taxon Key", self.taxonKeyToSimplify, "Simplify Taxon Extent", self.simplifyExtent)
 
-        self.addSeparator(cmdFrame)
-        self.add_command(cmdFrame, "Taxon Key", self.taxonKeyToExtract)
-        self.add_command(cmdFrame, "Taxon Extent Shape Output Directory", self.extentExtractDir, "Extract Taxon Extent", self.extractExtent)
+        cmd_row = add_separator(cmdFrame, cmd_row)
+        cmd_row = add_command(cmdFrame, cmd_row, "Taxon Key", self.taxonKeyToExtract)
+        cmd_row = add_command(cmdFrame, cmd_row, "Taxon Extent Shape Output Directory", self.extentExtractDir, "Extract Taxon Extent", self.extractExtent)
 
-        for child in cmdFrame.winfo_children(): child.grid_configure(padx=5, pady=5)
+        grid_panel(cmdFrame)
 
         parent.add(cmdFrame)
-
-    def add_command(self, panel, label_text, entry_var, cmd_text=None, cmd=None):
-        self.command_row += 1
-        tk.Label(panel, text=label_text).grid(column=0, row=self.command_row, sticky=W)
-        self.command_row += 1
-
-        # if entry_var is a widget already, we just need to grid it. otherwise, we create an input Entry to wrap it.
-        if entry_var.__class__.__base__.__name__ == "Widget":
-            entry_var.grid(column=0, row=self.command_row, sticky=W)
-        else:
-            tk.Entry(panel, width=60, textvariable=entry_var).grid(column=0, row=self.command_row, sticky=W)
-
-        if cmd:
-            tk.Button(panel, text=cmd_text, command=cmd).grid(column=1, row=self.command_row, sticky=W)
-
-    def addSeparator(self, panel):
-        self.command_row += 1
-        ttk.Separator(panel).grid(row=self.command_row, columnspan=2, sticky="ew")
 
     def processExtentDir(self):
         taxonExtentDir = self.extentDir.get()
