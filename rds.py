@@ -30,12 +30,6 @@ class RdsCommandPane(tk.Frame):
         self.serverFrame.columnconfigure(0, weight=1)
         self.serverFrame.rowconfigure(0, weight=1)
 
-        print("\nImportant Note: The instance MUST be scaled back to its default setting.\n\n +\
-            db.t2.large - QA default setting\n +\
-            db.m4.large - Prod default setting\n +\
-            db.m4.2xlarge - 8 concurrent threads\n +\
-            db.m4.4xlarge - 16 concurrent threads \n")
-
         self.entry_row = 0
         dbOpts = self.dbPane.getDbOptions()
         server = dbOpts["server"]
@@ -132,6 +126,13 @@ class Application(tk.Frame):
 
         mainPane = ttk.Panedwindow(master, orient=VERTICAL)
         dbPane = DBConnectionPane(parent=mainPane, title="DB Connection", include_threads=False, include_sqlfile=False)
+
+        print("\nImportant Note: The instance MUST be scaled back to its default setting.\n\n +\
+            db.t2.large - QA default setting\n +\
+            db.m4.large - Prod default setting\n +\
+            db.m4.2xlarge - 8 concurrent threads\n +\
+            db.m4.4xlarge - 16 concurrent threads \n")
+
         RdsCommandPane(mainPane, dbPane)
         mainPane.pack(expand=1, fill='both')
 
