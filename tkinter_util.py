@@ -10,7 +10,7 @@ def add_label_frame(parent, title, frame_width, frame_height):
     frame.rowconfigure(0, weight=1)
     return frame
 
-def add_data_entry(panel, entry_row, entry_var, entry_text, entry_len, hidden=False):
+def add_data_entry(panel, entry_row, entry_var, entry_text, entry_len, hidden=False, readonly=False):
     tk.Label(panel, text=entry_text).grid(column=0, row=entry_row, sticky=W)
 
     if hidden == True:
@@ -18,18 +18,26 @@ def add_data_entry(panel, entry_row, entry_var, entry_text, entry_len, hidden=Fa
     else:
         data_entry = tk.Entry(panel, width=entry_len, textvariable=entry_var)
 
+    if readonly == True:
+        data_entry.bind("<Key>", lambda e: "break")
+
     data_entry.grid(column=1, row=entry_row, sticky=W)
 
     return (entry_row + 1)
 
-def add_command(panel, command_row, label_text, entry_var, cmd_text=None, cmd=None):
+def add_command(panel, command_row, label_text, entry_var, cmd_text=None, cmd=None, readonly=False):
     tk.Label(panel, text=label_text).grid(column=0, row=command_row, sticky=W)
 
     # if entry_var is a widget already, we just need to grid it. otherwise, we create an input Entry to wrap it.
     if isinstance(entry_var, Widget):
-        entry_var.grid(column=0, row=command_row+1, sticky=W)
+        data_entry = entry_var
     else:
-        tk.Entry(panel, width=60, textvariable=entry_var).grid(column=0, row=command_row+1, sticky=W)
+        data_entry = tk.Entry(panel, width=60, textvariable=entry_var)
+
+    if readonly == True:
+        data_entry.bind("<Key>", lambda e: "break")
+
+    data_entry.grid(column=0, row=command_row + 1, sticky=W)
 
     if cmd:
         tk.Button(panel, text=cmd_text, command=cmd).grid(column=1, row=command_row+1, sticky=W)
