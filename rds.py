@@ -9,10 +9,7 @@ from functools import partial
 import sqlprocessor as sp
 from db import DBConnectionPane
 
-import tkinter as tk
-from tkinter import ttk
-from tkinter import *
-from tkinter import messagebox
+from tkinter_util import *
 
 class RdsCommandPane(tk.Frame):
     def __init__(self, parent, dbPane):
@@ -25,43 +22,22 @@ class RdsCommandPane(tk.Frame):
         self.size = StringVar()
         self.identifier = StringVar()   
 
-        self.serverFrame = ttk.Labelframe(parent, text="Relational Database Service", width=400, height=50)
-        self.serverFrame.grid(column=0, row=0, sticky=(N, W, E, S))
-        self.serverFrame.columnconfigure(0, weight=1)
-        self.serverFrame.rowconfigure(0, weight=1)
+        self.serverFrame = add_label_frame(parent, 'Relational Database Service', 400, 50)
 
-        self.entry_row = 0
         dbOpts = self.dbPane.getDbOptions()
         server = dbOpts["server"]
         if server:
             self.instance.set(self.get_db_instance_class(server.split(".")[0]))
         else:
             self.instance.set("Server not specified. Test connection before refreshing.")
-        self.add_data_entry(self.serverFrame, self.instance, "Current Instance Size", 60, "Refresh", self.refreshInstance, readonly=True)
+        cmd_row = add_command(self.serverFrame, 0, "Current Instance Size", self.instance, "Refresh", self.refreshInstance, readonly=True)
 
         lsb = Spinbox(self.serverFrame, textvariable=self.size, width=59, values=("db.t2.large", "db.m4.large", "db.m4.2xlarge", "db.m4.4xlarge"), state=NORMAL) 
-        self.add_data_entry(self.serverFrame, lsb, "Scale to", 40, "Update", self.modify_instance, readonly=True)
+        cmd_row = add_command(self.serverFrame, cmd_row, "Scale to", lsb, "Update", self.modify_instance, readonly=True)
 
         for child in self.serverFrame.winfo_children(): child.grid_configure(padx=5, pady=5)
 
         parent.add(self.serverFrame)
-
-    def add_data_entry(self, panel, entry_var, entry_text, entry_len, cmd_text, cmd, readonly=False):
-        self.entry_row += 1
-        tk.Label(panel, text=entry_text).grid(column=0, row=self.entry_row, sticky=W)
-        
-        # if entry_var is a widget already, we just need to grid it. otherwise, we create an input Entry to wrap it.
-        if isinstance(entry_var, Widget):
-            data_entry = entry_var
-        else:
-            data_entry = tk.Entry(panel, width=entry_len, textvariable=entry_var)
-
-        if readonly == True:
-            data_entry.bind("<Key>", lambda e: "break")
-
-        data_entry.grid(column=1, row=self.entry_row, sticky=W)
-
-        tk.Button(panel, text=cmd_text, command= cmd).grid(column=2, row=self.entry_row, sticky=W)
 
     def refreshInstance(self):
         dbOpts = self.dbPane.getDbOptions()
