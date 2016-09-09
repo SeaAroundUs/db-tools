@@ -1,12 +1,8 @@
-import time
-import sys
 import boto3
 import botocore
 import traceback
 import multiprocessing
-from functools import partial
 
-import sqlprocessor as sp
 from db import DBConnectionPane
 
 from tkinter_util import *
@@ -35,7 +31,7 @@ class RdsCommandPane(tk.Frame):
         lsb = Spinbox(self.serverFrame, textvariable=self.size, width=59, values=("db.t2.large", "db.m4.large", "db.m4.2xlarge", "db.m4.4xlarge"), state=NORMAL) 
         cmd_row = add_command(self.serverFrame, cmd_row, "Scale to", lsb, "Update", self.modify_instance, readonly=True)
 
-        for child in self.serverFrame.winfo_children(): child.grid_configure(padx=5, pady=5)
+        grid_panel(self.serverFrame)
 
         parent.add(self.serverFrame)
 
