@@ -2,9 +2,12 @@ import optparse
 import traceback
 import multiprocessing
 
+import sqlprocessor as sp
+
 from db import DBConnectionPane
 
 from tkinter_util import *
+
 
 class SqlProcessorGuiCommandPane(tk.Frame):
     def __init__(self, parent, dbPane, promptForSqlFile=False):
@@ -53,6 +56,7 @@ class SqlProcessorGuiCommandPane(tk.Frame):
 
         sp.process(optparse.Values(dbOpts))
 
+
 class Application(tk.Frame):
     def __init__(self, master=None):
         tk.Frame.__init__(self, master)
@@ -61,6 +65,7 @@ class Application(tk.Frame):
         dbPane = DBConnectionPane(parent=mainPane, title="DB Connection", include_threads=True, include_sqlfile=True)
         SqlProcessorGuiCommandPane(mainPane, dbPane)
         mainPane.pack(expand=1, fill='both')
+
 
 # ===============================================================================================
 # ----- MAIN
