@@ -1,15 +1,10 @@
 import optparse
 import traceback
 import multiprocessing
-from functools import partial
 
-import sqlprocessor as sp
 from db import DBConnectionPane
 
-import tkinter as tk
-from tkinter import ttk
-from tkinter import *
-from tkinter import messagebox
+from tkinter_util import *
 
 class SqlProcessorGuiCommandPane(tk.Frame):
     def __init__(self, parent, dbPane, promptForSqlFile=False):
@@ -20,34 +15,27 @@ class SqlProcessorGuiCommandPane(tk.Frame):
         self.promptForSqlFile = promptForSqlFile
 
         if promptForSqlFile:
-            self.sqlFrame = ttk.Labelframe(parent, text="Sql", width=400, height=50)
-            self.sqlFrame.grid(column=0, row=0, sticky=(N, W, E, S))
-            self.sqlFrame.columnconfigure(0, weight=1)
-            self.sqlFrame.rowconfigure(0, weight=1)
+            sqlFrame = add_label_frame(parent, "Sql", 400, 50)
 
             self.db_sqlfile = StringVar()
             self.db_sqlcmd = StringVar()
             self.db_threads = IntVar()
 
-            self.entry_row = 0
-            self.add_data_entry(self.sqlFrame, self.db_sqlfile, "db_sqlfile", 80)
-            self.add_data_entry(self.sqlFrame, self.db_sqlcmd, "db_sqlcmd", 80)
+            cmd_row = add_data_entry(sqlFrame, 0, self.db_sqlfile, "db_sqlfile", 80)
+            cmd_row = add_data_entry(sqlFrame, cmd_row, self.db_sqlcmd, "db_sqlcmd", 80)
             self.db_threads.set(4)
-            self.add_data_entry(self.sqlFrame, self.db_threads, "db_threads", 3)
+            cmd_row = add_data_entry(sqlFrame, cmd_row, self.db_threads, "db_threads", 3)
 
-            for child in self.sqlFrame.winfo_children(): child.grid_configure(padx=5, pady=5)
+            grid_panel(sqlFrame)
 
-            parent.add(self.sqlFrame)
-            
-        self.processFrame = ttk.Labelframe(parent, text="Process", width=400, height=50)
-        self.processFrame.grid(column=0, row=0, sticky=(N, W, E, S))
-        self.processFrame.columnconfigure(0, weight=1)
-        self.processFrame.rowconfigure(0, weight=1)
+            parent.add(sqlFrame)
+        
+        processFrame = add_label_frame(parent, "Process", 400, 50)
          
-        pb = tk.Button(self.processFrame, text="  Process  ", fg="red", command=self.process)
+        pb = tk.Button(processFrame, text="  Process  ", fg="red", command=self.process)
         pb.place(relx=0.5, rely=0.5, anchor=CENTER)
 
-        parent.add(self.processFrame)
+        parent.add(processFrame)
 
     def process(self):
         if not self.dbPane.isConnectionTestedSuccessfully():
@@ -64,16 +52,6 @@ class SqlProcessorGuiCommandPane(tk.Frame):
             dbOpts['sqlcmd'] = self.db_sqlcmd.get()
 
         sp.process(optparse.Values(dbOpts))
-
-    def add_data_entry(self, panel, entry_var, entry_text, entry_len, hidden=False):
-        self.entry_row += 1
-        tk.Label(panel, text=entry_text).grid(column=0, row=self.entry_row, sticky=W)
-        if hidden == True:
-            data_entry = tk.Entry(panel, width=entry_len, textvariable=entry_var, show="*")
-        else:
-            data_entry = tk.Entry(panel, width=entry_len, textvariable=entry_var)
-        data_entry.grid(column=1, row=self.entry_row, sticky=W)
-
 
 class Application(tk.Frame):
     def __init__(self, master=None):
