@@ -3,10 +3,9 @@ import optparse
 import traceback
 import multiprocessing
 import copy
-import tkinter as tk
-from tkinter import ttk
-from tkinter import *
-from tkinter import messagebox
+
+from tkinter_util import *
+
 from functools import partial
 import subprocess
 
@@ -34,15 +33,12 @@ class PullAllocationDataCommandPane(tk.Frame):
         scb = tk.Button(parent, text="Get list of allocation tables to pull data down (SQLServer)", fg="red", height=1, command=self.setupCommandPane)
         self.parent.add(scb)
 
-        self.cmdFrame = ttk.Labelframe(parent, text='Allocation Tables To Pull', width=100, height=80)
-        self.cmdFrame.grid(column=0, row=0, sticky=(N, W))
-        self.cmdFrame.columnconfigure(0, weight=1)
-        self.cmdFrame.rowconfigure(0, weight=1)
-        self.parent.add(self.cmdFrame)
+        self.cmdFrame = add_label_frame(parent, "Allocation Tables To Pull", 100, 120)
+        parent.add(self.cmdFrame)
 
         rmv = tk.Button(parent, text="Refresh all Main DB materialized views", fg="red",
                         command=self.refreshAllMaterializedViews)
-        self.parent.add(rmv)
+        parent.add(rmv)
 
         self.set_defaults()
 
@@ -84,8 +80,15 @@ class PullAllocationDataCommandPane(tk.Frame):
             self.createCommandButton(self.cmdFrame, tab.target_table_name, tab, row, column, color)
             column += 1
 
-        tk.Button(self.cmdFrame, text="Pull all allocation tables", fg="red", command=self.pullAllAllocationData).grid(
-            column=0, row=row+1, sticky=E)
+        row += 1
+        tk.Button(self.cmdFrame, text="Pull all integration db tables", fg="red", command=self.pullAllAllocationData) \
+            .grid(column=0, row=row+1, sticky=E)
+
+        tk.Button(self.cmdFrame, text="Drop foreign keys", fg="red", command=self.dropForeignKey) \
+            .grid(column=1, row=row+1, sticky=E)
+
+        tk.Button(self.cmdFrame, text="Restore foreign keys", fg="red", command=self.restoreForeignKey) \
+            .grid(column=2, row=row+1, sticky=E)
 
         for child in self.cmdFrame.winfo_children(): child.grid_configure(padx=5, pady=5)
 
@@ -215,6 +218,22 @@ class PullAllocationDataCommandPane(tk.Frame):
         sp.process(optparse.Values(mainDbOpts))
 
         print('All materialized views in main db refreshed.')
+        
+    def dropForeignKey(self):
+        mainDbOpts = self.mainDbPane.getDbOptions()
+        self.dbSession.execute("TRUNCATE TABLE admin.database_foreign_key")
+        self.dbSession.execute(("INSERT INTO admin.database_foreign_key(drop_fk_cmd, add_fk_cmd) " +
+                                   "SELECT * FROM get_foreign_key_cmd_by_db_owner(LOWER('%s')) " +
+                                   " WHERE drop_fk_cmd IS NOT NULL AND drop_fk_cmd <> ''")
+                                   % mainDbOpts['dbname'])
+        self.dbSession.execute("SELECT exec(drop_fk_cmd) FROM admin.database_foreign_key")
+        print("Foreign keys successfully dropped.")
+        return
+
+    def restoreForeignKey(self):
+        self.dbSession.execute("SELECT exec(add_fk_cmd) FROM admin.database_foreign_key")
+        print("Foreign keys successfully added.")
+        return        
 
 
 class Application(tk.Frame):
