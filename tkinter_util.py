@@ -13,10 +13,14 @@ def add_label_frame(parent, title, frame_width, frame_height):
 def add_data_entry(panel, entry_row, entry_var, entry_text, entry_len, hidden=False, readonly=False):
     tk.Label(panel, text=entry_text).grid(column=0, row=entry_row, sticky=W)
 
-    if hidden == True:
-        data_entry = tk.Entry(panel, width=entry_len, textvariable=entry_var, show="*")
+    # if entry_var is a widget already, we just need to grid it. otherwise, we create an input Entry to wrap it.
+    if isinstance(entry_var, Widget):
+        data_entry = entry_var
     else:
-        data_entry = tk.Entry(panel, width=entry_len, textvariable=entry_var)
+        if hidden == True:
+            data_entry = tk.Entry(panel, width=entry_len, textvariable=entry_var, show="*")
+        else:
+            data_entry = tk.Entry(panel, width=entry_len, textvariable=entry_var)
 
     if readonly == True:
         data_entry.bind("<Key>", lambda e: "break")
@@ -43,6 +47,12 @@ def add_command(panel, command_row, label_text, entry_var, cmd_text=None, cmd=No
         tk.Button(panel, text=cmd_text, command=cmd).grid(column=1, row=command_row+1, sticky=W)
 
     return (command_row + 2)
+
+def add_check_box(panel, chkbox_row, label_text, entry_var):
+    chkBox = Checkbutton(panel, variable=entry_var)
+    add_data_entry(panel, chkbox_row, chkBox, label_text, None)
+
+    return (chkbox_row + 1)
 
 def add_separator(panel, row):
     ttk.Separator(panel).grid(row=row, columnspan=2, sticky="ew")
