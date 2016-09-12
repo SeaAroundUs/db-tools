@@ -2,12 +2,10 @@ import os
 import optparse
 import traceback
 import multiprocessing
-import tkinter as tk
 import sqlprocessor as sp
 
-from tkinter import ttk
-from tkinter import *
-from tkinter import messagebox
+from tkinter_util import *
+
 from functools import partial
 from sqlalchemy import func
 from db import getDbConnection
@@ -34,11 +32,8 @@ class PullIntegrationDataCommandPane(tk.Frame):
         scb = tk.Button(parent, text="Get list of integration db tables to pull data down (Postgres)", fg="red", height=1, command=self.setupCommandPane)
         parent.add(scb)
 
-        self.cmdFrame = ttk.Labelframe(parent, text='Integration DB Tables To Pull', width=100, height=350)
-        self.cmdFrame.grid(column=0, row=0, sticky=(N, W, E, S))
-        self.cmdFrame.columnconfigure(0, weight=1)
-        self.cmdFrame.rowconfigure(0, weight=1)
-        self.parent.add(self.cmdFrame)
+        self.cmdFrame = add_label_frame(parent, "Integration DB Tables To Pull", 100, 350)
+        parent.add(self.cmdFrame)
 
         if not suppressMaterializedViewRefreshButton:
             rmv = tk.Button(parent, text="Refresh all Main DB materialized views",
