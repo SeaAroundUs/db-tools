@@ -59,9 +59,9 @@ def add_separator(panel, row):
 
     return (row + 1)
 
-def grid_panel(panel):
+def grid_panel(panel, spacing = 5):
     for child in panel.winfo_children():
-        child.grid_configure(padx=5, pady=5)
+        child.grid_configure(padx=spacing, pady=spacing)
 
 def popup_message(title, msg):
     messagebox.showinfo(title, msg)
