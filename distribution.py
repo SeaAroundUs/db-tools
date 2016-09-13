@@ -95,13 +95,13 @@ class DistributionCommandPane(tk.Frame):
             "DEBUG": False
         }
 
-        user_settings_file = os.path.join(os.getcwd(), 'distribution', '.settings.json')
+        user_settings_file = os.path.join(os.getcwd(), 'species_distribution', '.settings.json')
 
         with open(user_settings_file, 'w') as f:
             json.dump(settings, f, indent=4)
 
     def start_species_distribution(self):
-        working_dir = os.path.join(os.getcwd(), 'distribution')
+        working_dir = os.path.join(os.getcwd(), 'species_distribution')
 
         self.prepare_settings()
 

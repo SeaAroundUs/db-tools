@@ -10,8 +10,9 @@ from pull_allocation_data import PullAllocationDataCommandPane
 from summarize import SummarizeCommandPane
 from aggregate import AggregateCommandPane
 from cell_catch import CellCatchCommandPane
-from taxon_extent import TaxonExtentCommandPane
 from cache_data import CacheDataCommandPane
+from taxon_extent import TaxonExtentCommandPane
+from distribution import DistributionCommandPane
 from sqlprocessor_gui import SqlProcessorGuiCommandPane
 
 root = tk.Tk()
@@ -97,6 +98,14 @@ class Application(tk.Frame):
         taxonExtentPane.add(ttk.Panedwindow(taxonExtentPane, orient=VERTICAL))
 
         # eighth tab
+        distributionPane = ttk.Panedwindow(mainNB, orient=VERTICAL)
+        DistributionCommandPane(
+            distributionPane,
+            mainDB
+        )
+        distributionPane.add(ttk.Panedwindow(distributionPane, orient=VERTICAL))
+
+        # nineth tab
         sqlProcessorGuiPane = ttk.Panedwindow(mainNB, orient=VERTICAL)
         SqlProcessorGuiCommandPane(
             sqlProcessorGuiPane,
@@ -113,6 +122,7 @@ class Application(tk.Frame):
         mainNB.add(cellCatchPane, text='Cell Catch')
         mainNB.add(cacheDataPane, text='Cache Data')
         mainNB.add(taxonExtentPane, text='Taxon Extent')
+        mainNB.add(distributionPane, text='Distribution')
         mainNB.add(sqlProcessorGuiPane, text='SQL Processor')
 
         mainNB.pack(expand=1, fill='both')
