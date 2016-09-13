@@ -5,6 +5,7 @@ import multiprocessing
 import copy
 
 from tkinter_util import *
+from db_util import *
 
 from functools import partial
 import subprocess
@@ -37,7 +38,7 @@ class PullAllocationDataCommandPane(tk.Frame):
         parent.add(self.cmdFrame)
 
         rmv = tk.Button(parent, text="Refresh all Main DB materialized views", fg="red",
-                        command=self.refreshAllMaterializedViews)
+                        command=partial(refresh_all_materialized_views, self.mainDbPane))
         parent.add(rmv)
 
         self.set_defaults()
@@ -84,10 +85,10 @@ class PullAllocationDataCommandPane(tk.Frame):
         tk.Button(self.cmdFrame, text="Pull all integration db tables", fg="red", command=self.pullAllAllocationData) \
             .grid(column=0, row=row+1, sticky=E)
 
-        tk.Button(self.cmdFrame, text="Drop foreign keys", fg="red", command=self.dropForeignKey) \
+        tk.Button(self.cmdFrame, text="Drop foreign keys", fg="red", command=partial(drop_foreign_key, self.mainDbPane)) \
             .grid(column=1, row=row+1, sticky=E)
 
-        tk.Button(self.cmdFrame, text="Restore foreign keys", fg="red", command=self.restoreForeignKey) \
+        tk.Button(self.cmdFrame, text="Restore foreign keys", fg="red", command=partial(restore_foreign_key, self.mainDbPane)) \
             .grid(column=2, row=row+1, sticky=E)
 
         for child in self.cmdFrame.winfo_children(): child.grid_configure(padx=5, pady=5)
@@ -208,32 +209,8 @@ class PullAllocationDataCommandPane(tk.Frame):
         for tab in self.dataTransfer:
             self.processTable(tab)
 
-        self.refreshAllMaterializedViews()
+        refresh_all_materialized_views(self.mainDbPane)
         print('All allocation tables successfully pulled down.')
-
-    def refreshAllMaterializedViews(self):
-        mainDbOpts = self.mainDbPane.getDbOptions()
-        mainDbOpts['sqlfile'] = "sql/refresh_matviews.sql"
-        mainDbOpts['threads'] = 4
-        sp.process(optparse.Values(mainDbOpts))
-
-        print('All materialized views in main db refreshed.')
-        
-    def dropForeignKey(self):
-        mainDbOpts = self.mainDbPane.getDbOptions()
-        self.dbSession.execute("TRUNCATE TABLE admin.database_foreign_key")
-        self.dbSession.execute(("INSERT INTO admin.database_foreign_key(drop_fk_cmd, add_fk_cmd) " +
-                                   "SELECT * FROM get_foreign_key_cmd_by_db_owner(LOWER('%s')) " +
-                                   " WHERE drop_fk_cmd IS NOT NULL AND drop_fk_cmd <> ''")
-                                   % mainDbOpts['dbname'])
-        self.dbSession.execute("SELECT exec(drop_fk_cmd) FROM admin.database_foreign_key")
-        print("Foreign keys successfully dropped.")
-        return
-
-    def restoreForeignKey(self):
-        self.dbSession.execute("SELECT exec(add_fk_cmd) FROM admin.database_foreign_key")
-        print("Foreign keys successfully added.")
-        return        
 
 
 class Application(tk.Frame):
