@@ -1,6 +1,4 @@
 import optparse
-import traceback
-import multiprocessing
 
 from tkinter_util import *
 

@@ -1,7 +1,4 @@
 import optparse
-import traceback
-import multiprocessing
-
 import sqlprocessor as sp
 
 from db import DBConnectionPane
