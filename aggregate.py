@@ -1,10 +1,9 @@
 import optparse
 import traceback
 import multiprocessing
-import tkinter as tk
-from tkinter import ttk
-from tkinter import *
-from tkinter import messagebox
+
+from tkinter_util import *
+
 import sqlprocessor as sp
 from functools import partial
 from db import getDbConnection
@@ -128,8 +127,8 @@ class AggregateCommandPane(tk.Frame):
 
     def dropIndexes(self):
         if len(self.index_create_cmds) > 0:
-            messagebox.showinfo("Index drop previously executed",
-                                "A prior execution of index drop has been detected. This invocation is aborted.")
+            popup_message("Index drop previously executed",
+                          "A prior execution of index drop has been detected. This invocation is aborted.")
             return
 
         opts = self.dbPane.getDbOptions()
@@ -145,8 +144,8 @@ class AggregateCommandPane(tk.Frame):
 
     def recreateIndexes(self):
         if len(self.index_create_cmds) == 0:
-            messagebox.showinfo("Prior index drop",
-                                "A prior execution of index drop has not been detected. This invocation is aborted.")
+            popup_message("Prior index drop",
+                          "A prior execution of index drop has not been detected. This invocation is aborted.")
             return
 
         opts = self.dbPane.getDbOptions()
@@ -170,25 +169,8 @@ class Application(tk.Frame):
 
 # ===============================================================================================
 # ----- MAIN
-def main():
-    root = tk.Tk()
-    root.title("Aggregation")
-    app = Application(master=root)
-    app.mainloop()
-
-
 if __name__ == "__main__":
-    try:
-        multiprocessing.freeze_support()
-        main()
-    except SystemExit as x:
-        sys.exit(x)
-    except Exception:
-        strace = traceback.extract_tb(sys.exc_info()[2])[-1:]
-        lno = strace[0][1]
-        print('Unexpected Exception on line: {0}'.format(lno))
-        print(sys.exc_info())
-        sys.exit(1)
+    tkinter_client_main(Application, "Aggregation")
 
 # Sample construction with description list
 # CommandPane(parent, True, ['Aggregrate data for all marine layers',
