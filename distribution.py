@@ -44,12 +44,18 @@ class DistributionCommandPane(tk.Frame):
 
         entry_row = add_data_entry(paramFrame, entry_row, self.recordLimit, "Number of taxa to process (0 = All)", 5)
 
-        exeBt = tk.Button(paramFrame, text=" Start Species Distribution ", fg="blue", command=self.start_species_distribution)
-        exeBt.place(relx=0.5, rely=0.5, anchor=CENTER)
-
         grid_panel(paramFrame)
 
         parent.add(paramFrame)
+
+        processFrame = add_label_frame(parent, "Process", 100, 100)
+
+        exeBt = tk.Button(processFrame, text=" Start Species Distribution ", fg="blue", command=self.start_species_distribution)
+        exeBt.place(relx=0.5, rely=0.5, anchor=CENTER)
+
+        grid_panel(processFrame)
+
+        parent.add(processFrame)
 
     def prepare_options(self):
         opts = Namespace()
