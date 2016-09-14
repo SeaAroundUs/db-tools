@@ -25,9 +25,10 @@ class Application(tk.Frame):
         dbPane = ttk.Panedwindow(mainNB, orient=VERTICAL)
         mainDB = DBConnectionPane(dbPane, 'Main DB')
         sourceDB = DBConnectionPane(dbPane, 'Source DB')
+        dbPane.add(ttk.Panedwindow(dbPane, orient=VERTICAL))
 
         # first tab
-        rdsPane = add_pane(mainNB, mainDB, RdsCommandPane, addFillerPane=True)
+        rdsPane = add_pane(mainNB, mainDB, RdsCommandPane, add_filler_pane=True)
 
         # second tab
         pullDataPane = ttk.Panedwindow(mainNB, orient=VERTICAL)
@@ -66,16 +67,16 @@ class Application(tk.Frame):
         aggregatePane.add(ttk.Panedwindow(aggregatePane, orient=VERTICAL))
 
         # fifth tab
-        cellCatchPane = add_pane(mainNB, mainDB, CellCatchCommandPane, addFillerPane=True)
+        cellCatchPane = add_pane(mainNB, mainDB, CellCatchCommandPane, add_filler_pane=True)
 
         # sixth tab
-        cacheDataPane = add_pane(mainNB, mainDB, CacheDataCommandPane, addFillerPane=True)
+        cacheDataPane = add_pane(mainNB, mainDB, CacheDataCommandPane, add_filler_pane=True)
 
         # seventh tab
-        taxonExtentPane = add_pane(mainNB, mainDB, TaxonExtentCommandPane, addFillerPane=True)
+        taxonExtentPane = add_pane(mainNB, mainDB, TaxonExtentCommandPane, add_filler_pane=True)
 
         # eighth tab
-        distributionPane = add_pane(mainNB, mainDB, DistributionCommandPane, addFillerPane=True)
+        distributionPane = add_pane(mainNB, mainDB, DistributionCommandPane, add_filler_pane=True)
 
         # nineth tab
         sqlProcessorGuiPane = ttk.Panedwindow(mainNB, orient=VERTICAL)
