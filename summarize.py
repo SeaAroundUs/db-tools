@@ -1,13 +1,10 @@
 import optparse
-import traceback
-import multiprocessing
-import tkinter as tk
-from tkinter import ttk
-from tkinter import *
 import sqlprocessor as sp
 from functools import partial
 from db import getDbConnection
 from db import DBConnectionPane
+
+from tkinter_util import *
 
 
 class SummarizeCommandPane(tk.Frame):
@@ -26,10 +23,7 @@ class SummarizeCommandPane(tk.Frame):
         tk.Frame.__init__(self, parent)
         self.dbPane = dbPane
 
-        cmdFrame = ttk.Labelframe(parent, text='Summarize', width=100, height=100)
-        cmdFrame.grid(column=0, row=0, sticky=(N, W))
-        cmdFrame.columnconfigure(0, weight=1)
-        cmdFrame.rowconfigure(0, weight=1)
+        cmdFrame = add_label_frame(parent, "Summarize", 100, 100)
 
         row = 0
         column = 0
@@ -50,7 +44,7 @@ class SummarizeCommandPane(tk.Frame):
             else:
                 self.createCommandButton(cmdFrame, SummarizeCommandPane.BUTTON_LABELS[i], SummarizeCommandPane.SUMMARY_TABLES[i], row, column, color)
 
-        for child in cmdFrame.winfo_children(): child.grid_configure(padx=5, pady=5)
+        grid_panel(cmdFrame)
 
         parent.add(cmdFrame)
 
@@ -120,25 +114,8 @@ class Application(tk.Frame):
 
 # ===============================================================================================
 # ----- MAIN
-def main():
-    root = tk.Tk()
-    root.title("Summarization")
-    app = Application(master=root)
-    app.mainloop()
-
-
 if __name__ == "__main__":
-    try:
-        multiprocessing.freeze_support()
-        main()
-    except SystemExit as x:
-        sys.exit(x)
-    except Exception:
-        strace = traceback.extract_tb(sys.exc_info()[2])[-1:]
-        lno = strace[0][1]
-        print('Unexpected Exception on line: {0}'.format(lno))
-        print(sys.exc_info())
-        sys.exit(1)
+    tkinter_client_main(Application, "Summarization")
 
         # CommandPane(parent, True, ['Summarize data for all marine layers',
         #                            'Summarize data for marine layer 1',
