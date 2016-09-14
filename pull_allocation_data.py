@@ -66,31 +66,21 @@ class PullAllocationDataCommandPane(tk.Frame):
 
         for child in self.cmdFrame.winfo_children(): child.destroy()
 
-        i = 0
-        row = 0
-        column = 0
-
         dbConn = getDbConnection(optparse.Values(self.mainDbPane.getDbOptions()))
         self.dbSession = dbConn.getSession()
         self.dataTransfer = self.dbSession.query(DataTransfer).filter_by(target_schema_name='allocation').order_by(DataTransfer.id).all()
 
         add_buttons(self.cmdFrame,
                     [[tab.target_table_name, partial(self.processTable, tab), "blue"] for tab in self.dataTransfer],
-                    0, 1, "horizontal")
+                    0, 0, "horizontal")
 
         add_buttons(self.cmdFrame,
                     [["Pull all integration db tables", self.pullAllAllocationData, "red"],
                     ["Drop foreign keys", partial(drop_foreign_key, self.mainDbPane), "red"],
                     ["Restore foreign keys", partial(restore_foreign_key, self.mainDbPane), "red"]],
-                    row+1,
-                    0,
-                    "horizontal")
+                    1, 0, "horizontal")
 
-        for child in self.cmdFrame.winfo_children(): child.grid_configure(padx=5, pady=5)
-
-    def createCommandButton(self, parent, buttonText, tabDescriptor, gRow, gColumn, color):
-        tk.Button(parent, text=buttonText, fg=color, command=partial(self.processTable, tabDescriptor)).grid(
-                column=gColumn, row=gRow, sticky=E)
+        grid_panel(self.cmdFrame)
 
     def processTable(self, tabDescriptor):
         opts = self.sourceDbPane.getDbOptions()
@@ -221,22 +211,5 @@ class Application(tk.Frame):
 
 # ===============================================================================================
 # ----- MAIN
-def main():
-    root = tk.Tk()
-    root.title("Pull Allocation Data")
-    app = Application(master=root)
-    app.mainloop()
-
-
 if __name__ == "__main__":
-    try:
-        multiprocessing.freeze_support()
-        main()
-    except SystemExit as x:
-        sys.exit(x)
-    except Exception:
-        strace = traceback.extract_tb(sys.exc_info()[2])[-1:]
-        lno = strace[0][1]
-        print('Unexpected Exception on line: {0}'.format(lno))
-        print(sys.exc_info())
-        sys.exit(1)
+    tkinter_client_main(Application, "Pull Allocation Data")

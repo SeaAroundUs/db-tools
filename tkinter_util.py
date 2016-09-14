@@ -116,7 +116,7 @@ def add_buttons(panel, data, row=1, column=1, direction="horizontal"):
         else:
             raise ValueError("Button initialization data should at least include button text and command: %s" % datum)
 
-        button.grid(row=row, column=column, sticky=W)
+        button.grid(row=row, column=column, sticky=(W, E))
 
         row += row_inc
         column += column_inc
