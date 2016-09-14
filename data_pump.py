@@ -15,15 +15,12 @@ from taxon_extent import TaxonExtentCommandPane
 from distribution import DistributionCommandPane
 from sqlprocessor_gui import SqlProcessorGuiCommandPane
 
-root = tk.Tk()
-root.title("SAU Data Pump")
-
 
 class Application(tk.Frame):
-    def __init__(self, master=None):
+    def __init__(self, master):
         tk.Frame.__init__(self, master)
 
-        mainNB = ttk.Notebook(root, width=680, height=520)
+        mainNB = ttk.Notebook(master, width=680, height=520)
 
         dbPane = ttk.Panedwindow(mainNB, orient=VERTICAL)
         mainDB = DBConnectionPane(dbPane, 'Main DB')
@@ -104,19 +101,5 @@ class Application(tk.Frame):
 
 # ===============================================================================================
 # ----- MAIN
-def main():
-    app = Application(master=root)
-    app.mainloop()
-
 if __name__ == "__main__":
-    try:
-        multiprocessing.freeze_support()
-        main()
-    except SystemExit as x:
-        sys.exit(x)
-    except Exception:
-        strace = traceback.extract_tb(sys.exc_info()[2])[-1:]
-        lno = strace[0][1]
-        print('Unexpected Exception on line: {0}'.format(lno))
-        print(sys.exc_info())
-        sys.exit(1)
+    tkinter_client_main(Application, "SAU Data Pump")

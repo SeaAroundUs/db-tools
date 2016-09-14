@@ -1,7 +1,28 @@
+import sys
+import multiprocessing
+import traceback
 import tkinter as tk
 from tkinter import ttk
 from tkinter import *
 from tkinter import messagebox
+
+def tkinter_client_main(appClass, appTitle):
+    try:
+        multiprocessing.freeze_support()
+        root = tk.Tk()
+        root.title(appTitle)
+        app = appClass(master=root)
+        app.mainloop()
+
+    except SystemExit as x:
+        sys.exit(x)
+
+    except Exception:
+        strace = traceback.extract_tb(sys.exc_info()[2])[-1:]
+        lno = strace[0][1]
+        print('Unexpected Exception on line: {0}'.format(lno))
+        print(sys.exc_info())
+        sys.exit(1)
 
 def add_label_frame(parent, title, frame_width, frame_height):
     frame = ttk.Labelframe(parent, text=title, width=frame_width, height=frame_height)
