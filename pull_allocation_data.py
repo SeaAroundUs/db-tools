@@ -28,7 +28,8 @@ class PullAllocationDataCommandPane(tk.Frame):
         self.dbSession = None
         self.dataTransfer = None
 
-        scb = tk.Button(parent, text="Get list of allocation tables to pull data down (SQLServer)", fg="red", height=1, command=self.setupCommandPane)
+        scb = tk.Button(parent, text="Get list of allocation tables to pull data down (SQLServer)", fg="red", height=1,
+                        command=self.setupCommandPane)
         self.parent.add(scb)
 
         self.cmdFrame = add_label_frame(parent, "Allocation Tables To Pull", 100, 120)
@@ -73,10 +74,9 @@ class PullAllocationDataCommandPane(tk.Frame):
         self.dbSession = dbConn.getSession()
         self.dataTransfer = self.dbSession.query(DataTransfer).filter_by(target_schema_name='allocation').order_by(DataTransfer.id).all()
 
-        color = "blue"
-        for tab in self.dataTransfer:
-            self.createCommandButton(self.cmdFrame, tab.target_table_name, tab, row, column, color)
-            column += 1
+        add_buttons(self.cmdFrame,
+                    [[tab.target_table_name, partial(self.processTable, tab), "blue"] for tab in self.dataTransfer],
+                    0, 1, "horizontal")
 
         add_buttons(self.cmdFrame,
                     [["Pull all integration db tables", self.pullAllAllocationData, "red"],
@@ -88,7 +88,7 @@ class PullAllocationDataCommandPane(tk.Frame):
 
         for child in self.cmdFrame.winfo_children(): child.grid_configure(padx=5, pady=5)
 
-    def createCommandButton(self, parent, buttonText, tabDescriptor, gRow, gColumn, color, commandDescription=None):
+    def createCommandButton(self, parent, buttonText, tabDescriptor, gRow, gColumn, color):
         tk.Button(parent, text=buttonText, fg=color, command=partial(self.processTable, tabDescriptor)).grid(
                 column=gColumn, row=gRow, sticky=E)
 
