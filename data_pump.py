@@ -25,7 +25,7 @@ class Application(tk.Frame):
         dbPane = ttk.Panedwindow(mainNB, orient=VERTICAL)
         mainDB = DBConnectionPane(dbPane, 'Main DB')
         sourceDB = DBConnectionPane(dbPane, 'Source DB')
-        dbPane.add(ttk.Panedwindow(dbPane, orient=VERTICAL))
+        dbPane.add(ttk.Panedwindow(dbPane, orient=VERTICAL))    # Also added a filler pane to improve look and feel only
 
         # first tab
         rdsPane = add_pane(mainNB, mainDB, RdsCommandPane, add_filler_pane=True)
