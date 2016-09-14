@@ -28,7 +28,7 @@ class TaxonExtentCommandPane(tk.Frame):
         self.taxonKeyToExtract = IntVar()
         self.extentExtractDir = StringVar()
 
-        self.extentDir.set("taxon_extent")
+        self.extentDir.set("taxon_extent_upload")
 
         # Setting up UI widgets
         cmdFrame = add_label_frame(parent, 'Process Taxon Extent', 100, 100)
