@@ -1,7 +1,4 @@
 import os
-import optparse
-import traceback
-import multiprocessing
 import copy
 
 from tkinter_util import *
@@ -81,15 +78,13 @@ class PullAllocationDataCommandPane(tk.Frame):
             self.createCommandButton(self.cmdFrame, tab.target_table_name, tab, row, column, color)
             column += 1
 
-        row += 1
-        tk.Button(self.cmdFrame, text="Pull all integration db tables", fg="red", command=self.pullAllAllocationData) \
-            .grid(column=0, row=row+1, sticky=E)
-
-        tk.Button(self.cmdFrame, text="Drop foreign keys", fg="red", command=partial(drop_foreign_key, self.mainDbPane)) \
-            .grid(column=1, row=row+1, sticky=E)
-
-        tk.Button(self.cmdFrame, text="Restore foreign keys", fg="red", command=partial(restore_foreign_key, self.mainDbPane)) \
-            .grid(column=2, row=row+1, sticky=E)
+        add_buttons(self.cmdFrame,
+                    [["Pull all integration db tables", self.pullAllAllocationData, "red"],
+                    ["Drop foreign keys", partial(drop_foreign_key, self.mainDbPane), "red"],
+                    ["Restore foreign keys", partial(restore_foreign_key, self.mainDbPane), "red"]],
+                    row+1,
+                    0,
+                    "horizontal")
 
         for child in self.cmdFrame.winfo_children(): child.grid_configure(padx=5, pady=5)
 

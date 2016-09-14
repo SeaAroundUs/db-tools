@@ -1,16 +1,11 @@
 import optparse
-import traceback
-import multiprocessing
 from functools import partial
 
 import sqlprocessor as sp
 from db import DBConnectionPane
 from db import getDbConnection
 
-import tkinter as tk
-from tkinter import ttk
-from tkinter import *
-from tkinter import messagebox
+from tkinter_util import *
 
 
 class CacheDataCommandPane(tk.Frame):
@@ -18,13 +13,11 @@ class CacheDataCommandPane(tk.Frame):
         tk.Frame.__init__(self, parent)
         self.dbPane = dbPane
 
-        self.processFrame = ttk.Labelframe(parent, text="Cache Data Generation/Refresh", width=400, height=100)
-        self.processFrame.grid(column=0, row=0, sticky=(N, W, E, S))
-        self.processFrame.columnconfigure(0, weight=1)
-        self.processFrame.rowconfigure(0, weight=1)
+        self.processFrame = add_label_frame(parent, "Cache Data Generation/Refresh", 400, 100)
 
-        self.command_row = 0
-        self.add_command(self.processFrame, "Generate/Refresh RFMO csv cache", "RFMO csv cache", self.process, 4)
+        add_buttons(self.processFrame,
+                    data=[["RFMO csv cache", partial(self.process, 4), "blue", "Generate/Refresh RFMO csv cache"]],
+                    row=0, column=0, direction="horizontal")
 
         parent.add(self.processFrame)
 
@@ -37,9 +30,9 @@ class CacheDataCommandPane(tk.Frame):
 
     def process(self, entity_layer_id):
         if not self.dbPane.isConnectionTestedSuccessfully():
-            messagebox.showinfo("Connection not yet tested",
-                                "The DB Connection has not been tested successfully.\n" +\
-                                "Once the DB Connection has been tested successfully, you can click the Process button again.")
+            popup_message("Connection not yet tested",
+                          "The DB Connection has not been tested successfully.\n" +
+                          "Once the DB Connection has been tested successfully, you can click the Process button again.")
             return
 
         dbOpts = self.dbPane.getDbOptions()
@@ -61,23 +54,8 @@ class Application(tk.Frame):
         CacheDataCommandPane(mainPane, dbPane)
         mainPane.pack(expand=1, fill='both')
 
+
 # ===============================================================================================
 # ----- MAIN
-def main():
-    root = tk.Tk()
-    root.title("Cache Data Generator")
-    app = Application(master=root)
-    app.mainloop()
-
 if __name__ == "__main__":
-    try:
-        multiprocessing.freeze_support()
-        main()
-    except SystemExit as x:
-        sys.exit(x)
-    except Exception:
-        strace = traceback.extract_tb(sys.exc_info()[2])[-1:]
-        lno = strace[0][1]
-        print('Unexpected Exception on line: {0}'.format(lno))
-        print(sys.exc_info())
-        sys.exit(1)
+    tkinter_client_main(Application, "Cache Data Generator")

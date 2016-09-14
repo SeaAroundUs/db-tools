@@ -6,12 +6,13 @@ from tkinter import ttk
 from tkinter import *
 from tkinter import messagebox
 
-def tkinter_client_main(appClass, appTitle):
+
+def tkinter_client_main(app_class, app_title):
     try:
         multiprocessing.freeze_support()
         root = tk.Tk()
-        root.title(appTitle)
-        app = appClass(master=root)
+        root.title(app_title)
+        app = app_class(master=root)
         app.mainloop()
 
     except SystemExit as x:
@@ -24,12 +25,14 @@ def tkinter_client_main(appClass, appTitle):
         print(sys.exc_info())
         sys.exit(1)
 
+
 def add_label_frame(parent, title, frame_width, frame_height):
     frame = ttk.Labelframe(parent, text=title, width=frame_width, height=frame_height)
     frame.grid(column=0, row=0, sticky=(N, W, E, S))
     frame.columnconfigure(0, weight=1)
     frame.rowconfigure(0, weight=1)
     return frame
+
 
 def add_data_entry(panel, entry_row, entry_var, entry_text, entry_len, hidden=False, readonly=False):
     tk.Label(panel, text=entry_text).grid(column=0, row=entry_row, sticky=W)
@@ -50,6 +53,7 @@ def add_data_entry(panel, entry_row, entry_var, entry_text, entry_len, hidden=Fa
 
     return (entry_row + 1)
 
+
 def add_command(panel, command_row, label_text, entry_var, cmd_text=None, cmd=None, readonly=False):
     tk.Label(panel, text=label_text).grid(column=0, row=command_row, sticky=W)
 
@@ -69,33 +73,65 @@ def add_command(panel, command_row, label_text, entry_var, cmd_text=None, cmd=No
 
     return (command_row + 2)
 
+
 def add_check_box(panel, chkbox_row, label_text, entry_var):
     chkBox = Checkbutton(panel, variable=entry_var)
     add_data_entry(panel, chkbox_row, chkBox, label_text, None)
 
     return (chkbox_row + 1)
 
-def add_pane(parent, dbPane, commandPaneClass, addFillerPane=False):
+
+def add_pane(parent, db_pane, command_pane_class, add_filler_pane=False):
     pane = ttk.Panedwindow(parent, orient=VERTICAL)
 
-    commandPaneClass(
-        pane,
-        dbPane
-    )
+    command_pane_class(pane, db_pane)
 
-    if addFillerPane:
+    if add_filler_pane:
         pane.add(ttk.Panedwindow(pane, orient=VERTICAL))
 
     return pane
+
+
+# direction is either: "horizontal" or "vertical"
+def add_buttons(panel, data, row=1, column=1, direction="horizontal"):
+    if direction.lower() == "horizontal":
+        row_inc = 0
+        column_inc = 1
+    elif direction.lower() == "vertical":
+        row_inc = 1
+        column_inc = 0
+    else:
+        raise ValueError("Direction should be one of horizontal or vertical only.")
+
+    for datum in data:
+        datum_len = len(datum)
+
+        if datum_len == 2:
+            button = tk.Button(panel, text=datum[0], command=datum[1])
+        elif datum_len >= 3:
+            button = tk.Button(panel, text=datum[0], command=datum[1], fg=datum[2])
+
+            if datum_len > 3:
+                tk.Label(panel, text=datum[3]).grid(column=column+1, row=row, sticky="W")
+        else:
+            raise ValueError("Button initialization data should at least include button text and command: %s" % datum)
+
+        button.grid(row=row, column=column, sticky=E)
+
+        row += row_inc
+        column += column_inc
+
 
 def add_separator(panel, row):
     ttk.Separator(panel).grid(row=row, columnspan=2, sticky="ew")
 
     return (row + 1)
 
+
 def grid_panel(panel, spacing = 5):
     for child in panel.winfo_children():
         child.grid_configure(padx=spacing, pady=spacing)
+
 
 def popup_message(title, msg):
     messagebox.showinfo(title, msg)
