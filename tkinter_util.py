@@ -54,6 +54,19 @@ def add_check_box(panel, chkbox_row, label_text, entry_var):
 
     return (chkbox_row + 1)
 
+def add_pane(parent, dbPane, commandPaneClass, addFillerPane=False):
+    pane = ttk.Panedwindow(parent, orient=VERTICAL)
+
+    commandPaneClass(
+        pane,
+        dbPane
+    )
+
+    if addFillerPane:
+        pane.add(ttk.Panedwindow(pane, orient=VERTICAL))
+
+    return pane
+
 def add_separator(panel, row):
     ttk.Separator(panel).grid(row=row, columnspan=2, sticky="ew")
 

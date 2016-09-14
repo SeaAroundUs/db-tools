@@ -1,8 +1,8 @@
 import traceback
 import multiprocessing
-import tkinter as tk
-from tkinter import ttk
-from tkinter import *
+
+from tkinter_util import *
+
 from db import DBConnectionPane
 from rds import RdsCommandPane
 from pull_integration_data import PullIntegrationDataCommandPane
@@ -30,12 +30,7 @@ class Application(tk.Frame):
         sourceDB = DBConnectionPane(dbPane, 'Source DB')
 
         # first tab
-        rdsPane = ttk.Panedwindow(mainNB, orient=VERTICAL)
-        RdsCommandPane(
-            rdsPane,
-            mainDB
-        )
-        rdsPane.add(ttk.Panedwindow(rdsPane, orient=VERTICAL))        
+        rdsPane = add_pane(mainNB, mainDB, RdsCommandPane, addFillerPane=True)
 
         # second tab
         pullDataPane = ttk.Panedwindow(mainNB, orient=VERTICAL)
@@ -74,36 +69,16 @@ class Application(tk.Frame):
         aggregatePane.add(ttk.Panedwindow(aggregatePane, orient=VERTICAL))
 
         # fifth tab
-        cellCatchPane = ttk.Panedwindow(mainNB, orient=VERTICAL)
-        CellCatchCommandPane(
-            cellCatchPane,
-            mainDB
-        )
-        cellCatchPane.add(ttk.Panedwindow(cellCatchPane, orient=VERTICAL))
+        cellCatchPane = add_pane(mainNB, mainDB, CellCatchCommandPane, addFillerPane=True)
 
         # sixth tab
-        cacheDataPane = ttk.Panedwindow(mainNB, orient=VERTICAL)
-        CacheDataCommandPane(
-            cacheDataPane,
-            mainDB
-        )
-        cacheDataPane.add(ttk.Panedwindow(cacheDataPane, orient=VERTICAL))
+        cacheDataPane = add_pane(mainNB, mainDB, CacheDataCommandPane, addFillerPane=True)
 
         # seventh tab
-        taxonExtentPane = ttk.Panedwindow(mainNB, orient=VERTICAL)
-        TaxonExtentCommandPane(
-            taxonExtentPane,
-            mainDB
-        )
-        taxonExtentPane.add(ttk.Panedwindow(taxonExtentPane, orient=VERTICAL))
+        taxonExtentPane = add_pane(mainNB, mainDB, TaxonExtentCommandPane, addFillerPane=True)
 
         # eighth tab
-        distributionPane = ttk.Panedwindow(mainNB, orient=VERTICAL)
-        DistributionCommandPane(
-            distributionPane,
-            mainDB
-        )
-        distributionPane.add(ttk.Panedwindow(distributionPane, orient=VERTICAL))
+        distributionPane = add_pane(mainNB, mainDB, DistributionCommandPane, addFillerPane=True)
 
         # nineth tab
         sqlProcessorGuiPane = ttk.Panedwindow(mainNB, orient=VERTICAL)
