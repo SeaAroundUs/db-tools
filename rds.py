@@ -1,7 +1,5 @@
 import boto3
 import botocore
-import traceback
-import multiprocessing
 
 from db import DBConnectionPane
 
