@@ -55,15 +55,15 @@ class PullAllocationDataCommandPane(tk.Frame):
 
     def setupCommandPane(self):
         if not self.mainDbPane.isConnectionTestedSuccessfully():
-            messagebox.showinfo("Connection not yet tested",
-                                "The Main DB Connection has not been tested successfully.\n" + \
-                                "Once the Main DB Connection has been tested successfully, you can click that button again.")
+            popup_message("Connection not yet tested",
+                          "The Main DB Connection has not been tested successfully.\n" +
+                          "Once the Main DB Connection has been tested successfully, you can click that button again.")
             return
 
         if self.sourceDbPane.db_type.get() != 'sqlserver':
-            messagebox.showinfo("DB Connection not SQL Server",
-                                "The target for the Source DB Connection should be a SQL Server instance.\n" + \
-                                "Once the Source DB Connection has been re-configured, you can click that button again.")
+            popup_message("DB Connection not SQL Server",
+                          "The Source DB Connection should be a SQL Server instance.\n" +
+                          "Once the Source DB Connection has been re-configured, you can click that button again.")
             return
 
         for child in self.cmdFrame.winfo_children(): child.destroy()
@@ -178,9 +178,9 @@ class PullAllocationDataCommandPane(tk.Frame):
                                "-P", dbOpts["password"]])
 
         if not (os.path.isfile(outputDataFile) and os.access(outputDataFile, os.R_OK)):
-            messagebox.showinfo("Data file download unsuccessful",
-                                "Attempt to download data for the table/query '{0}' failed.".format(tabQuery) +
-                                "Please check that all parameters for Source DB Connection has been tested entered correctly and try again!")
+            popup_message("Data file download unsuccessful",
+                          "Attempt to download data for the table/query '{0}' failed.".format(tabQuery) +
+                          "Please check that all parameters for Source DB Connection has been tested entered correctly and try again!")
             return False
 
         return True
