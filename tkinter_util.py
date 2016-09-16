@@ -5,25 +5,42 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import *
 from tkinter import messagebox
+from db import DBConnectionPane
 
 
-def tkinter_client_main(app_class, app_title):
-    try:
-        multiprocessing.freeze_support()
+class Application(tk.Frame):
+    def __init__(self, app_title, command_pane_class, include_source_db=None, include_threads=False, include_sqlfile=False):
         root = tk.Tk()
         root.title(app_title)
-        app = app_class(master=root)
-        app.mainloop()
+        
+        tk.Frame.__init__(self, root)
 
-    except SystemExit as x:
-        sys.exit(x)
+        mainPane = ttk.Panedwindow(root, orient=VERTICAL)
 
-    except Exception:
-        strace = traceback.extract_tb(sys.exc_info()[2])[-1:]
-        lno = strace[0][1]
-        print('Unexpected Exception on line: {0}'.format(lno))
-        print(sys.exc_info())
-        sys.exit(1)
+        mainDbPane = DBConnectionPane(mainPane, "DB Connection", include_threads, include_sqlfile)
+
+        if include_source_db:
+            sourceDbPane = DBConnectionPane(mainPane, "DB Connection", include_threads, include_sqlfile)
+            command_pane_class(mainPane, mainDbPane, sourceDbPane)
+        else:
+            command_pane_class(mainPane, mainDbPane)
+
+        mainPane.pack(expand=1, fill='both')
+
+    def run(self):
+        try:
+            multiprocessing.freeze_support()
+            self.mainloop()
+
+        except SystemExit as x:
+            sys.exit(x)
+
+        except Exception:
+            strace = traceback.extract_tb(sys.exc_info()[2])[-1:]
+            lno = strace[0][1]
+            print('Unexpected Exception on line: {0}'.format(lno))
+            print(sys.exc_info())
+            sys.exit(1)
 
 
 def add_label_frame(parent, title, frame_width, frame_height):

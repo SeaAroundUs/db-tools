@@ -92,22 +92,11 @@ class RdsCommandPane(tk.Frame):
             raise
 
 
-class Application(tk.Frame):
-    def __init__(self, master=None):
-        tk.Frame.__init__(self, master)
-
-        mainPane = ttk.Panedwindow(master, orient=VERTICAL)
-        dbPane = DBConnectionPane(parent=mainPane, title="DB Connection", include_threads=False, include_sqlfile=False)
-
-        print("\nImportant Note: The instance MUST be scaled back to its default setting.\n\n +\
+if __name__ == "__main__":
+    print("\nImportant Note: The instance MUST be scaled back to its default setting.\n\n +\
             db.t2.large - QA default setting\n +\
             db.m4.large - Prod default setting\n +\
             db.m4.2xlarge - 8 concurrent threads\n +\
             db.m4.4xlarge - 16 concurrent threads \n")
 
-        RdsCommandPane(mainPane, dbPane)
-        mainPane.pack(expand=1, fill='both')
-
-
-if __name__ == "__main__":
-    tkinter_client_main(Application, "RDS")
+    Application("RDS", RdsCommandPane).run()
