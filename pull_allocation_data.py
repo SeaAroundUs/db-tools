@@ -75,7 +75,7 @@ class PullAllocationDataCommandPane(tk.Frame):
                     0, 0, "horizontal")
 
         add_buttons(self.cmdFrame,
-                    [["Pull all integration db tables", self.pullAllAllocationData, "red"],
+                    [["Pull all allocation db tables", self.pullAllAllocationData, "red"],
                     ["Drop foreign keys", partial(drop_foreign_key, self.mainDbPane), "red"],
                     ["Restore foreign keys", partial(restore_foreign_key, self.mainDbPane), "red"]],
                     1, 0, "horizontal")
