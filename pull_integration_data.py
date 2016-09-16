@@ -1,6 +1,4 @@
 import os
-import traceback
-import multiprocessing
 
 from tkinter_util import *
 from db_util import *
@@ -28,18 +26,18 @@ class PullIntegrationDataCommandPane(tk.Frame):
         self.sourceDbSession = None
         self.dataTransfer = None
 
-        scb = tk.Button(parent, text="Get list of integration db tables to pull data down (Postgres)",
-                        fg="red", height=1, command=self.setupCommandPane)
-        parent.add(scb)
+        scb = tk.Button(parent, text="Get list of integration tables to pull data down", fg="red", height=1,
+                        command=self.setupCommandPane)
+        parent.add(scb)                                                      
 
-        self.cmdFrame = add_label_frame(parent, "Integration DB Tables To Pull", 100, 350)
+        self.cmdFrame = add_label_frame(parent, "Integration DB Tables To Pull", 100, 280)
         parent.add(self.cmdFrame)
 
         if not suppressMaterializedViewRefreshButton:
             rmv = tk.Button(parent, text="Refresh all Main DB materialized views",
-                            fg="red", command=partial(refresh_all_materialized_views, self.mainDbPane))
-            parent.add(rmv)
-
+                            fg="red", command=partial(refresh_all_materialized_views, self.mainDbPane))  
+            parent.add(rmv)     
+                                                          
     def setupCommandPane(self):
         if not self.mainDbPane.isConnectionTestedSuccessfully():
             popup_message("Connection not yet tested",
@@ -49,10 +47,6 @@ class PullIntegrationDataCommandPane(tk.Frame):
 
         for child in self.cmdFrame.winfo_children(): child.destroy()
 
-        i = 0
-        row = 0
-        column = 0
-
         sourceDbOpts = optparse.Values(self.sourceDbPane.getDbOptions())
         self.sourceDbSession = getDbConnection(sourceDbOpts).getSession()
         self.mainDbSession = getDbConnection(optparse.Values(self.mainDbPane.getDbOptions())).getSession()
@@ -60,40 +54,41 @@ class PullIntegrationDataCommandPane(tk.Frame):
         self.dataTransfer = self.mainDbSession.query(DataTransfer).filter(func.lower(DataTransfer.source_database_name)==func.lower(sourceDbOpts.dbname)) \
             .order_by(DataTransfer.id).all()
 
-        color = "blue"
+        button_data = []        
+        column=0                       
+        row=0
+                  
         for tab in self.dataTransfer:
-            self.createCommandButton(self.cmdFrame, tab.target_table_name, tab, row, column, color)
-            column += 1
+             button_data.append([tab.target_table_name, partial(self.processTable, tab), "blue"])
+             column += 1 
+        
+             if column >= self.buttonsPerRow:
+                 add_buttons(self.cmdFrame, button_data, row, 0, "horizontal")
+                 button_data = []            
+                 column = 0                    
+                 row += 1
+                                            
+        if button_data != []:
+            add_buttons(self.cmdFrame, button_data, row, 0, "horizontal")
+            row += 1
 
-            if column > self.buttonsPerRow:
-                column = 0
-                row += 1
-
-        row += 1
-        tk.Button(self.cmdFrame, text="Pull all integration db tables", fg="red", command=self.pullAllIntegrationDbData) \
-            .grid(column=0, row=row, sticky=(E, W, N, S))
-
-        tk.Button(self.cmdFrame, text="Drop foreign keys", fg="red", command=partial(drop_foreign_key, self.mainDbPane)) \
-            .grid(column=1, row=row, sticky=(E, W, N, S))
-
-        tk.Button(self.cmdFrame, text="Restore foreign keys", fg="red", command=partial(restore_foreign_key, self.mainDbPane)) \
-            .grid(column=2, row=row, sticky=(E, W, N, S))
-
-        for child in self.cmdFrame.winfo_children(): child.grid_configure(padx=5, pady=5)
-
-    def createCommandButton(self, parent, buttonText, tabDescriptor, gRow, gColumn, color, commandDescription=None):
-        tk.Button(parent, text=buttonText, fg=color, command=partial(self.processTable, tabDescriptor)).grid(
-                column=gColumn, row=gRow, sticky=E)
-
+        add_buttons(self.cmdFrame,
+                    [["Pull all integration db tables", self.pullAllIntegrationDbData, "red"],
+                    ["Drop foreign keys", partial(drop_foreign_key, self.mainDbPane), "red"],
+                    ["Restore foreign keys", partial(restore_foreign_key, self.mainDbPane), "red"]],
+                    row, 0, "horizontal")
+                         
+        grid_panel(self.cmdFrame)                                    
+                                                          
     def processTable(self, tabDescriptor):
-        opts = self.sourceDbPane.getDbOptions()
+        opts = self.sourceDbPane.getDbOptions()    
         self.downloadAndCopyTable(tabDescriptor, opts)
-
+                                            
     def downloadAndCopyTable(self, tabDescriptor, sourceDbOpts):
         targetTable = "{0}.{1}".format(tabDescriptor.target_schema_name, tabDescriptor.target_table_name)
 
         print("Pulling data for target table %s" % targetTable)
-
+                                                     
         tabQuery = "(select {0} from {1} {2})".format(tabDescriptor.source_select_clause,
                                                       tabDescriptor.source_table_name,
                                                       tabDescriptor.source_where_clause)
@@ -165,21 +160,5 @@ class Application(tk.Frame):
 
 # ===============================================================================================
 # ----- MAIN
-def main():
-    root = tk.Tk()
-    root.title("Pull Integration DB Data")
-    app = Application(master=root)
-    app.mainloop()
-
 if __name__ == "__main__":
-    try:
-        multiprocessing.freeze_support()
-        main()
-    except SystemExit as x:
-        sys.exit(x)
-    except Exception:
-        strace = traceback.extract_tb(sys.exc_info()[2])[-1:]
-        lno = strace[0][1]
-        print('Unexpected Exception on line: {0}'.format(lno))
-        print(sys.exc_info())
-        sys.exit(1)
+    tkinter_client_main(Application, "Pull Integration DB Data")

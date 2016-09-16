@@ -23,11 +23,6 @@ class CacheDataCommandPane(tk.Frame):
 
         for child in self.processFrame.winfo_children(): child.grid_configure(padx=5, pady=5)
 
-    def add_command(self, panel, label_text, cmd_text, cmd, cmd_param):
-        self.command_row += 1
-        tk.Button(panel, text=cmd_text, fg="blue", command=partial(cmd, cmd_param)).grid(column=0, row=self.command_row, sticky=W)
-        tk.Label(panel, text=label_text).grid(column=1, row=self.command_row, sticky="W")
-
     def process(self, entity_layer_id):
         if not self.dbPane.isConnectionTestedSuccessfully():
             popup_message("Connection not yet tested",
