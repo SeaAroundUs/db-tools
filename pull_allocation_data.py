@@ -127,9 +127,9 @@ class PullAllocationDataCommandPane(tk.Frame):
             mainDbOpts['threads'] = 8
 
             # Let's now vacuum and analyze all the partitions we just populated above
-            mainDbOpts['sqlcmd'] = "SELECT format('VACUUM ANALYZE allocation_partition.%s', table_name) " + \
-                                  "  FROM schema_v('allocation_partition') " + \
-                                  " WHERE table_name NOT LIKE 'TOTALS%'"
+            mainDbOpts['sqlcmd'] = "SELECT format('VACUUM ANALYZE allocation_partition.%s', table_name) " +\
+                                   "  FROM schema_v('allocation_partition') " + \
+                                   " WHERE table_name NOT LIKE 'TOTALS%'"
             sp.process(optparse.Values(mainDbOpts))
 
             # And now add necessary indexes to all the partitions we just created above
