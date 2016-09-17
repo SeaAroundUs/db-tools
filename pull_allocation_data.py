@@ -198,18 +198,7 @@ class PullAllocationDataCommandPane(tk.Frame):
         print('All allocation tables successfully pulled down.')
 
 
-class Application(tk.Frame):
-    def __init__(self, master=None):
-        tk.Frame.__init__(self, master)
-
-        mainPane = ttk.Panedwindow(master, orient=VERTICAL)
-        mainDbPane = DBConnectionPane(mainPane, "Main DB Connection", True)
-        sourceDbPane = DBConnectionPane(mainPane, "Source DB Connection", True)
-        PullAllocationDataCommandPane(mainPane, mainDbPane, sourceDbPane)
-        mainPane.pack(expand=1, fill='both')
-
-
 # ===============================================================================================
 # ----- MAIN
 if __name__ == "__main__":
-    tkinter_client_main(Application, "Pull Allocation Data")
+    Application("Pull Allocation Data", PullAllocationDataCommandPane, True).run()

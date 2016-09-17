@@ -155,20 +155,10 @@ class AggregateCommandPane(tk.Frame):
         dbConn.close()
 
 
-class Application(tk.Frame):
-    def __init__(self, master=None):
-        tk.Frame.__init__(self, master)
-
-        mainPane = ttk.Panedwindow(master, orient=VERTICAL)
-        dbPane = DBConnectionPane(mainPane, "DB Connection", True)
-        AggregateCommandPane(mainPane, dbPane, False, None)
-        mainPane.pack(expand=1, fill='both')
-
-
 # ===============================================================================================
 # ----- MAIN
 if __name__ == "__main__":
-    tkinter_client_main(Application, "Aggregation")
+    Application("Aggregation", AggregateCommandPane).run()
 
 # Sample construction with description list
 # CommandPane(parent, True, ['Aggregrate data for all marine layers',

@@ -53,18 +53,7 @@ class SqlProcessorGuiCommandPane(tk.Frame):
 
         sp.process(optparse.Values(dbOpts))
 
-
-class Application(tk.Frame):
-    def __init__(self, master=None):
-        tk.Frame.__init__(self, master)
-
-        mainPane = ttk.Panedwindow(master, orient=VERTICAL)
-        dbPane = DBConnectionPane(parent=mainPane, title="DB Connection", include_threads=True, include_sqlfile=True)
-        SqlProcessorGuiCommandPane(mainPane, dbPane)
-        mainPane.pack(expand=1, fill='both')
-
-
 # ===============================================================================================
 # ----- MAIN
-if __name__ == "__main__":
-    tkinter_client_main(Application, "SqlProcessor GUI")
+if __name__ == "__main__":  
+    Application("SqlProcessor GUI", SqlProcessorGuiCommandPane, include_threads=True, include_sqlfile=True).run()
