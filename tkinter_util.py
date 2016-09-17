@@ -12,15 +12,15 @@ class Application(tk.Frame):
     def __init__(self, app_title, command_pane_class, include_source_db=None, include_threads=False, include_sqlfile=False):
         root = tk.Tk()
         root.title(app_title)
-        
+
         tk.Frame.__init__(self, root)
 
         mainPane = ttk.Panedwindow(root, orient=VERTICAL)
 
-        mainDbPane = DBConnectionPane(mainPane, "DB Connection", include_threads, include_sqlfile)
+        mainDbPane = DBConnectionPane(mainPane, "Main DB Connection", include_threads, include_sqlfile)
 
         if include_source_db:
-            sourceDbPane = DBConnectionPane(mainPane, "DB Connection", include_threads, include_sqlfile)
+            sourceDbPane = DBConnectionPane(mainPane, "Source DB Connection", include_threads, include_sqlfile)
             command_pane_class(mainPane, mainDbPane, sourceDbPane)
         else:
             command_pane_class(mainPane, mainDbPane)
