@@ -1,6 +1,3 @@
-import traceback
-import multiprocessing
-
 from tkinter_util import *
 
 from db import DBConnectionPane
@@ -16,7 +13,7 @@ from distribution import DistributionCommandPane
 from sqlprocessor_gui import SqlProcessorGuiCommandPane
 
 
-class Application(tk.Frame):
+class DataPumpCommandPane(tk.Frame):
     def __init__(self, master):
         tk.Frame.__init__(self, master)
 
@@ -103,4 +100,5 @@ class Application(tk.Frame):
 # ===============================================================================================
 # ----- MAIN
 if __name__ == "__main__":
-    tkinter_client_main(Application, "SAU Data Pump")
+    app = Application("SAU Data Pump")
+    app.run(DataPumpCommandPane(app.root))
