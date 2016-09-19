@@ -2,7 +2,6 @@ import optparse
 from functools import partial
 
 import sqlprocessor as sp
-from db import DBConnectionPane
 from db import getDbConnection
 
 from tkinter_util import *
@@ -41,16 +40,7 @@ class CacheDataCommandPane(tk.Frame):
         sp.process(optparse.Values(dbOpts))
 
 
-class Application(tk.Frame):
-    def __init__(self, master=None):
-        tk.Frame.__init__(self, master)
-        mainPane = ttk.Panedwindow(master, orient=VERTICAL)
-        dbPane = DBConnectionPane(mainPane, "DB Connection", include_threads=True, include_sqlfile=False)
-        CacheDataCommandPane(mainPane, dbPane)
-        mainPane.pack(expand=1, fill='both')
-
-
 # ===============================================================================================
 # ----- MAIN
 if __name__ == "__main__":
-    tkinter_client_main(Application, "Cache Data Generator")
+    Application("Cache Data Generator", CacheDataCommandPane).run()
