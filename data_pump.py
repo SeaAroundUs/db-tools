@@ -1,6 +1,5 @@
 from tkinter_util import *
 
-from db import DBConnectionPane
 from rds import RdsCommandPane
 from pull_integration_data import PullIntegrationDataCommandPane
 from pull_allocation_data import PullAllocationDataCommandPane
