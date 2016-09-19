@@ -5,7 +5,6 @@ from tkinter_util import *
 import sqlprocessor as sp
 from functools import partial
 from db import getDbConnection
-from db import DBConnectionPane
 
 
 class AggregateCommandPane(tk.Frame):

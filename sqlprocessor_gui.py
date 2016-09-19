@@ -1,8 +1,6 @@
 import optparse
 import sqlprocessor as sp
 
-from db import DBConnectionPane
-
 from tkinter_util import *
 
 
