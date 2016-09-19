@@ -6,7 +6,6 @@ import glob
 
 from datetime import datetime
 from db import getDbConnection
-from db import DBConnectionPane
 from psycopg2 import IntegrityError
 from osgeo import ogr
 
@@ -257,19 +256,10 @@ class TaxonExtentCommandPane(tk.Frame):
         return True
 
 
-class Application(tk.Frame):
-    def __init__(self, master=None):
-        tk.Frame.__init__(self, master)
-
-        mainPane = ttk.Panedwindow(master, orient=VERTICAL)
-        dbPane = DBConnectionPane(parent=mainPane, title="DB Connection", include_threads=False, include_sqlfile=False)
-        dbPane.db_name.set('sau_int')
-        dbPane.db_username.set('sau_int')
-        TaxonExtentCommandPane(mainPane, dbPane)
-        mainPane.pack(expand=1, fill='both')
-
-
 # ===============================================================================================
 # ----- MAIN
 if __name__ == "__main__":
-    tkinter_client_main(Application, "Taxon Extent")
+    app = Application("Taxon Extent", TaxonExtentCommandPane)
+    app.mainDbPane.db_name.set('sau_int')
+    app.mainDbPane.db_username.set('sau_int')
+    app.run()

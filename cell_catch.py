@@ -2,7 +2,6 @@ import optparse
 import sqlprocessor as sp
 from functools import partial
 from db import getDbConnection
-from db import DBConnectionPane
 
 from tkinter_util import *
 
@@ -116,17 +115,7 @@ class CellCatchCommandPane(tk.Frame):
         print("Batch processing of all available years completed!")
 
 
-class Application(tk.Frame):
-    def __init__(self, master=None):
-        tk.Frame.__init__(self, master)
-
-        mainPane = ttk.Panedwindow(master, orient=VERTICAL)
-        dbPane = DBConnectionPane(mainPane, "DB Connection", True)
-        CellCatchCommandPane(mainPane, dbPane)
-        mainPane.pack(expand=1, fill='both')
-
-
 # ===============================================================================================
 # ----- MAIN                   
 if __name__ == "__main__":
-    tkinter_client_main(Application, "Cell Catch Aggregation")          
+    Application("Cell Catch Aggregation", CellCatchCommandPane).run()

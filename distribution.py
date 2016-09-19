@@ -4,7 +4,6 @@ import subprocess
 import dill
 
 from tkinter_util import *
-from db import DBConnectionPane
 
 
 class Namespace:
@@ -120,21 +119,10 @@ class DistributionCommandPane(tk.Frame):
             os.remove(optionFileName)
 
 
-class Application(tk.Frame):
-    def __init__(self, master=None):
-        tk.Frame.__init__(self, master)
-
-        mainPane = ttk.Panedwindow(master, orient=VERTICAL)
-        dbPane = DBConnectionPane(parent=mainPane, title="DB Connection", include_threads=False, include_sqlfile=False)
-
-        dbPane.db_name.set('sau_int')
-        dbPane.db_username.set('sau_int')
-
-        DistributionCommandPane(mainPane, dbPane)
-        mainPane.pack(expand=1, fill='both')
-
-
 # ===============================================================================================
 # ----- MAIN
 if __name__ == "__main__":
-    tkinter_client_main(Application, "Species Distribution")
+    app = Application("Species Distribution", DistributionCommandPane)
+    app.mainDbPane.db_name.set('sau_int')
+    app.mainDbPane.db_username.set('sau_int')
+    app.run()
