@@ -6,7 +6,6 @@ from db_util import *
 from functools import partial
 from sqlalchemy import func
 from db import getDbConnection
-from db import DBConnectionPane
 from models import DataTransfer
 
 NUMBER_OF_ALLOCATION_RESULT_PARTITIONS = 150

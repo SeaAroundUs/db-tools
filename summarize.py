@@ -2,7 +2,6 @@ import optparse
 import sqlprocessor as sp
 from functools import partial
 from db import getDbConnection
-from db import DBConnectionPane
 
 from tkinter_util import *
 
@@ -102,20 +101,10 @@ class SummarizeCommandPane(tk.Frame):
         self.postAggregationOperations(None)
 
 
-class Application(tk.Frame):
-    def __init__(self, master=None):
-        tk.Frame.__init__(self, master)
-
-        mainPane = ttk.Panedwindow(master, orient=VERTICAL)
-        dbPane = DBConnectionPane(mainPane, "DB Connection", True)
-        SummarizeCommandPane(mainPane, dbPane, False, None)
-        mainPane.pack(expand=1, fill='both')
-
-
 # ===============================================================================================
 # ----- MAIN
 if __name__ == "__main__":
-    tkinter_client_main(Application, "Summarization")
+    Application("Summarization", SummarizeCommandPane).run()
 
         # CommandPane(parent, True, ['Summarize data for all marine layers',
         #                            'Summarize data for marine layer 1',

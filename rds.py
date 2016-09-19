@@ -1,8 +1,6 @@
 import boto3
 import botocore
 
-from db import DBConnectionPane
-
 from tkinter_util import *
 
 

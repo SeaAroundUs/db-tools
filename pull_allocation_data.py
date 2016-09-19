@@ -9,7 +9,6 @@ import subprocess
 
 import sqlprocessor as sp
 from db import getDbConnection
-from db import DBConnectionPane
 
 from models import DataTransfer, AllocationResultPartitionMap
 
