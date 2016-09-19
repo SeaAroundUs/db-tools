@@ -1,4 +1,3 @@
-import sys
 import multiprocessing
 import traceback
 import tkinter as tk
@@ -9,28 +8,32 @@ from db import DBConnectionPane
 
 
 class Application(tk.Frame):
-    def __init__(self, app_title, command_pane_class, include_source_db=None, include_threads=False, include_sqlfile=False):
-        root = tk.Tk()
-        root.title(app_title)
+    def __init__(self, app_title, command_pane_class=None, include_source_db=None, include_threads=False, include_sqlfile=False):
+        self.root = tk.Tk()
+        self.root.title(app_title)
 
-        tk.Frame.__init__(self, root)
+        if command_pane_class:
+            tk.Frame.__init__(self, self.root)
 
-        mainPane = ttk.Panedwindow(root, orient=VERTICAL)
+            mainPane = ttk.Panedwindow(self.root, orient=VERTICAL)
 
-        mainDbPane = DBConnectionPane(mainPane, "Main DB Connection", include_threads, include_sqlfile)
+            mainDbPane = DBConnectionPane(mainPane, "Main DB Connection", include_threads, include_sqlfile)
 
-        if include_source_db:
-            sourceDbPane = DBConnectionPane(mainPane, "Source DB Connection", include_threads, include_sqlfile)
-            command_pane_class(mainPane, mainDbPane, sourceDbPane)
-        else:
-            command_pane_class(mainPane, mainDbPane)
+            if include_source_db:
+                sourceDbPane = DBConnectionPane(mainPane, "Source DB Connection", include_threads, include_sqlfile)
+                command_pane_class(mainPane, mainDbPane, sourceDbPane)
+            else:
+                command_pane_class(mainPane, mainDbPane)
 
-        mainPane.pack(expand=1, fill='both')
+            mainPane.pack(expand=1, fill='both')
 
-    def run(self):
+    def run(self, execute_instead=None):
         try:
             multiprocessing.freeze_support()
-            self.mainloop()
+            if execute_instead:
+                execute_instead.mainloop()
+            else:
+                self.mainloop()
 
         except SystemExit as x:
             sys.exit(x)
