@@ -15,17 +15,17 @@ class Application(tk.Frame):
         if command_pane_class:
             tk.Frame.__init__(self, self.root)
 
-        self.mainPane = ttk.Panedwindow(root, orient=VERTICAL)
+            self.mainPane = ttk.Panedwindow(self.root, orient=VERTICAL)
 
-        self.mainDbPane = DBConnectionPane(self.mainPane, "Main DB Connection", include_threads, include_sqlfile)
+            self.mainDbPane = DBConnectionPane(self.mainPane, "Main DB Connection", include_threads, include_sqlfile)
 
             if include_source_db:
-            self.sourceDbPane = DBConnectionPane(mainPane, "Source DB Connection", include_threads, include_sqlfile)
-            command_pane_class(self.mainPane, self.mainDbPane, self.sourceDbPane)
+                self.sourceDbPane = DBConnectionPane(self.mainPane, "Source DB Connection", include_threads, include_sqlfile)
+                command_pane_class(self.mainPane, self.mainDbPane, self.sourceDbPane)
             else:
-            command_pane_class(self.mainPane, self.mainDbPane)
+                command_pane_class(self.mainPane, self.mainDbPane)
 
-        self.mainPane.pack(expand=1, fill='both')
+            self.mainPane.pack(expand=1, fill='both')
 
     def run(self, execute_instead=None):
         try:
