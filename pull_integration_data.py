@@ -12,13 +12,14 @@ NUMBER_OF_ALLOCATION_RESULT_PARTITIONS = 150
 
 
 class PullIntegrationDataCommandPane(tk.Frame):
-    def __init__(self, parent, mainDbPane, sourceDbPane, buttonsPerRow = 6, suppressMaterializedViewRefreshButton = FALSE):
+    def __init__(self, parent, mainDbPane, sourceDbPane, buttonsPerRow = 6, silentMode = FALSE, suppressMaterializedViewRefreshButton = FALSE, **kargs):
         tk.Frame.__init__(self, parent)
 
         self.parent = parent
         self.mainDbPane = mainDbPane
         self.sourceDbPane = sourceDbPane
         self.buttonsPerRow = buttonsPerRow
+        self.silentMode = silentMode
 
         # Placeholders, these will really be initialized lazily latter, once all db parameters are available.
         self.mainDbSession = None
@@ -27,12 +28,12 @@ class PullIntegrationDataCommandPane(tk.Frame):
 
         scb = tk.Button(parent, text="Get list of integration tables to pull data down", fg="red", height=1,
                         command=self.setupCommandPane)
-        parent.add(scb)                                                      
+        parent.add(scb)
 
         self.cmdFrame = add_label_frame(parent, "Integration DB Tables To Pull", 100, 280)
         parent.add(self.cmdFrame)
 
-        if not suppressMaterializedViewRefreshButton:
+        if not self.silentMode and not suppressMaterializedViewRefreshButton:
             rmv = tk.Button(parent, text="Refresh all Main DB materialized views",
                             fg="red", command=partial(refresh_all_materialized_views, self.mainDbPane))  
             parent.add(rmv)     
@@ -71,11 +72,12 @@ class PullIntegrationDataCommandPane(tk.Frame):
             add_buttons(self.cmdFrame, button_data, row, 0, "horizontal")
             row += 1
 
-        add_buttons(self.cmdFrame,
-                    [["Pull all integration db tables", self.pullAllIntegrationDbData, "red"],
-                    ["Drop foreign keys", partial(drop_foreign_key, self.mainDbPane), "red"],
-                    ["Restore foreign keys", partial(restore_foreign_key, self.mainDbPane), "red"]],
-                    row, 0, "horizontal")
+        if not self.silentMode:
+            add_buttons(self.cmdFrame,
+                        [["Pull all integration db tables", self.pullAllIntegrationDbData, "red"],
+                        ["Drop foreign keys", partial(drop_foreign_key, self.mainDbPane), "red"],
+                        ["Restore foreign keys", partial(restore_foreign_key, self.mainDbPane), "red"]],
+                        row, 0, "horizontal")
                          
         grid_panel(self.cmdFrame)                                    
                                                           
@@ -149,4 +151,4 @@ class PullIntegrationDataCommandPane(tk.Frame):
 # ===============================================================================================
 # ----- MAIN
 if __name__ == "__main__":
-    Application("Pull Integration DB Data", PullIntegrationDataCommandPane, True).run()
+    Application("Pull Integration DB Data", PullIntegrationDataCommandPane, include_source_db=True).run()

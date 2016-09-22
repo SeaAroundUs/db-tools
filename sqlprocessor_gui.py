@@ -5,7 +5,7 @@ from tkinter_util import *
 
 
 class SqlProcessorGuiCommandPane(tk.Frame):
-    def __init__(self, parent, dbPane, promptForSqlFile=False):
+    def __init__(self, parent, dbPane, promptForSqlFile=False, **kargs):
         tk.Frame.__init__(self, parent)
         self.dbPane = dbPane
         self.dbConn = None

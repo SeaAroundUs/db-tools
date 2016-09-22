@@ -8,7 +8,7 @@ from db import DBConnectionPane
 
 
 class Application(tk.Frame):
-    def __init__(self, app_title, command_pane_class=None, include_source_db=None, include_threads=False, include_sqlfile=False):
+    def __init__(self, app_title, command_pane_class=None, **kargs):
         self.root = tk.Tk()
         self.root.title(app_title)
 
@@ -17,13 +17,25 @@ class Application(tk.Frame):
 
             self.mainPane = ttk.Panedwindow(self.root, orient=VERTICAL)
 
+            if "include_threads" in kargs:
+                include_threads = kargs["include_threads"]
+            else:
+                include_threads = False
+
+            if "include_sqlfile" in kargs:
+                include_sqlfile = kargs["include_sqlfile"]
+            else:
+                include_sqlfile = False
+
             self.mainDbPane = DBConnectionPane(self.mainPane, "Main DB Connection", include_threads, include_sqlfile)
 
-            if include_source_db:
+            include_threads = False, include_sqlfile
+
+            if "include_source_db" in kargs and kargs["include_source_db"]:
                 self.sourceDbPane = DBConnectionPane(self.mainPane, "Source DB Connection", include_threads, include_sqlfile)
-                command_pane_class(self.mainPane, self.mainDbPane, self.sourceDbPane)
+                command_pane_class(self.mainPane, self.mainDbPane, self.sourceDbPane, **kargs)
             else:
-                command_pane_class(self.mainPane, self.mainDbPane)
+                command_pane_class(self.mainPane, self.mainDbPane, **kargs)
 
             self.mainPane.pack(expand=1, fill='both')
 

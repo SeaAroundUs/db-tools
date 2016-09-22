@@ -16,7 +16,7 @@ NUM_OF_ALLOCATION_RESULT_PARTITIONS = 150
 
 
 class PullAllocationDataCommandPane(tk.Frame):
-    def __init__(self, parent, mainDbPane, sourceDbPane):
+    def __init__(self, parent, mainDbPane, sourceDbPane, **kargs):
         tk.Frame.__init__(self, parent)
 
         self.parent = parent
@@ -200,4 +200,4 @@ class PullAllocationDataCommandPane(tk.Frame):
 # ===============================================================================================
 # ----- MAIN
 if __name__ == "__main__":
-    Application("Pull Allocation Data", PullAllocationDataCommandPane, True).run()
+    Application("Pull Allocation Data", PullAllocationDataCommandPane, include_source_db=True).run()

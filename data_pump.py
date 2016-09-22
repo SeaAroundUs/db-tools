@@ -28,7 +28,7 @@ class DataPumpCommandPane(tk.Frame):
 
         # second tab
         pullDataPane = ttk.Panedwindow(mainNB, orient=VERTICAL)
-        PullIntegrationDataCommandPane(pullDataPane, mainDB, sourceDB, 4, TRUE)
+        PullIntegrationDataCommandPane(pullDataPane, mainDB, sourceDB, suppressMaterializedViewRefreshButton=TRUE)
         PullAllocationDataCommandPane(pullDataPane, mainDB, sourceDB)
 
         # third tab
