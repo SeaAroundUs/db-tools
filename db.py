@@ -60,6 +60,26 @@ class DBSqlServer:
         self.conn.close()
 
 
+class DBMysql:
+    def __init__(self, opts):
+        self.engine = create_engine(
+                        'mysql+pymysql://{0}{1}@{2}:{3}/{4}'.format(opts.username, opts.password, opts.server, opts.port, opts.dbname),
+                        encoding='utf-8',
+                        poolclass=NullPool
+        )
+        self.conn = self.engine.connect()
+        self.Session = sessionmaker(bind=self.engine, autocommit=True)
+
+    def getSession(self):
+        return self.Session()
+
+    def execute(self, sql_cmd):
+        return self.conn.execution_options(autocommit=True).execute(text(sql_cmd))
+
+    def close(self):
+        self.conn.close()
+
+
 def getDbConnection(opts):
     if not opts.password:
         opts.password = ''
@@ -72,6 +92,9 @@ def getDbConnection(opts):
     elif opts.dbtype == 'sqlserver':
         # This database type requires that pymssql db driver is already installed
         return DBSqlServer(opts)
+    elif opts.dbtype == 'mysql':
+        # This database type requires that pymysql db driver is already installed
+        return DBMysql(opts)
 
 
 class DBConnectionPane(tk.Frame):
@@ -154,10 +177,12 @@ class DBConnectionPane(tk.Frame):
 
     def resetConnectionTested(self, *args):
         # If db_type is set to sqlserver we should change the default value for the port parameter accordingly
-        if self.db_type.get() == "sqlserver":
-            self.db_port.set(1433)
-        else:
+        if self.db_type.get() == "postgres":
             self.db_port.set(5432)
+        elif self.db_type.get() == "sqlserver":
+            self.db_port.set(1433)
+        elif self.db_type.get() == "mysql":
+            self.db_port.set(3306)
 
         self.connectionTested = False
 

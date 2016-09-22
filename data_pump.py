@@ -9,6 +9,7 @@ from cell_catch import CellCatchCommandPane
 from cache_data import CacheDataCommandPane
 from taxon_extent import TaxonExtentCommandPane
 from distribution import DistributionCommandPane
+from allocation import AllocationCommandPane
 from sqlprocessor_gui import SqlProcessorGuiCommandPane
 
 
@@ -23,15 +24,25 @@ class DataPumpCommandPane(tk.Frame):
         sourceDB = DBConnectionPane(dbPane, 'Source DB')
         dbPane.add(ttk.Panedwindow(dbPane, orient=VERTICAL))    # Also added a filler pane to improve look and feel only
 
-        # first tab
+        # rds tab
         rdsPane = add_pane(mainNB, mainDB, RdsCommandPane, add_filler_pane=True)
 
-        # second tab
+        # taxon_extent tab
+        taxonExtentPane = add_pane(mainNB, mainDB, TaxonExtentCommandPane, add_filler_pane=True)
+
+        # distribution tab
+        distributionPane = add_pane(mainNB, mainDB, DistributionCommandPane, add_filler_pane=True)
+
+        # allocation tab
+        allocationPane = ttk.Panedwindow(mainNB, orient=VERTICAL)
+        AllocationCommandPane(allocationPane, mainDB, sourceDB)
+
+        # pull tab
         pullDataPane = ttk.Panedwindow(mainNB, orient=VERTICAL)
         PullIntegrationDataCommandPane(pullDataPane, mainDB, sourceDB, suppressMaterializedViewRefreshButton=TRUE)
         PullAllocationDataCommandPane(pullDataPane, mainDB, sourceDB)
 
-        # third tab
+        # summarize tab
         summarizePane = ttk.Panedwindow(mainNB, orient=VERTICAL)
         SummarizeCommandPane(
             summarizePane,
@@ -47,7 +58,7 @@ class DataPumpCommandPane(tk.Frame):
         # Also added a filler pane to purely improve look and feel only
         summarizePane.add(ttk.Panedwindow(summarizePane, orient=VERTICAL))
 
-        # fourth tab
+        # aggregate tab
         aggregatePane = ttk.Panedwindow(mainNB, orient=VERTICAL)
         AggregateCommandPane(
             aggregatePane,
@@ -62,19 +73,13 @@ class DataPumpCommandPane(tk.Frame):
         )
         aggregatePane.add(ttk.Panedwindow(aggregatePane, orient=VERTICAL))
 
-        # fifth tab
+        # cell_catch tab
         cellCatchPane = add_pane(mainNB, mainDB, CellCatchCommandPane, add_filler_pane=True)
 
-        # sixth tab
+        # cache_data tab
         cacheDataPane = add_pane(mainNB, mainDB, CacheDataCommandPane, add_filler_pane=True)
 
-        # seventh tab
-        taxonExtentPane = add_pane(mainNB, mainDB, TaxonExtentCommandPane, add_filler_pane=True)
-
-        # eighth tab
-        distributionPane = add_pane(mainNB, mainDB, DistributionCommandPane, add_filler_pane=True)
-
-        # nineth tab
+        # sqlprocessor tab
         sqlProcessorGuiPane = ttk.Panedwindow(mainNB, orient=VERTICAL)
         SqlProcessorGuiCommandPane(
             sqlProcessorGuiPane,
@@ -85,13 +90,14 @@ class DataPumpCommandPane(tk.Frame):
 
         mainNB.add(dbPane, text='DB Connection')
         mainNB.add(rdsPane, text='RDS')
+        mainNB.add(taxonExtentPane, text='Taxon Extent')
+        mainNB.add(distributionPane, text='Distribution')
+        mainNB.add(allocationPane, text='Allocation')
         mainNB.add(pullDataPane, text='Pull Data')
         mainNB.add(summarizePane, text='Summarize')
         mainNB.add(aggregatePane, text='Aggregate')
         mainNB.add(cellCatchPane, text='Cell Catch')
         mainNB.add(cacheDataPane, text='Cache Data')
-        mainNB.add(taxonExtentPane, text='Taxon Extent')
-        mainNB.add(distributionPane, text='Distribution')
         mainNB.add(sqlProcessorGuiPane, text='SQL Processor')
 
         mainNB.pack(expand=1, fill='both')
