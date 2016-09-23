@@ -73,11 +73,11 @@ class PullIntegrationDataCommandPane(tk.Frame):
             row += 1
 
         if not self.silentMode:
-            add_buttons(self.cmdFrame,
-                        [["Pull all integration db tables", self.pullAllIntegrationDbData, "red"],
-                        ["Drop foreign keys", partial(drop_foreign_key, self.mainDbPane), "red"],
-                        ["Restore foreign keys", partial(restore_foreign_key, self.mainDbPane), "red"]],
-                        row, 0, "horizontal")
+            row = add_buttons(self.cmdFrame,
+                              [["Pull all integration db tables", self.pullAllIntegrationDbData, "red"],
+                               ["Drop foreign keys", partial(drop_foreign_key, self.mainDbPane), "red"],
+                               ["Restore foreign keys", partial(restore_foreign_key, self.mainDbPane), "red"]],
+                              row, 0, "horizontal")
                          
         grid_panel(self.cmdFrame)                                    
                                                           

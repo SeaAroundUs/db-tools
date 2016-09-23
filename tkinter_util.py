@@ -153,6 +153,8 @@ def add_buttons(panel, data, row=1, column=1, direction="horizontal"):
         row += row_inc
         column += column_inc
 
+    return row
+
 
 def add_separator(panel, row):
     ttk.Separator(panel).grid(row=row, columnspan=2, sticky="ew")

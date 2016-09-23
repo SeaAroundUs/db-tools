@@ -36,6 +36,7 @@ class DataPumpCommandPane(tk.Frame):
         # allocation tab
         allocationPane = ttk.Panedwindow(mainNB, orient=VERTICAL)
         AllocationCommandPane(allocationPane, mainDB, sourceDB)
+        allocationPane.add(ttk.Panedwindow(allocationPane, orient=VERTICAL))
 
         # pull tab
         pullDataPane = ttk.Panedwindow(mainNB, orient=VERTICAL)

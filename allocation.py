@@ -13,6 +13,48 @@ class AllocationCommandPane(tk.Frame):
         self.sourceDbPane = sourceDbPane
         self.pullDataPane = PullIntegrationDataCommandPane(self.parent, self.mainDbPane, self.sourceDbPane, silentMode = True)
 
+        processFrame = add_label_frame(parent, "Process", 400, 50)
+
+        row = add_buttons(processFrame,
+                          [["Pull Data from Integration DB & Initialize Merlin Output Tables", self.initialize_merlin, "red"],
+                           ["Start Allocation", self.start_allocation, "red"]],
+                          0, 0, "vertical")
+
+        grid_panel(processFrame)
+
+        parent.add(processFrame)
+
+    def initialize_merlin(self):
+        mainDbConn = getDbConnection(optparse.Values(self.mainDbPane.getDbOptions()))
+
+        print("Truncating ao.AllocationResult, ao.Log_Import_Raw, ao.Data...")
+        mainDbConn.execut("TRUNCATE ao.AllocationResult, ao.Log_Import_Raw, ao.Data")
+
+        print("Pull data from Integration DB")
+        drop_foreign_key(self.mainDbPane)
+        self.pullDataPane.pullAllIntegrationDbData()
+        restore_foreign_key(self.mainDbPane)
+        refresh_all_materialized_views(self.mainDbPane)
+
+        print("Transfering layer3 data...")
+        mainDbConn.execute("SELECT ai.layer3_transfer_to_dataraw()")
+        mainDbConn.execute("SELECT ai.layer3_update_taxon_substitutions()")
+
+        print("Truncating and initializing ao tables...")
+        mainDbConn.execute("TRUNCATE TABLE ao.AllocationSimpleArea")
+        mainDbConn.execute("TRUNCATE TABLE ao.AllocationHybridArea")
+        mainDbConn.execute("TRUNCATE TABLE ao.AutoGen_HybridToSimpleAreaMapper")
+        mainDbConn.execute("TRUNCATE TABLE ao.SimpleAreaCellAssignment")
+        mainDbConn.execute("SELECT SETVAL('ao.allocationsimplearea_allocationsimpleareaid_seq', 1)");
+        mainDbConn.execute("Insert into ao.AllocationSimpleArea" +
+                           "SELECT nextval('a_internal.allocationsimplearea_allocationsimpleareaid_seq'), * FROM a_internal.generate_AllocationSimpleAreaTable ()")
+        mainDbConn.execute("SELECT SETVAL('ao.simpleareacellassignment_rowid_seq', 1)");
+        mainDbConn.execute("SELECT a_internal.SimpleAreaCellAssignment_Populate")
+
+    def start_allocation(self):
+        print("Allocation in progress...")
+
+
 # ===============================================================================================
 # ----- MAIN
 if __name__ == "__main__":
