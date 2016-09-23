@@ -17,7 +17,7 @@ class DataPumpCommandPane(tk.Frame):
     def __init__(self, master):
         tk.Frame.__init__(self, master)
 
-        mainNB = ttk.Notebook(master, width=680, height=520)
+        mainNB = ttk.Notebook(master, width=780, height=520)
 
         dbPane = ttk.Panedwindow(mainNB, orient=VERTICAL)
         mainDB = DBConnectionPane(dbPane, 'Main DB')
