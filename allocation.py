@@ -1,5 +1,3 @@
-from functools import partial
-
 from tkinter_util import *
 from db_util import *
 from pull_integration_data import PullIntegrationDataCommandPane
@@ -46,13 +44,21 @@ class AllocationCommandPane(tk.Frame):
         mainDbConn.execute("TRUNCATE TABLE ao.AutoGen_HybridToSimpleAreaMapper")
         mainDbConn.execute("TRUNCATE TABLE ao.SimpleAreaCellAssignment")
         mainDbConn.execute("SELECT SETVAL('ao.allocationsimplearea_allocationsimpleareaid_seq', 1)");
-        mainDbConn.execute("Insert into ao.AllocationSimpleArea" +
-                           "SELECT nextval('a_internal.allocationsimplearea_allocationsimpleareaid_seq'), * FROM a_internal.generate_AllocationSimpleAreaTable ()")
+        mainDbConn.execute("Insert into ao.AllocationSimpleArea " +
+                           "SELECT nextval('ao.allocationsimplearea_allocationsimpleareaid_seq'), * FROM a_internal.generate_allocation_simple_area_table()")
         mainDbConn.execute("SELECT SETVAL('ao.simpleareacellassignment_rowid_seq', 1)");
-        mainDbConn.execute("SELECT a_internal.SimpleAreaCellAssignment_Populate")
+        mainDbConn.execute("SELECT a_internal.SimpleAreaCellAssignment_Populate()")
+
+        print("Initialize Merlin process completed successfully.")
 
     def start_allocation(self):
         print("Allocation in progress...")
+
+        # Hook in the new merlin.exe at this point in the process
+
+        self.pullAllocationLogPane = PullIntegrationDataCommandPane(self.parent, self.sourceDbPane, self.mainDbPane, silentMode = True, suppressTableListButton = False)
+
+        print("Allocation completed sucessfully.")
 
 
 # ===============================================================================================
