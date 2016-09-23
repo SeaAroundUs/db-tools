@@ -4,7 +4,7 @@ import sqlprocessor as sp
 from db import getDbConnection
 
 def drop_foreign_key(dbPane):
-    dbConn = getDbConnection(dbPane.getDbOptions())
+    dbConn = getDbConnection(optparse.Values(dbPane.getDbOptions()))
 
     dbConn.execute("TRUNCATE TABLE admin.database_foreign_key")
 
@@ -24,7 +24,7 @@ def drop_foreign_key(dbPane):
     print("Foreign keys successfully dropped.")
 
 def restore_foreign_key(dbPane):
-    getDbConnection(dbPane.getDbOptions()).execute("SELECT exec(add_fk_cmd) FROM admin.database_foreign_key")
+    getDbConnection(optparse.Values(dbPane.getDbOptions())).execute("SELECT exec(add_fk_cmd) FROM admin.database_foreign_key")
 
     print("Foreign keys successfully added.")
 
