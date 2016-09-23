@@ -28,9 +28,9 @@ class AllocationCommandPane(tk.Frame):
         mainDbConn = getDbConnection(optparse.Values(self.mainDbPane.getDbOptions()))
 
         print("Truncating ao.AllocationResult, ao.Log_Import_Raw, ao.Data...")
-        mainDbConn.execut("TRUNCATE ao.AllocationResult, ao.Log_Import_Raw, ao.Data")
+        mainDbConn.execute("TRUNCATE ao.AllocationResult, ao.Log_Import_Raw, ao.Data")
 
-        print("Pull data from Integration DB")
+        print("Pulling data from Integration DB")
         drop_foreign_key(self.mainDbPane)
         self.pullDataPane.pullAllIntegrationDbData()
         restore_foreign_key(self.mainDbPane)
