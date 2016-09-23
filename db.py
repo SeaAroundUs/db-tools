@@ -59,7 +59,7 @@ class DBSqlServer:
     def close(self):
         self.conn.close()
 
-
+'''
 class DBMysql:
     def __init__(self, opts):
         self.engine = create_engine(
@@ -78,7 +78,7 @@ class DBMysql:
 
     def close(self):
         self.conn.close()
-
+'''
 
 def getDbConnection(opts):
     if not opts.password:
