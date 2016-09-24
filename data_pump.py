@@ -17,7 +17,7 @@ class DataPumpCommandPane(tk.Frame):
     def __init__(self, master):
         tk.Frame.__init__(self, master)
 
-        mainNB = ttk.Notebook(master, width=780, height=520)
+        mainNB = ttk.Notebook(master, width=820, height=520)
 
         dbPane = ttk.Panedwindow(mainNB, orient=VERTICAL)
         mainDB = DBConnectionPane(dbPane, 'Main DB')
@@ -42,6 +42,7 @@ class DataPumpCommandPane(tk.Frame):
         pullDataPane = ttk.Panedwindow(mainNB, orient=VERTICAL)
         PullIntegrationDataCommandPane(pullDataPane, mainDB, sourceDB, suppressMaterializedViewRefreshButton=TRUE)
         PullAllocationDataCommandPane(pullDataPane, mainDB, sourceDB)
+        pullDataPane.add(ttk.Panedwindow(pullDataPane, orient=VERTICAL))
 
         # summarize tab
         summarizePane = ttk.Panedwindow(mainNB, orient=VERTICAL)
