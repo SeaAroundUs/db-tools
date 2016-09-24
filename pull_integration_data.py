@@ -26,9 +26,15 @@ class PullIntegrationDataCommandPane(tk.Frame):
         self.sourceDbSession = None
         self.dataTransfer = None
 
-        scb = tk.Button(parent, text="Get list of integration tables to pull data down", fg="red", height=1,
-                        command=self.setupCommandPane)
-        parent.add(scb)
+        if "suppressTableListButton" in kargs:
+            self.suppressTableListButton = kargs["suppressTableListButton"]
+        else:
+            self.suppressTableListButton = False
+
+        if not self.suppressTableListButton:
+            scb = tk.Button(parent, text="Get list of integration tables to pull data down", fg="red", height=1,
+                            command=self.setupCommandPane)
+            parent.add(scb)
 
         self.cmdFrame = add_label_frame(parent, "Integration DB Tables To Pull", 100, 280)
         parent.add(self.cmdFrame)
@@ -36,8 +42,8 @@ class PullIntegrationDataCommandPane(tk.Frame):
         if not self.silentMode and not suppressMaterializedViewRefreshButton:
             rmv = tk.Button(parent, text="Refresh all Main DB materialized views",
                             fg="red", command=partial(refresh_all_materialized_views, self.mainDbPane))  
-            parent.add(rmv)     
-                                                          
+            parent.add(rmv)
+
     def setupCommandPane(self):
         if not self.mainDbPane.isConnectionTestedSuccessfully():
             popup_message("Connection not yet tested",
@@ -78,8 +84,8 @@ class PullIntegrationDataCommandPane(tk.Frame):
                                ["Drop foreign keys", partial(drop_foreign_key, self.mainDbPane), "red"],
                                ["Restore foreign keys", partial(restore_foreign_key, self.mainDbPane), "red"]],
                               row, 0, "horizontal")
-                         
-        grid_panel(self.cmdFrame)                                    
+
+        grid_panel(self.cmdFrame)
                                                           
     def processTable(self, tabDescriptor):
         opts = self.sourceDbPane.getDbOptions()    
