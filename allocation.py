@@ -55,10 +55,24 @@ class AllocationCommandPane(tk.Frame):
         print("Allocation in progress...")
 
         # Hook in the new merlin.exe at this point in the process
-
-        self.pullAllocationLogPane = PullIntegrationDataCommandPane(self.parent, self.sourceDbPane, self.mainDbPane, silentMode = True, suppressTableListButton = False)
-
         print("Allocation completed sucessfully.")
+
+        # Allocation run had just completed, so we now offer the user the choice to download allocation error log and rendered layer3 data to the Integration DB
+        # NOTE: A simple trickery is employed here, whereby the sourceDbPane becomes the mainDbPane and the mainDbPane becomes the sourceDbPane for the new
+        # self.pullAllocationLogPane object created below
+        #
+        self.pullAllocationLogPane = PullIntegrationDataCommandPane(self.parent, self.sourceDbPane, self.mainDbPane, silentMode = True, suppressTableListButton = True)
+        self.pullAllocationLogPane.setupCommandPane()
+        scb = tk.Button(self.parent, text="Send allocation error log to integration DB", fg="red", height=1,
+                        command=self.pull_allocation_error_log)
+        self.parent.add(scb)
+
+        # Adding a filler pane for look only
+        self.parent.add(ttk.Panedwindow(self.parent, orient=VERTICAL))
+
+    def pull_allocation_error_log(self):
+        self.pullAllocationLogPane.pullAllIntegrationDbData()
+        print("Downloading of allocation error log and rendered layer3 data completed.")
 
 
 # ===============================================================================================
