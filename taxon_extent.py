@@ -201,7 +201,6 @@ class TaxonExtentCommandPane(tk.Frame):
 
         print("All taxon extent rollup operations for input taxon level completed.")
 
-
     def simplifyExtent(self):
         taxonKey = int(self.taxonKeyToSimplify.get())
 
@@ -222,7 +221,6 @@ class TaxonExtentCommandPane(tk.Frame):
              " WHERE e.taxon_key = %(tk)s")
             % {"tk": taxonKey}
         )
-
 
     def extractExtent(self):
         taxonKey = str(self.taxonKeyToExtract.get())
