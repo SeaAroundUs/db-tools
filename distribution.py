@@ -6,11 +6,6 @@ import dill
 from tkinter_util import *
 
 
-class Namespace:
-    def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-
-
 class DistributionCommandPane(tk.Frame):
     def __init__(self, parent, dbPane):
         tk.Frame.__init__(self, parent)
@@ -55,32 +50,32 @@ class DistributionCommandPane(tk.Frame):
         parent.add(processFrame)
 
     def prepare_options(self):
-        opts = Namespace()
+        options = dict()
 
         taxa = self.taxonKeys.get().strip(" ,\r\n\t")
         if taxa == "":
-           opts.__dict__.update(taxon= None)
+            options['taxon'] = None
         else:
-            opts.__dict__.update(taxon= [int(x.strip(" {}\r\n\t")) for x in taxa.split(",") if x.strip(" {}\r\n\t") != ""])
+            options['taxon'] = [int(x.strip(" {}\r\n\t")) for x in taxa.split(",") if x.strip(" {}\r\n\t") != ""]
 
         if self.numberOfProcesses.get() > 0:
-            opts.__dict__.update(processes= self.numberOfProcesses.get())
+            options['processes'] = self.numberOfProcesses.get()
         else:
-            opts.__dict__.update(processes= 1)
+            options['processes'] = 1
 
-        opts.__dict__.update(force= bool(self.forceOverwrite.get()))
+        options['force'] = bool(self.forceOverwrite.get())
 
-        opts.__dict__.update(verbose= bool(self.verboseOutput.get()))
+        options['verbose'] = bool(self.verboseOutput.get())
 
-        opts.__dict__.update(numpy_exception= bool(self.numpyException.get()))
+        options['numpy_exception'] = bool(self.numpyException.get())
 
         records = self.recordLimit.get()
         if records and records > 0:
-            opts.__dict__.update(limit= records)
+            options['limit'] = records
         else:
-            opts.__dict__.update(limit= None)
+            options['limit'] = None
 
-        return opts
+        return options
 
     def prepare_settings(self):
         dbOpts = self.dbPane.getDbOptions()
@@ -104,9 +99,9 @@ class DistributionCommandPane(tk.Frame):
             json.dump(settings, f, indent=4)
 
     def start_species_distribution(self):
-        working_dir = os.path.join(os.getcwd(), 'species_distribution')
-
         self.prepare_settings()
+
+        working_dir = os.path.join(os.getcwd(), 'species_distribution')
 
         optionFileName = os.path.join(working_dir, 'sd_options_%s.dill' % os.getpid())
 
