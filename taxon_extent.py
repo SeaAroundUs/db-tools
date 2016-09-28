@@ -238,7 +238,7 @@ class TaxonExtentCommandPane(tk.Frame):
 
         dbOpts = self.dbPane.getDbOptions()
 
-        extentSql = ('pgsql2shp -h %s -p %s -u %s -P %s -f %s %s "SELECT * FROM distribution.taxon_extent WHERE taxon_key = %s"'
+        extentSql = ('pgsql2shp -h "%s" -p %s -u %s -P "%s" -f "%s" %s "SELECT * FROM distribution.taxon_extent WHERE taxon_key = %s"'
                      % (dbOpts["server"], dbOpts["port"], dbOpts["username"], dbOpts["password"], outputShapeFile, dbOpts["dbname"], taxonKey))
 
         try:
