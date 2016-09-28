@@ -210,16 +210,16 @@ class TaxonExtentCommandPane(tk.Frame):
         dbConn = getDbConnection(optparse.Values(self.dbPane.getDbOptions()))
 
         dbConn.execute(
-            "WITH ext(taxon_key, geom) AS (" +
-            "  SELECT e.taxon_key, (st_dump(geom)).geom" +
-            "    FROM distribution.taxon_extent e" +
-            "   WHERE e.taxon_key = %(tk)s" +
-            ")" +
-            "UPDATE distribution.taxon_extent e" +
-            "   SET geom = (SELECT ST_Union(ST_Buffer(ST_SimplifyPreserveTopology(geom, 0.01), 0.25))" +
-            "                 FROM ext" +
-            "                GROUP BY ext.taxon_key)" +
-            " WHERE e.taxon_key = %(tk)s"
+            ("WITH ext(taxon_key, geom) AS (" +
+             "  SELECT e.taxon_key, (st_dump(geom)).geom" +
+             "    FROM distribution.taxon_extent e" +
+             "   WHERE e.taxon_key = %(tk)s" +
+             ")" +
+             "UPDATE distribution.taxon_extent e" +
+             "   SET geom = (SELECT ST_Union(ST_Buffer(ST_SimplifyPreserveTopology(geom, 0.01), 0.25))" +
+             "                 FROM ext" +
+             "                GROUP BY ext.taxon_key)" +
+             " WHERE e.taxon_key = %(tk)s")
             % {"tk": taxonKey}
         )
 
