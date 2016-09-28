@@ -4,7 +4,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import *
 from tkinter import messagebox
-from db import DBConnectionPane
+from db import *
 
 
 class Application(tk.Frame):
@@ -56,6 +56,90 @@ class Application(tk.Frame):
             print('Unexpected Exception on line: {0}'.format(lno))
             print(sys.exc_info())
             sys.exit(1)
+
+
+class DBConnectionPane(tk.Frame):
+    def __init__(self, parent, title, include_threads=False, include_sqlfile=False):
+        super(DBConnectionPane, self).__init__()
+
+        self.pane = add_label_frame(parent, title, 400, 200)
+
+        self.db_type = StringVar()
+        self.db_server = StringVar()
+        self.db_port = IntVar()
+        self.db_name = StringVar()
+        self.db_username = StringVar()
+        self.db_password = StringVar()
+        self.db_sqlfile = StringVar()
+        self.db_sqlcmd = StringVar()  
+        self.db_threads = IntVar()
+
+        self.db_type.set("postgres")
+        entry_row = add_data_entry(self.pane, 0, self.db_type, "db_type", 10)
+        entry_row = add_data_entry(self.pane, entry_row, self.db_server, "db_server", 55)
+        self.db_port.set(5432)
+        entry_row = add_data_entry(self.pane, entry_row, self.db_port, "db_port", 5)
+        entry_row = add_data_entry(self.pane, entry_row, self.db_name, "db_name", 30)
+        entry_row = add_data_entry(self.pane, entry_row, self.db_username, "db_username", 30)
+        entry_row = add_data_entry(self.pane, entry_row, self.db_password, "db_password", 30, hidden=True)
+
+        if include_sqlfile == True:
+            entry_row = add_data_entry(self.pane, entry_row, self.db_sqlfile, "db_sqlfile", 80)
+            entry_row = add_data_entry(self.pane, entry_row, self.db_sqlcmd, "db_sqlcmd", 80)
+
+        if include_threads == True:
+            self.db_threads.set(4)
+            entry_row = add_data_entry(self.pane, entry_row, self.db_threads, "db_threads", 3)
+        else:
+            self.db_threads.set(0)
+
+        self.tcbt = tk.Button(self.pane, text=" Test connection ", fg="red", command=self.testConnection)
+        self.tcbt.grid(column=0, row=entry_row, sticky=W)
+        self.tcbt.bind("<Return>", (lambda event: self.testConnection()))
+
+        grid_panel(self.pane)
+
+        parent.add(self.pane)
+
+        # Below are to detect if a connection has been tested successfully
+        self.connectionTested = False
+        for entry in (self.db_type, self.db_server, self.db_port, self.db_name, self.db_username, self.db_password):
+            entry.trace_variable('w', self.resetConnectionTested)  
+     
+    def getDbOptions(self):
+        options = dict()
+        options['dbtype'] = self.db_type.get()
+        options['server'] = self.db_server.get()
+        options['port'] = self.db_port.get()
+        options['dbname'] = self.db_name.get()
+        options['username'] = self.db_username.get()
+        options['password'] = self.db_password.get()
+        options['threads'] = self.db_threads.get()
+        options['sqlfile'] = self.db_sqlfile.get()
+        options['sqlcmd'] = self.db_sqlcmd.get()
+        return options
+
+    def isConnectionTestedSuccessfully(self):
+        return self.connectionTested
+
+    def resetConnectionTested(self, *args):
+        # If db_type is set to sqlserver we should change the default value for the port parameter accordingly
+        if self.db_type.get() == "postgres":
+            self.db_port.set(5432)
+        elif self.db_type.get() == "sqlserver":
+            self.db_port.set(1433)
+        elif self.db_type.get() == "mysql":
+            self.db_port.set(3306)
+
+        self.connectionTested = False
+
+    def testConnection(self):
+        conn = getDbConnection(optparse.Values(self.getDbOptions()))
+        conn.close()
+
+        self.connectionTested = True
+
+        messagebox.showinfo("Test connection", "Connection successfully made!")
 
 
 def add_label_frame(parent, title, frame_width, frame_height):
