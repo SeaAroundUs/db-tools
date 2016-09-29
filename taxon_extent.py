@@ -215,12 +215,14 @@ class TaxonExtentCommandPane(tk.Frame):
              "   WHERE e.taxon_key = %(tk)s" +
              ")" +
              "UPDATE distribution.taxon_extent e" +
-             "   SET geom = (SELECT ST_Union(ST_Buffer(ST_SimplifyPreserveTopology(geom, 0.01), 0.25))" +
-             "                 FROM ext" +
-             "                GROUP BY ext.taxon_key)" +
+             "   SET geom = (SELECT ST_MULTI(ST_Union(ST_Buffer(ST_SimplifyPreserveTopology(geom, 0.01), 0.25)))" +
+             "                         FROM ext" +
+             "                        GROUP BY ext.taxon_key)" +
              " WHERE e.taxon_key = %(tk)s")
             % {"tk": taxonKey}
         )
+
+        print("Taxon %s simplified. Please review resulting extent." % taxonKey)
 
     def extractExtent(self):
         taxonKey = str(self.taxonKeyToExtract.get())
