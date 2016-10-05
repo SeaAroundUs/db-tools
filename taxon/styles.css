@@ -2,6 +2,8 @@ body.border {
   border-style: inset;
   border-color: red;
   border-radius: 20px;
+  margin:0; 
+  padding:0; 
 }
 
 .node {
@@ -60,4 +62,19 @@ table, th, td {
     box-shadow: 0 0 7px black;
     color: #800000;
     background-color: grey;
+}
+
+.navbar, .navbar-brand {
+  min-height:32px;
+  height:32px;
+}
+
+.navbar-nav > li > a {
+  padding-top:5px; 
+  padding-bottom:5px;
+}   
+
+         
+.nav .open > a {
+  background:#759ad6;
 }
