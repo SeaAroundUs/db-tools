@@ -8,12 +8,13 @@ from db import getDbConnection
 
 
 class AggregateCommandPane(tk.Frame):
-    BUTTON_LABELS = ["All Area Types", "EEZ", "Highseas", "LME", "RFMO", "Global"]
+    BUTTON_LABELS = ["All Area Types", "EEZ", "Highseas", "LME", "MEOW", "RFMO", "Global"]
 
     AREA_SQL_FILES = [None,
                       "sql/aggregate_eez.sql",
                       "sql/aggregate_high_seas.sql",
                       "sql/aggregate_lme.sql",
+					  "sql/aggregate_meow.sql",
                       "sql/aggregate_rfmo.sql",
                       "sql/aggregate_global.sql"]
     
