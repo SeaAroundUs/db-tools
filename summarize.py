@@ -9,12 +9,13 @@ from tkinter_util import *
 class SummarizeCommandPane(tk.Frame):
     GLOBAL_AVERAGE_UNIT_PRICE = 1466.0
 
-    BUTTON_LABELS  = ["All Area Types", "EEZ", "Highseas", "LME", "RFMO", "Global"]
+    BUTTON_LABELS  = ["All Area Types", "EEZ", "Highseas", "LME", "MEOW", "RFMO", "Global"]
 
     SUMMARY_TABLES = [None,
                       "allocation_result_eez",
                       "allocation_result_high_seas",
                       "allocation_result_lme",
+                      "allocation_result_meow",
                       "allocation_result_rfmo",
                       "allocation_result_global"]
 
@@ -110,5 +111,6 @@ if __name__ == "__main__":
         #                            'Summarize data for marine layer 1',
         #                            'Summarize data for marine layer 2',
         #                            'Summarize data for marine layer 3',
+        #                            'Summarize data for marine layer 19,
         #                            'Summarize data for marine layer 4',
         #                            'Summarize data for marine layer 6'])

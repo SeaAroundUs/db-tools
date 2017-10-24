@@ -50,10 +50,11 @@ class DataPumpCommandPane(tk.Frame):
             summarizePane,
             mainDB,
             True,
-            ['Summarize data for marine layers 1, 2, 3, 4 and 6',
+            ['Summarize data for marine layers 1, 2, 3, 19, 4 and 6',
              'Summarize data for marine layer 1',
              'Summarize data for marine layer 2',
              'Summarize data for marine layer 3',
+             'Summarize data for marine layer 19',
              'Summarize data for marine layer 4',
              'Summarize data for marine layer 6']
         )

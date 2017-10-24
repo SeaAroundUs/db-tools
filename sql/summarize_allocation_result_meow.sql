@@ -7,7 +7,7 @@ select format('insert into allocation.allocation_result_meow
                 where cr.marine_layer_id = 19
                 group by r.universal_data_id, cr.area_id, asa.fao_area_id),
                final as (select universal_data_id, area_id as MEOW_ID, sum(TotalCatch)
-                 from base b join fao_meow f on b.area_id = f.meow_id and b.fao_area_id = f.fao_area_id
+                 from base b join fao_meow f on b.area_id = f.ecoregion_id and b.fao_area_id = f.fao_area_id
                    group by universal_data_id, area_id
                  )
                select *
