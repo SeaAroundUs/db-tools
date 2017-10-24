@@ -16,9 +16,9 @@ select 'INSERT INTO web.v_fact_data(
                  ad.unit_price
 		    FROM allocation.allocation_result_meow am
 		    JOIN allocation.allocation_data ad ON (ad.universal_data_id = am.universal_data_id)
-		   WHERE am.meow_id = ' || meow.id || 
+		   WHERE am.meow_id = ' || meow.meow_id || 
         ')
-        SELECT ' || meow.id || ', 
+        SELECT ' || meow.meow_id || ', 
                0,
                19,
                c.data_layer_id,
@@ -45,4 +45,4 @@ select 'INSERT INTO web.v_fact_data(
 		  JOIN web.time tm ON (tm.time_business_key = c.year)
          GROUP BY c.data_layer_id, c.fishing_entity_id, tm.time_key, c.year, c.taxon_key, a.area_key, c.sector_type_id, c.catch_type_id, c.reporting_status_id'
   from web.meow
- order by id; 
+ order by meow_id; 
