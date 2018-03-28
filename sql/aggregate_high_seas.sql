@@ -19,8 +19,8 @@ select 'INSERT INTO web.v_fact_data(
 		    JOIN allocation.allocation_data ad ON (ad.universal_data_id = ar.universal_data_id)
 		   WHERE ar.fao_area_id = ' || f.fao_area_id || 
        ')
-        SELECT ' || f.fao_area_id || ', 
-               0,
+        SELECT 0, 
+               ' || f.fao_area_id || ',
                2,
                c.data_layer_id,
                c.fishing_entity_id,  
