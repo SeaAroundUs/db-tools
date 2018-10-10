@@ -9,7 +9,7 @@ class RdsCommandPane(tk.Frame):
         tk.Frame.__init__(self, parent)
         self.dbPane = dbPane
         self.dbConn = None
-        self.client = boto3.client('rds')
+        self.client = boto3.client('rds', region_name='us-west-2')
 
         self.instance = StringVar()
         self.size = StringVar()
