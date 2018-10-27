@@ -27,8 +27,8 @@ select 'INSERT INTO web.v_fact_data(
 			and e.catch_type_id = ad.catch_type_id
 		   WHERE ar.fao_area_id = ' || f.fao_area_id || 
        ')
-        SELECT 0, 
-               ' || f.fao_area_id || ',
+        SELECT ' || f.fao_area_id || ',
+			   0, 
                2,
                c.data_layer_id,
                c.fishing_entity_id,  
