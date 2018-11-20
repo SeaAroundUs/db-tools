@@ -66,6 +66,11 @@ class SummarizeCommandPane(tk.Frame):
         if 'threads' not in opts or opts['threads'] == 0:
             opts['threads'] = 8
         opts['sqlfile'] = "sql/update_allocation_data_unit_price.sql"
+		
+		#Uncomment on January 2019
+		#opts['sqlfile'] = "sql/layer3gear_update.sql"
+		#print("Changing layer3gear to sau_gear")
+		
         sp.process(optparse.Values(opts))
         dbConn.execute("UPDATE allocation.allocation_data SET unit_price = %s WHERE unit_price IS NULL" % SummarizeCommandPane.GLOBAL_AVERAGE_UNIT_PRICE)
         dbConn.execute("VACUUM ANALYZE allocation.allocation_data")
