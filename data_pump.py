@@ -71,9 +71,9 @@ class DataPumpCommandPane(tk.Frame):
              'Aggregrate data for marine layer 1',
              'Aggregrate data for marine layer 2',
              'Aggregrate data for marine layer 3',
+             'Aggregrate data for marine layer 19',
              'Aggregrate data for marine layer 4',
-             'Aggregrate data for marine layer 6',
-             'Aggregrate data for marine layer 19']
+             'Aggregrate data for marine layer 6']
         )
         aggregatePane.add(ttk.Panedwindow(aggregatePane, orient=VERTICAL))
 
