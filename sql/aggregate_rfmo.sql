@@ -3,7 +3,7 @@ select 'INSERT INTO web.v_fact_data(
           catch_type_id,catch_status,reporting_status_id,reporting_status,sector_type_id,end_use_type_id,catch_sum,real_value,primary_production_required,
           catch_trophic_level,catch_max_length
         )
-      WITH catch(main_area_id,year,taxon_key, data_layer_id, fishing_entity_id, gear_id, catch_type_id,reporting_status_id,sector_type_id,total_catch,unit_price, end_use_type_id) AS (
+      WITH catch(main_area_id,year,taxon_key, data_layer_id, fishing_entity_id, gear_id, catch_type_id,reporting_status_id,sector_type_id,end_use_type_id,total_catch,unit_price) AS (
         SELECT ar.rfmo_id,
                  ad.year,
                  ad.taxon_key, 
