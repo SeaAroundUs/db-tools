@@ -14,4 +14,3 @@ select format('insert into allocation.allocation_result_meow
                from final', m.partition_id)
   from allocation.allocation_result_partition_map m
  order by m.partition_id;
-
