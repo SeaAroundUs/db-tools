@@ -1,6 +1,6 @@
 select 'INSERT INTO web.v_fact_data(
           main_area_id,sub_area_id,marine_layer_id, data_layer_id, fishing_entity_id,gear_id,time_key,year,taxon_key,area_key,
-          catch_type_id,catch_status,reporting_status_id,reporting_status,sector_type_id,end_use_type_id,catch_sum,real_value,primary_production_required,
+          catch_type_id,catch_status,reporting_status_id,reporting_status,sector_type_id,end_use_type_id,score,catch_sum,real_value,primary_production_required,
           catch_trophic_level,catch_max_length
         )
       WITH catch(sub_area_id,year,taxon_key, data_layer_id, fishing_entity_id, gear_id, catch_type_id,reporting_status_id,sector_type_id,end_use_type_id,total_catch,unit_price) AS (
@@ -43,6 +43,7 @@ select 'INSERT INTO web.v_fact_data(
                MAX(rs.abbreviation),
                c.sector_type_id,
 			   c.end_use_type_id,
+         NULL,
                sum(c.total_catch), 
                sum(c.unit_price * c.total_catch),
                web.ppr(sum(c.total_catch), MAX(t.tl)),
