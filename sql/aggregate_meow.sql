@@ -40,7 +40,7 @@ select 'INSERT INTO web.v_fact_data(
           -- included eez column for uncertainty score
          ar.eez_id
         from
-          allocation_result_meow_test ar
+          allocation_result_meow ar
         join allocation.allocation_data ad on
           (ad.universal_data_id = ar.universal_data_id)
         left join web.end_use e on
@@ -69,8 +69,8 @@ select 'INSERT INTO web.v_fact_data(
           c.gear_id,
           tm.time_key,
           c.year,
-          a.area_key,
           c.taxon_key,
+          a.area_key,
           c.catch_type_id,
           max(ct.abbreviation) catch_type,
           c.reporting_status_id,

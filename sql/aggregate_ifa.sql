@@ -1,4 +1,4 @@
-select 'INSERT INTO web.v_fact_data_test(
+select 'INSERT INTO web.v_fact_data(
           main_area_id,sub_area_id,marine_layer_id, data_layer_id, fishing_entity_id,gear_id,time_key,year,taxon_key,area_key,
           catch_type_id,catch_status,reporting_status_id,reporting_status,sector_type_id,end_use_type_id,score,catch_sum,real_value,primary_production_required,
           catch_trophic_level,catch_max_length
@@ -58,7 +58,7 @@ left join
 select
   ' || t.eez_id || ',
   c.sub_area_id, 
-  1 as marine_layer_id, 
+  14 as marine_layer_id, 
   c.data_layer_id, 
   c.fishing_entity_id, 
   c.gear_id, 

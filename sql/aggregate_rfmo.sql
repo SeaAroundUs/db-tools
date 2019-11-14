@@ -27,7 +27,7 @@ select
   end as catch,
   ar.eez_id
 from
-  allocation_result_rfmo_test ar
+  allocation_result_rfmo ar
 join allocation.allocation_data ad on
   (ad.universal_data_id = ar.universal_data_id)
 left join web.end_use e on
