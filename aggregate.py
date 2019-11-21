@@ -87,10 +87,10 @@ class AggregateCommandPane(tk.Frame):
             opts['threads'] = 2
 
         print("Merging Unknown fishing entity in catch data...")
-        dbConn.execute("UPDATE web.v_fact_data_test SET fishing_entity_id = 213 WHERE fishing_entity_id = 223")
+        dbConn.execute("UPDATE web.v_fact_data SET fishing_entity_id = 213 WHERE fishing_entity_id = 223")
 
         print("Vacuuming v_fact_data afterward...")
-        dbConn.execute("vacuum analyze web.v_fact_data_test")
+        dbConn.execute("vacuum analyze web.v_fact_data")
 
         # And now refresh all materialized views as most are dependent on data in the v_fact_data table
         opts['sqlcmd'] = "SELECT 'refresh materialized view web.' || table_name FROM matview_v('web') WHERE table_name NOT LIKE 'TOTALS%'"
@@ -134,7 +134,7 @@ class AggregateCommandPane(tk.Frame):
         dbConn = getDbConnection(optparse.Values(opts))
         indexes = dbConn.execute("SELECT (schemaname || '.' || indexname) index_name, indexdef index_create_cmd \
                                     FROM pg_indexes \
-                                   WHERE tablename = 'v_fact_data_test' AND indexname NOT LIKE 'v_fact_data_pkey'")
+                                   WHERE tablename = 'v_fact_data' AND indexname NOT LIKE 'v_fact_data_test_pkey'")
         for index in indexes:
             self.index_create_cmds.append(index.index_create_cmd)
             dbConn.execute("DROP INDEX %s" % index.index_name)

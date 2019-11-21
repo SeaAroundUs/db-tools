@@ -1,5 +1,4 @@
-select format('insert into allocation.allocation_result_meow_test
-              
+select format('insert into allocation.allocation_result_meow
               with base as (
                 select
                   r.universal_data_id as universal_data_id,
@@ -26,12 +25,11 @@ select format('insert into allocation.allocation_result_meow_test
                 final as (select
                   universal_data_id,
                   area_id as meow_id,
-                  sum(b.total_catch) total_catch,
-                  b.eez_id
+                  sum(b.total_catch) total_catch
                 from
                   base b
-                join fao_meow f on
-                  b.area_id = f.ecoregion_id
+                join geo.meow_fao_combo f on
+                  b.area_id = f.meow_id
                   and b.fao_area_id = f.fao_area_id
                 group by
                   universal_data_id,
@@ -43,4 +41,10 @@ select format('insert into allocation.allocation_result_meow_test
                from final', m.partition_id)
   from allocation.allocation_result_partition_map m
  order by m.partition_id;
+ 
+--                 final as (select
+--                  universal_data_id,
+--                  area_id as meow_id,
+--                  sum(b.total_catch) total_catch,
+--                  b.eez_id
 

@@ -1,5 +1,4 @@
 select format('insert into allocation.allocation_result_lme
-
                 with base (universal_data_id, area_id, fao_area_id, total_catch, eez_id) as (
                 select
                   r.universal_data_id,
@@ -28,8 +27,7 @@ select format('insert into allocation.allocation_result_lme
                 select
                   b.universal_data_id,
                   b.area_id as lme_id,
-                  sum (b.total_catch) total_catch,
-                  b.eez_id
+                  sum (b.total_catch) total_catch
                 from
                   base b
                 join geo.fao_lme f on
@@ -45,3 +43,9 @@ select format('insert into allocation.allocation_result_lme
   from allocation.allocation_result_partition_map m
  order by m.partition_id;
 
+--                 final as (
+--                select
+--                  b.universal_data_id,
+--                  b.area_id as lme_id,
+--                  sum (b.total_catch) total_catch,
+--                  b.eez_id
