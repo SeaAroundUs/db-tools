@@ -63,7 +63,7 @@ rc.notes,
 rc.id
 from recon.raw_catch rc
 left join distribution.taxon_distribution_substitute tds on (tds.original_taxon_key = rc.taxon_key)
-where rc.id between %s and %s
+where rc.id between %s and %s and tds.is_manual_override = true
 ',
     idx+1,
     idx+50000
