@@ -9,7 +9,7 @@ from tkinter_util import *
 class SummarizeCommandPane(tk.Frame):
     GLOBAL_AVERAGE_UNIT_PRICE = 1466.0
 
-    BUTTON_LABELS  = ["All Area Types", "EEZ", "Highseas", "LME", "MEOW", "RFMO", "Global"]
+    BUTTON_LABELS  = ["All Area Types", "EEZ", "Highseas", "LME", "MEOW", "RFMO", "IFA", "Global"]
 
     SUMMARY_TABLES = [None,
                       "allocation_result_eez",
@@ -17,6 +17,7 @@ class SummarizeCommandPane(tk.Frame):
                       "allocation_result_lme",
                       "allocation_result_meow",
                       "allocation_result_rfmo",
+                      "allocation_result_ifa",
                       "allocation_result_global"]
 
     def __init__(self, parent, dbPane, isVerticallyAligned=False, descriptions=None):

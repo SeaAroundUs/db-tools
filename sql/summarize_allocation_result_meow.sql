@@ -25,7 +25,8 @@ select format('insert into allocation.allocation_result_meow
                 final as (select
                   universal_data_id,
                   area_id as meow_id,
-                  sum(b.total_catch) total_catch
+                  sum(b.total_catch) total_catch,
+                  b.eez_id
                 from
                   base b
                 join geo.meow_fao_combo f on

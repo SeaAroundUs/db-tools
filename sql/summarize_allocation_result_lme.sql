@@ -27,7 +27,8 @@ select format('insert into allocation.allocation_result_lme
                 select
                   b.universal_data_id,
                   b.area_id as lme_id,
-                  sum (b.total_catch) total_catch
+                  sum (b.total_catch) total_catch,
+                  b.eez_id
                 from
                   base b
                 join geo.fao_lme f on

@@ -50,12 +50,13 @@ class DataPumpCommandPane(tk.Frame):
             summarizePane,
             mainDB,
             True,
-            ['Summarize data for marine layers 1, 2, 3, 19, 4 and 6',
+            ['Summarize data for marine layers 1, 2, 3, 19, 4. 14 and 6',
              'Summarize data for marine layer 1',
              'Summarize data for marine layer 2',
              'Summarize data for marine layer 3',
              'Summarize data for marine layer 19',
              'Summarize data for marine layer 4',
+             'Summarize data for marine layer 14',
              'Summarize data for marine layer 6']
         )
         # Also added a filler pane to purely improve look and feel only
@@ -67,13 +68,13 @@ class DataPumpCommandPane(tk.Frame):
             aggregatePane,
             mainDB,
             True,
-            ['Aggregrate data for marine layers 1, 2, 3, 19, 4 and 6',
+            ['Aggregrate data for marine layers 1, 2, 3, 19, 4, 14 and 6',
              'Aggregrate data for marine layer 1',
              'Aggregrate data for marine layer 2',
              'Aggregrate data for marine layer 3',
              'Aggregrate data for marine layer 19',
-             'Aggregrate data for marine layer 14',
              'Aggregrate data for marine layer 4',
+             'Aggregrate data for marine layer 14',
              'Aggregrate data for marine layer 6']
         )
         aggregatePane.add(ttk.Panedwindow(aggregatePane, orient=VERTICAL))
