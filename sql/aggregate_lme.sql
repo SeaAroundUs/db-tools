@@ -76,6 +76,9 @@ select 'INSERT INTO web.v_fact_data(
           JOIN web.time tm ON (tm.time_business_key = c.year)
           JOIN web.gear g ON (g.gear_id = c.gear_id)
           left join uncert u on u.eez_id = c.eez_id
+          and u.sector_type_id = c.sector_type_id
+          and u.layer = c.data_layer_id
+          and  c.year <@ u.year_range
          GROUP BY c.end_use_type_id ,c.data_layer_id, c.fishing_entity_id, c.gear_id, tm.time_key, c.year, c.taxon_key, a.area_key, c.sector_type_id, c.catch_type_id, c.reporting_status_id, u.score'
   from web.lme
  order by lme_id; 
