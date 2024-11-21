@@ -11,6 +11,7 @@ from taxon_extent import TaxonExtentCommandPane
 from distribution import DistributionCommandPane
 from allocation import AllocationCommandPane
 from sqlprocessor_gui import SqlProcessorGuiCommandPane
+from stock_status import StockStatusCommandPane
 
 
 class DataPumpCommandPane(tk.Frame):
@@ -94,6 +95,9 @@ class DataPumpCommandPane(tk.Frame):
         )
         sqlProcessorGuiPane.add(ttk.Panedwindow(sqlProcessorGuiPane, orient=VERTICAL))
 
+        # stock_status tab
+        stockStatusPane = add_pane(mainNB, mainDB, StockStatusCommandPane, add_filler_pane=True)
+
         mainNB.add(dbPane, text='DB Connection')
         mainNB.add(rdsPane, text='RDS')
         mainNB.add(taxonExtentPane, text='Taxon Extent')
@@ -105,6 +109,7 @@ class DataPumpCommandPane(tk.Frame):
         mainNB.add(cellCatchPane, text='Cell Catch')
         mainNB.add(cacheDataPane, text='Cache Data')
         mainNB.add(sqlProcessorGuiPane, text='SQL Processor')
+        mainNB.add(stockStatusPane, text='Stock Status')
 
         mainNB.pack(expand=1, fill='both')
 
