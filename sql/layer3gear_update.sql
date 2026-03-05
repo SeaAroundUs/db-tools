@@ -17,11 +17,8 @@ update allocation.allocation_data ad set gear_type_id =	500	where ad.gear_type_i
 update allocation.allocation_data ad set gear_type_id =	303	where ad.gear_type_id =	16;
 update allocation.allocation_data ad set gear_type_id =	300	where ad.gear_type_id =	17;
 update allocation.allocation_data ad set gear_type_id =	303	where ad.gear_type_id =	18;
---update allocation.allocation_data ad set gear_type_id =	700	where ad.gear_type_id =	19;
---update allocation.allocation_data ad set gear_type_id =	800	where ad.gear_type_id =	19;
 update allocation.allocation_data ad set gear_type_id =	604	where ad.gear_type_id =	19;
 update allocation.allocation_data ad set gear_type_id =	401	where ad.gear_type_id =	20;
---update allocation.allocation_data ad set gear_type_id =	700	where ad.gear_type_id =	21;
 update allocation.allocation_data ad set gear_type_id =	301	where ad.gear_type_id =	21;
 update allocation.allocation_data ad set gear_type_id =	302	where ad.gear_type_id =	22;
 update allocation.allocation_data ad set gear_type_id =	302	where ad.gear_type_id =	23;
@@ -42,12 +39,6 @@ update allocation.allocation_data ad set gear_type_id =	302	where ad.gear_type_i
 update allocation.allocation_data ad set gear_type_id =	302	where ad.gear_type_id =	38;
 update allocation.allocation_data ad set gear_type_id =	302	where ad.gear_type_id =	39;
 update allocation.allocation_data ad set gear_type_id =	500	where ad.gear_type_id =	40;
---update allocation.allocation_data ad set gear_type_id =	606	where ad.gear_type_id =	41;
---update allocation.allocation_data ad set gear_type_id =	801	where ad.gear_type_id =	41;
---update allocation.allocation_data ad set gear_type_id =	700	where ad.gear_type_id =	41;
---update allocation.allocation_data ad set gear_type_id =	100	where ad.gear_type_id =	41;
---update allocation.allocation_data ad set gear_type_id =	401	where ad.gear_type_id =	41;
---update allocation.allocation_data ad set gear_type_id =	602	where ad.gear_type_id =	41;
 update allocation.allocation_data ad set gear_type_id =	601	where ad.gear_type_id =	41;
 update allocation.allocation_data ad set gear_type_id =	600	where ad.gear_type_id =	42;
 update allocation.allocation_data ad set gear_type_id =	401	where ad.gear_type_id =	43;
@@ -62,7 +53,7 @@ update allocation.allocation_data ad set gear_type_id =	602	where ad.gear_type_i
 update allocation.allocation_data ad set gear_type_id =	301	where ad.gear_type_id =	52;
 update allocation.allocation_data ad set gear_type_id =	301	where ad.gear_type_id =	53;
 update allocation.allocation_data ad set gear_type_id =	301	where ad.gear_type_id =	54;
-update allocation.allocation_data ad set gear_type_id =	401	where ad.gear_type_id =	55;
+update allocation.allocation_data ad set gear_type_id =	705	where ad.gear_type_id =	55;
 update allocation.allocation_data ad set gear_type_id =	700	where ad.gear_type_id =	56;
 update allocation.allocation_data ad set gear_type_id =	700	where ad.gear_type_id =	57;
 update allocation.allocation_data ad set gear_type_id =	700	where ad.gear_type_id =	58;
@@ -75,7 +66,17 @@ update allocation.allocation_data ad set gear_type_id =	200	where ad.gear_type_i
 update allocation.allocation_data ad set gear_type_id =	200	where ad.gear_type_id =	65;
 update allocation.allocation_data ad set gear_type_id =	302	where ad.gear_type_id =	66;
 update allocation.allocation_data ad set gear_type_id =	714	where ad.gear_type_id =	67;
---update allocation.allocation_data ad set gear_type_id =	700	where ad.gear_type_id =	67;
 update allocation.allocation_data ad set gear_type_id =	302	where ad.gear_type_id =	68;
 update allocation.allocation_data ad set gear_type_id =	302	where ad.gear_type_id =	69;
 update allocation.allocation_data ad set gear_type_id =	801	where ad.gear_type_id =	70;
+--update allocation.allocation_data ad set gear_type_id =	700	where ad.gear_type_id =	19;
+--update allocation.allocation_data ad set gear_type_id =	800	where ad.gear_type_id =	19;
+--update allocation.allocation_data ad set gear_type_id =	700	where ad.gear_type_id =	21;
+--update allocation.allocation_data ad set gear_type_id =	606	where ad.gear_type_id =	41;
+--update allocation.allocation_data ad set gear_type_id =	801	where ad.gear_type_id =	41;
+--update allocation.allocation_data ad set gear_type_id =	700	where ad.gear_type_id =	41;
+--update allocation.allocation_data ad set gear_type_id =	100	where ad.gear_type_id =	41;
+--update allocation.allocation_data ad set gear_type_id =	401	where ad.gear_type_id =	41;
+--update allocation.allocation_data ad set gear_type_id =	602	where ad.gear_type_id =	41;
+--update allocation.allocation_data ad set gear_type_id =	700	where ad.gear_type_id =	67;
+
